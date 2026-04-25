@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import { AlertTriangle, CheckCircle2, Zap } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { AlertTriangle, CheckCircle2, Play, Zap } from 'lucide-react'
 import AuditForm from '@/components/audit-form'
 import ResultScreen from '@/components/result-screen'
 import { SiteHeader } from '@/components/site-header'
 import { DEMO_FIXTURES } from '@/lib/fixtures'
 import { useAuditHistory } from '@/hooks/useAuditHistory'
 import type { AuditReport, AuditRequest } from '@/lib/schemas'
+
+type DemoScenario = 'high-risk' | 'caution' | 'safe'
 
 const investigationSteps = [
   'Extracting role, pay, company, and contact claims',
@@ -18,7 +20,7 @@ const investigationSteps = [
 ]
 
 const sampleRequests = {
-  highRisk: {
+  'high-risk': {
     text: 'Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.',
     location: 'Philippines',
   },
@@ -32,11 +34,18 @@ const sampleRequests = {
   },
 }
 
+const demoFixtures: Record<DemoScenario, AuditReport> = {
+  'high-risk': DEMO_FIXTURES.highRisk,
+  caution: DEMO_FIXTURES.caution,
+  safe: DEMO_FIXTURES.safe,
+}
+
 export default function AuditPage() {
   const [result, setResult] = useState<AuditReport | null>(null)
   const [loading, setLoading] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const startedFromUrl = useRef(false)
   const { addReport } = useAuditHistory()
 
   const handleInvestigate = async (data: AuditRequest, demoFixture?: AuditReport) => {
@@ -89,6 +98,21 @@ export default function AuditPage() {
     }
   }
 
+  const runQuickDemo = (scenario: DemoScenario = 'high-risk') => {
+    void handleInvestigate(sampleRequests[scenario], demoFixtures[scenario])
+  }
+
+  useEffect(() => {
+    if (startedFromUrl.current || typeof window === 'undefined') return
+
+    const demo = new URLSearchParams(window.location.search).get('demo')
+    if (demo === 'high-risk' || demo === 'caution' || demo === 'safe') {
+      startedFromUrl.current = true
+      runQuickDemo(demo)
+      window.history.replaceState(null, '', '/audit')
+    }
+  }, [])
+
   if (result) {
     return (
       <div className="bg-background">
@@ -112,6 +136,15 @@ export default function AuditPage() {
             <p className="mt-3 max-w-2xl font-semibold leading-7 text-muted">
               Paste a job post, recruiter message, or apply URL. HireProof checks the claims and returns a verdict with receipts.
             </p>
+            <button
+              type="button"
+              onClick={() => runQuickDemo('high-risk')}
+              disabled={loading}
+              className="hireproof-focus mt-6 inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-3 font-black text-white shadow-lg hover:bg-safe disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Play className="h-4 w-4 fill-current" />
+              Run quick demo
+            </button>
           </div>
 
           <AuditForm onInvestigate={handleInvestigate} loading={loading} />
@@ -152,7 +185,7 @@ export default function AuditPage() {
           <p className="mb-4 text-sm font-black text-muted">Or try a sample:</p>
           <div className="flex flex-wrap gap-3">
             <button
-              onClick={() => handleInvestigate(sampleRequests.highRisk, DEMO_FIXTURES.highRisk)}
+              onClick={() => runQuickDemo('high-risk')}
               disabled={loading}
               className="hireproof-focus flex items-center gap-2 rounded-full border border-risk-bg bg-risk-bg px-4 py-2 text-sm font-black text-risk-text hover:bg-white disabled:opacity-50"
             >
@@ -160,7 +193,7 @@ export default function AuditPage() {
               High-Risk
             </button>
             <button
-              onClick={() => handleInvestigate(sampleRequests.caution, DEMO_FIXTURES.caution)}
+              onClick={() => runQuickDemo('caution')}
               disabled={loading}
               className="hireproof-focus flex items-center gap-2 rounded-full border border-caution-bg bg-caution-bg px-4 py-2 text-sm font-black text-caution-text hover:bg-white disabled:opacity-50"
             >
@@ -168,7 +201,7 @@ export default function AuditPage() {
               Caution
             </button>
             <button
-              onClick={() => handleInvestigate(sampleRequests.safe, DEMO_FIXTURES.safe)}
+              onClick={() => runQuickDemo('safe')}
               disabled={loading}
               className="hireproof-focus flex items-center gap-2 rounded-full border border-safe-bg bg-safe-bg px-4 py-2 text-sm font-black text-safe-text hover:bg-white disabled:opacity-50"
             >

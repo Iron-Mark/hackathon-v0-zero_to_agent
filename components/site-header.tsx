@@ -22,6 +22,9 @@ export function SiteHeader() {
           <Link href="/history" className="hireproof-focus rounded-full px-3 py-2 text-muted hover:bg-background hover:text-foreground">
             History
           </Link>
+          <Link href="/audit?demo=high-risk" className="hireproof-focus rounded-full bg-foreground px-3 py-2 font-black text-white hover:bg-safe">
+            Quick demo
+          </Link>
         </nav>
       </div>
     </header>

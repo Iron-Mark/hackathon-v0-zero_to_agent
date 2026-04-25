@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles } from 'lucide-react'
+import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { BrandMark } from '@/components/brand-mark'
 
@@ -50,6 +50,30 @@ const evidenceSignals = [
   },
 ]
 
+const pitchDemos = [
+  {
+    href: '/audit?demo=high-risk',
+    icon: AlertCircle,
+    label: 'High-risk',
+    description: 'Unrealistic pay, no interview, Telegram contact.',
+    className: 'border-risk-bg bg-risk-bg text-risk-text',
+  },
+  {
+    href: '/audit?demo=caution',
+    icon: Zap,
+    label: 'Caution',
+    description: 'Some legitimacy, but incomplete details.',
+    className: 'border-caution-bg bg-caution-bg text-caution-text',
+  },
+  {
+    href: '/audit?demo=safe',
+    icon: CheckCircle2,
+    label: 'Safe',
+    description: 'Established company and professional path.',
+    className: 'border-safe-bg bg-safe-bg text-safe-text',
+  },
+]
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -83,11 +107,29 @@ export default function Home() {
                 Start investigation <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/audit"
+                href="/audit?demo=high-risk"
                 className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-6 py-3 font-bold hover:bg-white"
               >
-                Try the scam sample
+                Quick demo
               </Link>
+            </div>
+            <div className="mt-6 grid gap-2 sm:grid-cols-3">
+              {pitchDemos.map((demo) => {
+                const Icon = demo.icon
+                return (
+                  <Link
+                    key={demo.href}
+                    href={demo.href}
+                    className={`hireproof-focus rounded-xl border p-3 text-left shadow-sm transition hover:bg-white ${demo.className}`}
+                  >
+                    <div className="mb-2 flex items-center gap-2 text-sm font-black">
+                      <Icon className="h-4 w-4" />
+                      {demo.label}
+                    </div>
+                    <p className="text-xs font-semibold leading-5">{demo.description}</p>
+                  </Link>
+                )
+              })}
             </div>
           </div>
 
@@ -143,8 +185,8 @@ export default function Home() {
               <p><strong>Contact:</strong> Message us on Telegram</p>
               <p className="sm:col-span-2"><strong>Requirements:</strong> Basic HTML/CSS knowledge, no interview needed</p>
             </div>
-            <Link href="/audit" className="hireproof-focus mt-5 inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-white hover:bg-safe">
-              Investigate this post <ArrowRight className="h-4 w-4" />
+            <Link href="/audit?demo=high-risk" className="hireproof-focus mt-5 inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-white hover:bg-safe">
+              Run quick demo <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -207,7 +249,7 @@ export default function Home() {
       <footer className="bg-background">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm font-semibold text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>HireProof. Job-post verification with receipts.</p>
-          <Link href="/audit" className="hireproof-focus inline-flex items-center gap-2 rounded-lg text-foreground hover:text-safe">
+          <Link href="/audit?demo=high-risk" className="hireproof-focus inline-flex items-center gap-2 rounded-lg text-foreground hover:text-safe">
             Try demo mode <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
