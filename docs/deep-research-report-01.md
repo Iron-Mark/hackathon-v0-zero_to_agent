@@ -204,7 +204,7 @@ None of the Web3 concepts beats the best non-Web3 concept under your rules, time
 | RentProof | Rental scam investigator | 86.3 | Strong runner-up |
 | OfferAudit | General risky-offer auditor | 85.7 | Good, but too broad |
 | PriceWitness | Local alternative/value witness | 85.5 | Strong community appeal |
-| VendorWitness | Vendor trust checker | 83.2 | Less universal |
+| VendorWitness | Vendor trust check  er | 83.2 | Less universal |
 | PolicyPilot | Evidence-backed response drafter | 83.2 | Less visual |
 | EventTruth | Venue/sponsor legitimacy checker | 81.5 | Good, but narrower |
 | CivicPulse | Public rumor / news triage card | 80.3 | High value, higher safety risk |

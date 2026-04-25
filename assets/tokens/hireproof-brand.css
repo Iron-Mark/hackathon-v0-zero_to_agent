@@ -1,0 +1,30 @@
+:root {
+  --hireproof-ink: #111827;
+  --hireproof-muted: #475569;
+  --hireproof-paper: #f8faf7;
+  --hireproof-surface: #ffffff;
+  --hireproof-border: #cbd5c7;
+  --hireproof-border-soft: #d9e2d6;
+
+  --hireproof-safe: #167c5c;
+  --hireproof-safe-bg: #e7f4ee;
+  --hireproof-safe-text: #145a43;
+
+  --hireproof-caution: #b7791f;
+  --hireproof-caution-bg: #fff4d6;
+  --hireproof-caution-text: #7c4a03;
+
+  --hireproof-risk: #b42318;
+  --hireproof-risk-bg: #fde7e5;
+  --hireproof-risk-text: #7a1c14;
+
+  --hireproof-evidence: #2563eb;
+  --hireproof-evidence-bg: #e9f0ff;
+
+  --hireproof-radius-sm: 8px;
+  --hireproof-radius-md: 14px;
+  --hireproof-radius-lg: 24px;
+  --hireproof-shadow-card: 0 16px 38px rgba(17, 24, 39, 0.12);
+  --hireproof-shadow-soft: 0 10px 28px rgba(17, 24, 39, 0.08);
+}
+
