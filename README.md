@@ -100,4 +100,5 @@ If live API calls fail, the app should fall back to demo data and show a visible
 - [Final presentation plan](docs/final-presentation-plan.md)
 - [v0 build prompt spec](docs/prompts/v0-build-prompt-spec.md)
 - [Submission package](docs/submission-package.md)
+- [Demo materials](demo/README.md)
 - [Docs index](docs/README.md)
