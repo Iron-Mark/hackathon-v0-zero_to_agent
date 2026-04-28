@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { FileText, Link2, Loader2, MapPin, Image as ImageIcon, X } from 'lucide-react'
+import VoiceInputButton from '@/components/voice-input-button'
 
 interface AuditFormProps {
   onInvestigate: (data: { text: string; url?: string; location?: string; image?: string }) => void
@@ -55,14 +56,20 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
             <FileText className="h-4 w-4 text-safe" />
             Job post or message
           </label>
-          <button 
-            type="button" 
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1 text-xs font-black text-muted hover:text-foreground"
-          >
-            <ImageIcon className="h-3.5 w-3.5" />
-            Upload Screenshot
-          </button>
+          <div className="flex items-center gap-3">
+            <VoiceInputButton 
+              onTranscript={(transcript) => setText(prev => prev + (prev ? ' ' : '') + transcript)}
+              disabled={loading}
+            />
+            <button 
+              type="button" 
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1 text-xs font-black text-muted hover:text-foreground"
+            >
+              <ImageIcon className="h-3.5 w-3.5" />
+              Screenshot
+            </button>
+          </div>
         </div>
         
         <input 

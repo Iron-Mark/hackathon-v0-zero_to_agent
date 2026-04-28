@@ -34,6 +34,12 @@ body {
   font-weight: 500;
 }
 
+.dark body,
+.dark html {
+  background: var(--hireproof-paper);
+  color: var(--hireproof-ink);
+}
+
 button,
 a,
 input,
@@ -52,10 +58,20 @@ textarea {
   background-size: 72px 72px;
 }
 
+.dark .hireproof-grid {
+  background-image:
+    linear-gradient(rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 41, 59, 0.5) 1px, transparent 1px);
+}
+
 .hireproof-card {
   border: 1px solid var(--hireproof-border);
   background: rgba(255, 255, 255, 0.86);
   box-shadow: var(--hireproof-shadow-soft);
+}
+
+.dark .hireproof-card {
+  background: rgba(21, 25, 33, 0.86);
 }
 
 .hireproof-focus {

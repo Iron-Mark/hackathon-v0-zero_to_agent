@@ -1,0 +1,243 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  background: #fafafa;
+  color: #1a1a1a;
+  width: 360px;
+  min-height: 200px;
+}
+
+.container {
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #f0fdf4;
+  color: #16a34a;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input[type="text"]:focus, textarea:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+textarea {
+  resize: none;
+  margin-top: 12px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex: 1;
+}
+
+.btn-primary {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #16a34a;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px;
+  background: #f0fdf4;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid #16a34a33;
+  border-top-color: #16a34a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.verdict-card {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.verdict-card.safe { background: #f0fdf4; border-color: #bbf7d0; }
+.verdict-card.caution { background: #fefce8; border-color: #fef08a; }
+.verdict-card.high-risk { background: #fef2f2; border-color: #fecaca; }
+
+.verdict-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.verdict-label {
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.verdict-label.safe { color: #16a34a; }
+.verdict-label.caution { color: #ca8a04; }
+.verdict-label.high-risk { color: #dc2626; }
+
+.risk-score {
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.summary {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.5;
+}
+
+#flags-section {
+  margin-top: 10px;
+}
+
+.flag {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.flag.red { background: #fef2f2; color: #991b1b; }
+.flag.green { background: #f0fdf4; color: #166534; }
+
+.flag-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.link {
+  display: block;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #16a34a;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.error {
+  margin-top: 14px;
+  padding: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #991b1b;
+}
+
+#config-section {
+  margin-bottom: 4px;
+}

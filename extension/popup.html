@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HireProof</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="45" stroke="#16a34a" stroke-width="8"/><path d="M30 52 L45 67 L72 35" stroke="#16a34a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        <span class="brand">HireProof</span>
+      </div>
+      <span class="badge">Extension</span>
+    </div>
+
+    <div id="config-section">
+      <label class="label">API Server URL</label>
+      <input type="text" id="server-url" placeholder="https://hireproof.vercel.app" value="http://localhost:3000" />
+      <label class="label">API Key</label>
+      <input type="text" id="api-key" placeholder="x-api-key" value="hireproof_agent_demo_key" />
+    </div>
+
+    <div class="actions">
+      <button id="scan-btn" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Scan This Page
+      </button>
+      <button id="paste-btn" class="btn btn-secondary">Paste & Check</button>
+    </div>
+
+    <textarea id="manual-input" placeholder="Or paste a job post here..." rows="4" style="display:none;"></textarea>
+    <button id="check-paste-btn" class="btn btn-primary" style="display:none; margin-top:8px; width:100%;">Investigate</button>
+
+    <div id="loading" class="loading" style="display:none;">
+      <div class="spinner"></div>
+      <span>Investigating...</span>
+    </div>
+
+    <div id="result" style="display:none;">
+      <div id="verdict-card" class="verdict-card">
+        <div class="verdict-header">
+          <span id="verdict-label" class="verdict-label"></span>
+          <span id="risk-score" class="risk-score"></span>
+        </div>
+        <p id="summary" class="summary"></p>
+      </div>
+      <div id="flags-section"></div>
+      <a id="full-report-link" class="link" href="#" target="_blank">View Full Report →</a>
+    </div>
+
+    <div id="error" class="error" style="display:none;"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

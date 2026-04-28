@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
+import { ToastProvider } from '@/components/toast'
 
 export const metadata: Metadata = {
   title: 'HireProof',
@@ -43,9 +44,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased bg-background text-foreground">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <main className="min-h-screen">
-            {children}
-          </main>
+          <ToastProvider>
+            <main className="min-h-screen">
+              {children}
+            </main>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

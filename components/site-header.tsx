@@ -30,6 +30,9 @@ export function SiteHeader() {
             <Link href="/history" className="hireproof-focus rounded-full px-3 py-2 text-muted hover:bg-background hover:text-foreground">
               History
             </Link>
+            <Link href="/docs" className="hireproof-focus rounded-full px-3 py-2 text-muted hover:bg-background hover:text-foreground">
+              Docs
+            </Link>
           </div>
           <div className="flex items-center sm:border-l sm:border-border sm:pl-2">
             {isLoaded && (

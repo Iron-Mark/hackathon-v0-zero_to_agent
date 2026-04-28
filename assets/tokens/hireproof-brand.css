@@ -28,3 +28,30 @@
   --hireproof-shadow-soft: 0 10px 28px rgba(17, 24, 39, 0.08);
 }
 
+.dark {
+  --hireproof-ink: #f1f5f9;
+  --hireproof-muted: #94a3b8;
+  --hireproof-paper: #0c0f14;
+  --hireproof-surface: #151921;
+  --hireproof-border: #2d3748;
+  --hireproof-border-soft: #1e293b;
+
+  --hireproof-safe: #34d399;
+  --hireproof-safe-bg: rgba(52, 211, 153, 0.12);
+  --hireproof-safe-text: #6ee7b7;
+
+  --hireproof-caution: #fbbf24;
+  --hireproof-caution-bg: rgba(251, 191, 36, 0.12);
+  --hireproof-caution-text: #fde68a;
+
+  --hireproof-risk: #f87171;
+  --hireproof-risk-bg: rgba(248, 113, 113, 0.12);
+  --hireproof-risk-text: #fca5a5;
+
+  --hireproof-evidence: #60a5fa;
+  --hireproof-evidence-bg: rgba(96, 165, 250, 0.12);
+
+  --hireproof-shadow-card: 0 16px 38px rgba(0, 0, 0, 0.4);
+  --hireproof-shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.3);
+}
+

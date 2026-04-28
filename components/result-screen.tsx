@@ -1,9 +1,12 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, AlertCircle, Loader2, Link2 } from 'lucide-react'
+import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, AlertCircle, Loader2, Link2, FileText } from 'lucide-react'
 import { motion } from 'framer-motion'
 import html2canvas from 'html2canvas'
+import RiskRadarChart from '@/components/risk-radar-chart'
+import { generatePdfDossier } from '@/lib/generate-pdf'
+import { showToast } from '@/components/toast'
 
 interface Result {
   id?: string
@@ -157,7 +160,10 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(window.location.origin + '/audit/' + result.id)
-                  } catch (e) {}
+                    showToast('Link copied to clipboard!')
+                  } catch (e) {
+                    showToast('Failed to copy link', 'info')
+                  }
                 }} 
                 className="hireproof-focus rounded-lg border border-border bg-surface p-2 hover:bg-evidence-bg" 
                 title="Copy Permalink" 
@@ -171,6 +177,14 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
             </button>
             <button onClick={handleDownload} disabled={isExporting} className="hireproof-focus rounded-lg border border-border bg-surface p-2 hover:bg-evidence-bg disabled:opacity-50" title="Download as Image" aria-label="Download result as image">
               {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            </button>
+            <button 
+              onClick={() => generatePdfDossier(result)} 
+              className="hireproof-focus rounded-lg border border-border bg-surface p-2 hover:bg-evidence-bg" 
+              title="Download PDF Dossier" 
+              aria-label="Download PDF dossier"
+            >
+              <FileText className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -221,6 +235,18 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
               </div>
             </div>
           </div>
+        </motion.section>
+
+        <motion.section variants={itemVariants} className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm">
+          <h2 className="mb-3 text-2xl font-black">Risk Breakdown</h2>
+          <p className="mb-4 text-sm font-semibold text-muted">How the AI scored each dimension of this opportunity.</p>
+          <RiskRadarChart
+            extractedClaims={result.extractedClaims as any}
+            redFlags={result.redFlags}
+            greenFlags={result.greenFlags}
+            evidence={result.evidence}
+            verdict={result.verdict}
+          />
         </motion.section>
 
         <motion.section variants={itemVariants}>
