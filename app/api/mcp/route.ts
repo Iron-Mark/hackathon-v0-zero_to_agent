@@ -1,5 +1,6 @@
 import { executeMCPTool, MCP_TOOLS } from '@/lib/mcp-tools'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { timingSafeEqual } from 'crypto'
 
 /**
  * MCP Route for HireProof
@@ -12,13 +13,20 @@ import { checkRateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 
+function secureCompare(a: string, b: string) {
+  const bufA = Buffer.from(a)
+  const bufB = Buffer.from(b)
+  if (bufA.length !== bufB.length) return false
+  return timingSafeEqual(bufA, bufB)
+}
+
 const VALID_METHODS = new Set(['tools/call', 'tools/list'])
 
 export async function POST(request: Request) {
   const apiKey = request.headers.get('x-api-key')
   const expectedKey = process.env.AGENT_API_KEY || 'hireproof_agent_demo_key'
   
-  if (!apiKey || apiKey !== expectedKey) {
+  if (!apiKey || !secureCompare(apiKey, expectedKey)) {
     return new Response(JSON.stringify({ error: 'Unauthorized. Invalid or missing x-api-key header.' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
   }
 
@@ -121,7 +129,7 @@ export async function GET(request: Request) {
   const apiKey = request.headers.get('x-api-key')
   const expectedKey = process.env.AGENT_API_KEY || 'hireproof_agent_demo_key'
   
-  if (!apiKey || apiKey !== expectedKey) {
+  if (!apiKey || !secureCompare(apiKey, expectedKey)) {
     return new Response(JSON.stringify({ error: 'Unauthorized.' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
   }
 

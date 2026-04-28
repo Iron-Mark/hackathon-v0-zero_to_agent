@@ -55,13 +55,25 @@ document.addEventListener('DOMContentLoaded', () => {
     (report.redFlags || []).slice(0, 3).forEach(flag => {
       const el = document.createElement('div');
       el.className = 'flag red';
-      el.innerHTML = '<span class="flag-icon">⚠️</span><span>' + flag + '</span>';
+      const icon = document.createElement('span');
+      icon.className = 'flag-icon';
+      icon.textContent = '⚠️';
+      const textSpan = document.createElement('span');
+      textSpan.textContent = flag;
+      el.appendChild(icon);
+      el.appendChild(textSpan);
       flagsSection.appendChild(el);
     });
     (report.greenFlags || []).slice(0, 2).forEach(flag => {
       const el = document.createElement('div');
       el.className = 'flag green';
-      el.innerHTML = '<span class="flag-icon">✅</span><span>' + flag + '</span>';
+      const icon = document.createElement('span');
+      icon.className = 'flag-icon';
+      icon.textContent = '✅';
+      const textSpan = document.createElement('span');
+      textSpan.textContent = flag;
+      el.appendChild(icon);
+      el.appendChild(textSpan);
       flagsSection.appendChild(el);
     });
 

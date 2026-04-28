@@ -40,7 +40,7 @@ export function isSerpApiConfigured() {
 // Truncate inputs to prevent massive queries that could break the URL limit or abuse the API
 function sanitizeQuery(query: string, maxLength: number = 200): string {
   if (!query) return ''
-  return query.trim().slice(0, maxLength)
+  return String(query).trim().slice(0, maxLength)
 }
 
 async function fetchSerpApi(params: Record<string, any>): Promise<SerpApiResponse | null> {

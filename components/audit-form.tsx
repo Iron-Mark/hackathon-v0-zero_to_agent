@@ -18,6 +18,10 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        alert('Invalid file type. Only JPEG, PNG, and WebP images are allowed.')
+        return
+      }
       if (file.size > 5 * 1024 * 1024) {
         alert('Image must be less than 5MB')
         return
@@ -75,7 +79,7 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
         <input 
           type="file" 
           ref={fileInputRef} 
-          accept="image/*" 
+          accept="image/jpeg,image/png,image/webp" 
           className="hidden" 
           onChange={handleImageUpload}
         />

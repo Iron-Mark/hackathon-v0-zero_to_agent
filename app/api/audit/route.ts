@@ -67,7 +67,7 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
     const rawRole = extractFirstMatch(text, [
       /(?:role|position|job title)\s*[:\-]\s*([A-Za-z /+-]{2,70})/i,
       /(?:hiring|seeking|looking for)\s+(?:a|an)?\s*([A-Za-z /+-]{2,70})(?:\s+(?:at|for|in|with)|[.,\n]|$)/i,
-      /\b((?:frontend|front-end|backend|back-end|full stack|software|web|ui\/ux|data|virtual assistant|customer support)[A-Za-z /+-]*(?:engineer|developer|intern|designer|analyst|assistant|specialist|representative)?)\b/i,
+      /\b((?:frontend|front-end|backend|back-end|full stack|software|web|ui\/ux|data|virtual assistant|customer support)[A-Za-z /+-]{0,40}(?:engineer|developer|intern|designer|analyst|assistant|specialist|representative)?)\b/i,
     ], 'Unspecified role')
     const role = rawRole.replace(/\s+(?:at|for|with|in)\s+.*$/i, '').trim()
   
@@ -151,16 +151,18 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
 }
 
 function buildAlternativeJobs(evidence: AuditReport['evidence']): AlternativeJob[] {
-  return evidence
-    .filter(item => item.type === 'Comparable Jobs')
+  const safeEvidence = Array.isArray(evidence) ? evidence : []
+  return safeEvidence
+    .filter(item => item && item.type === 'Comparable Jobs')
     .slice(0, 3)
     .map(item => {
-      const [titleAndCompany, salary] = item.snippet.split(' - ')
-      const [title, company] = titleAndCompany.split(' at ')
+      const snippet = String(item?.snippet || '')
+      const [titleAndCompany = '', salary = 'Not specified'] = snippet.split(' - ')
+      const [title = 'Comparable role', company = item.source || 'Job Board'] = titleAndCompany.split(' at ')
 
       return {
-        title: title || 'Comparable role',
-        company: company || item.source,
+        title,
+        company,
         salary,
       }
     })
@@ -193,8 +195,22 @@ function buildNextSteps(verdict: AuditReport['verdict'], company: string) {
 }
 
 export async function POST(request: Request) {
-  // Rate Limiting (UI Tier: 5 reqs / 1 min per IP)
-  const ip = request.headers.get('x-forwarded-for') || '127.0.0.1'
+  // 1. CSRF Protection: Only allow requests from our frontend (localhost, vercel, or specified base url)
+  const origin = request.headers.get('origin')
+  if (origin) {
+    const isAllowed = ['localhost', 'vercel.app', 'hireproof'].some(o => origin.includes(o)) || 
+                      (process.env.APP_BASE_URL && origin.includes(process.env.APP_BASE_URL))
+    if (!isAllowed) {
+      return new Response(JSON.stringify({ error: 'Cross-Origin Request Blocked' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
+    }
+  }
+
+  // 2. Rate Limiting (UI Tier: 5 reqs / 1 min per IP)
+  // Protect against X-Forwarded-For spoofing by checking x-real-ip first, then safely splitting forwarded-for
+  const xForwardedFor = request.headers.get('x-forwarded-for')
+  const xRealIp = request.headers.get('x-real-ip')
+  const ip = xRealIp || (xForwardedFor ? xForwardedFor.split(',')[0].trim() : '127.0.0.1')
+  
   const rateLimitResult = checkRateLimit(ip, { limit: 5, windowMs: 60000 })
   if (!rateLimitResult.success) {
     const retryAfter = 'retryAfterMs' in rateLimitResult ? Math.ceil((rateLimitResult as any).retryAfterMs / 1000) : 60
@@ -444,7 +460,7 @@ export async function POST(request: Request) {
       await saveReport(fixture)
       sendEvent('result', { data: fixture })
     } catch (error) {
-      console.error('[Audit API] Error:', error)
+      console.error('[Audit API] Error:', error instanceof Error ? error.message : 'Unknown execution error')
       sendEvent('error', { message: 'Failed to complete audit' })
     } finally {
       writer.close()

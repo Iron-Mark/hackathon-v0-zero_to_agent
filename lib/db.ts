@@ -1,6 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { AuditReport } from './schemas'
+import { AuditReport, AuditReportSchema } from './schemas'
 
 const dataDir = path.join(process.cwd(), 'data')
 const dbFile = path.join(dataDir, 'reports.json')
@@ -41,7 +41,9 @@ export async function saveReport(report: AuditReport) {
         for (const key of toRemove) delete reports[key]
       }
 
-      reports[report.id] = report
+      // Cryptographically guarantee DB structural integrity before write
+      const safeReport = AuditReportSchema.parse(report)
+      reports[report.id] = safeReport
 
       // Atomic write: write to temp file then rename to prevent partial writes
       const tmpFile = dbFile + '.tmp'

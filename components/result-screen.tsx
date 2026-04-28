@@ -37,6 +37,19 @@ interface ResultScreenProps {
   onBackToAudit?: () => void
 }
 
+function sanitizeUrl(url?: string): string | undefined {
+  if (!url) return undefined
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return url
+    }
+    return undefined
+  } catch {
+    return undefined
+  }
+}
+
 export default function ResultScreen({ result, isDemo = true, onBackToAudit }: ResultScreenProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [isExporting, setIsExporting] = useState(false)
@@ -326,8 +339,8 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
                     <span className="rounded-full bg-evidence-bg px-2 py-1 text-xs font-black text-evidence">{ev.type}</span>
                   </div>
                   <p className="mb-3 text-sm font-medium leading-6 text-muted">{ev.snippet}</p>
-                  {ev.url && (
-                    <a href={ev.url} target="_blank" rel="noopener noreferrer" className="hireproof-focus text-xs font-black text-evidence hover:text-safe">
+                  {sanitizeUrl(ev.url) && (
+                    <a href={sanitizeUrl(ev.url)} target="_blank" rel="noopener noreferrer" className="hireproof-focus text-xs font-black text-evidence hover:text-safe">
                       Read full article
                     </a>
                   )}

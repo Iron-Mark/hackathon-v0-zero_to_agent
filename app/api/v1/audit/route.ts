@@ -18,17 +18,19 @@ import {
   extractGreenFlags,
   generateSummary,
 } from '@/lib/risk-scorer'
-import {
-  isSerpApiConfigured,
-  searchCompanyPresence,
-  searchComparableJobs,
-  searchLocalPresence,
-  searchNewsReputation,
-} from '@/lib/serpapi'
+import { isSerpApiConfigured, searchCompanyPresence, searchComparableJobs, searchLocalPresence, searchNewsReputation } from '@/lib/serpapi'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { saveReport } from '@/lib/db'
+import { timingSafeEqual, createHmac } from 'crypto'
 
 export const runtime = 'nodejs'
+
+function secureCompare(a: string, b: string) {
+  const bufA = Buffer.from(a)
+  const bufB = Buffer.from(b)
+  if (bufA.length !== bufB.length) return false
+  return timingSafeEqual(bufA, bufB)
+}
 
 const openai = createOpenAI({
   apiKey: process.env.MODEL_PROVIDER_KEY || '',
@@ -67,7 +69,7 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
     const rawRole = extractFirstMatch(text, [
       /(?:role|position|job title)\s*[:\-]\s*([A-Za-z /+-]{2,70})/i,
       /(?:hiring|seeking|looking for)\s+(?:a|an)?\s*([A-Za-z /+-]{2,70})(?:\s+(?:at|for|in|with)|[.,\n]|$)/i,
-      /\b((?:frontend|front-end|backend|back-end|full stack|software|web|ui\/ux|data|virtual assistant|customer support)[A-Za-z /+-]*(?:engineer|developer|intern|designer|analyst|assistant|specialist|representative)?)\b/i,
+      /\b((?:frontend|front-end|backend|back-end|full stack|software|web|ui\/ux|data|virtual assistant|customer support)[A-Za-z /+-]{0,40}(?:engineer|developer|intern|designer|analyst|assistant|specialist|representative)?)\b/i,
     ], 'Unspecified role')
     const role = rawRole.replace(/\s+(?:at|for|with|in)\s+.*$/i, '').trim()
   
@@ -151,16 +153,18 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
 }
 
 function buildAlternativeJobs(evidence: AuditReport['evidence']): AlternativeJob[] {
-  return evidence
-    .filter(item => item.type === 'Comparable Jobs')
+  const safeEvidence = Array.isArray(evidence) ? evidence : []
+  return safeEvidence
+    .filter(item => item && item.type === 'Comparable Jobs')
     .slice(0, 3)
     .map(item => {
-      const [titleAndCompany, salary] = item.snippet.split(' - ')
-      const [title, company] = titleAndCompany.split(' at ')
+      const snippet = String(item?.snippet || '')
+      const [titleAndCompany = '', salary = 'Not specified'] = snippet.split(' - ')
+      const [title = 'Comparable role', company = item.source || 'Job Board'] = titleAndCompany.split(' at ')
 
       return {
-        title: title || 'Comparable role',
-        company: company || item.source,
+        title,
+        company,
         salary,
       }
     })
@@ -197,7 +201,7 @@ export async function POST(request: Request) {
   const apiKey = request.headers.get('x-api-key')
   const expectedKey = process.env.AGENT_API_KEY || 'hireproof_agent_demo_key'
   
-  if (!apiKey || apiKey !== expectedKey) {
+  if (!apiKey || !secureCompare(apiKey, expectedKey)) {
     return new Response(JSON.stringify({ error: 'Unauthorized. Invalid or missing x-api-key header.' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
   }
 
@@ -218,6 +222,23 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     validated = AuditRequestSchema.parse(body)
+
+    if (validated.webhook_url) {
+      const url = new URL(validated.webhook_url)
+      const hostname = url.hostname
+      // SSRF Protection: block local, private, and loopback addresses
+      const isLocal = ['localhost', '127.0.0.1', '0.0.0.0', '::1'].includes(hostname) || 
+                      hostname.startsWith('10.') || 
+                      hostname.startsWith('192.168.') || 
+                      hostname.startsWith('169.254.') || 
+                      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
+                      hostname.endsWith('.local') ||
+                      hostname.endsWith('.internal')
+      
+      if (isLocal) {
+        return new Response(JSON.stringify({ error: 'Webhook URL cannot be a private or local network address' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+      }
+    }
   } catch (error: any) {
     const message = error?.issues
       ? `Validation error: ${error.issues.map((i: any) => `${i.path.join('.')}: ${i.message}`).join('; ')}`
@@ -363,7 +384,7 @@ export async function POST(request: Request) {
         await saveReport(fixture)
         return fixture
       } catch (err) {
-        console.error('[Investigation Error]', err)
+        console.error('[Investigation Error]', err instanceof Error ? err.message : 'Unknown investigation error')
         return null
       }
     }
@@ -373,13 +394,20 @@ export async function POST(request: Request) {
       Promise.resolve().then(async () => {
         const report = await performInvestigation()
         if (report) {
+          const payload = JSON.stringify(report)
+          // HMAC-SHA256 Signature to prove to the receiver that we sent this, preventing Webhook spoofing
+          const signature = createHmac('sha256', apiKey).update(payload).digest('hex')
+
           const maxRetries = 3
           for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
               const res = await fetch(validated.webhook_url as string, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(report),
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'X-HireProof-Signature': `sha256=${signature}`
+                },
+                body: payload,
                 signal: AbortSignal.timeout(10_000),
               })
               if (res.ok || (res.status >= 200 && res.status < 300)) break
@@ -407,7 +435,7 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify(report), { status: 200, headers: { 'Content-Type': 'application/json' } })
 
   } catch (error) {
-    console.error('[A2A Audit API] Error:', error)
+    console.error('[A2A Audit API] Error:', error instanceof Error ? error.message : 'Unknown routing error')
     return new Response(JSON.stringify({ error: 'Failed to complete audit' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 }

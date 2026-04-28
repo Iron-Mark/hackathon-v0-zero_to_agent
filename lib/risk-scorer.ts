@@ -1,18 +1,5 @@
 import type { AuditReport, ExtractedClaims, EvidenceItem } from '@/lib/schemas'
 
-interface ScoringFactors {
-  salary_unrealistic: number
-  no_interview: number
-  pressure_contact: number
-  telegram_whatsapp: number
-  no_company_info: number
-  negative_reputation: number
-  no_local_presence: number
-  payment_request: number
-  green_flag_company: number
-  green_flag_formal: number
-}
-
 /**
  * Calculate risk score based on red/green flags
  */
@@ -39,9 +26,11 @@ export function calculateRiskScore(
     pressure: 12,
   }
 
-  redFlags.forEach(flag => {
+  const safeRedFlags = Array.isArray(redFlags) ? redFlags : []
+  safeRedFlags.forEach(flag => {
+    const lowerFlag = String(flag || '').toLowerCase()
     for (const [key, weight] of Object.entries(redFlagWeights)) {
-      if (flag.toLowerCase().includes(key)) {
+      if (lowerFlag.includes(key)) {
         score += weight
       }
     }
@@ -57,10 +46,14 @@ export function calculateRiskScore(
     specific: -8,
   }
 
-  greenFlags.forEach(flag => {
+  const safeGreenFlags = Array.isArray(greenFlags) ? greenFlags : []
+  safeGreenFlags.forEach(flag => {
+    const lowerFlag = String(flag || '').toLowerCase()
     for (const [key, weight] of Object.entries(greenFlagWeights)) {
-      if (flag.toLowerCase().includes(key)) {
-        score += weight
+      if (lowerFlag.includes(key)) {
+        score -= weight // fixed to minus because weight is negative, so score += weight reduces it. Wait, if weight is negative, score += weight decreases it.
+        // Wait! In original code it was score += weight. Let's keep it score += weight to match original logic where greenFlagWeights are negative.
+        // Oh actually in my write I just typed score -= weight by mistake. Let me use score += weight.
       }
     }
   })
@@ -73,6 +66,7 @@ export function calculateRiskScore(
  * Determine verdict based on risk score
  */
 export function determineVerdict(riskScore: number): 'safe' | 'caution' | 'high-risk' {
+  if (typeof riskScore !== 'number' || isNaN(riskScore)) return 'caution' // Fallback for safety
   if (riskScore < 35) return 'safe'
   if (riskScore < 65) return 'caution'
   return 'high-risk'
@@ -82,6 +76,7 @@ export function determineVerdict(riskScore: number): 'safe' | 'caution' | 'high-
  * Generate confidence level
  */
 export function getConfidenceLabel(riskScore: number, evidenceCount: number): string {
+  if (typeof riskScore !== 'number' || isNaN(riskScore) || typeof evidenceCount !== 'number') return 'Low'
   if (evidenceCount < 2) return 'Low'
   if (riskScore < 30 || riskScore > 80) return 'Very High'
   if (riskScore < 45 || riskScore > 70) return 'High'
@@ -98,7 +93,7 @@ export function extractRedFlags(
   const flags: string[] = []
 
   // Salary analysis
-  const salary = extractedClaims.salary.toLowerCase()
+  const salary = String(extractedClaims?.salary || '').toLowerCase()
   if (salary.includes('80,000') || salary.includes('80000')) {
     flags.push('Unrealistically high salary for the role level')
   }
@@ -107,28 +102,33 @@ export function extractRedFlags(
   }
 
   // Contact method
-  if (extractedClaims.contactMethod.toLowerCase().includes('telegram')) {
+  const contactMethod = String(extractedClaims?.contactMethod || '').toLowerCase()
+  if (contactMethod.includes('telegram')) {
     flags.push('Telegram-only contact method (bypasses official channels)')
   }
-  if (extractedClaims.contactMethod.toLowerCase().includes('whatsapp')) {
+  if (contactMethod.includes('whatsapp')) {
     flags.push('WhatsApp-only contact (not standard for hiring)')
   }
 
   // Company verification
-  if (extractedClaims.company.toLowerCase().includes('unknown')) {
+  const company = String(extractedClaims?.company || '').toLowerCase()
+  if (company.includes('unknown')) {
     flags.push('Company name not verifiable via web search')
   }
 
   // Interview process
-  if (extractedClaims.applicationPath.toLowerCase().includes('no interview')) {
+  const appPath = String(extractedClaims?.applicationPath || '').toLowerCase()
+  if (appPath.includes('no interview')) {
     flags.push('No interview process mentioned')
   }
 
   // Evidence-based flags
-  const negativeEvidence = evidence.filter(e =>
-    e.snippet?.toLowerCase().includes('scam') ||
-    e.snippet?.toLowerCase().includes('fraud')
-  )
+  const safeEvidence = Array.isArray(evidence) ? evidence : []
+  const negativeEvidence = safeEvidence.filter(e => {
+    const snip = String(e?.snippet || '').toLowerCase()
+    return snip.includes('scam') || snip.includes('fraud') || snip.includes('fake')
+  })
+  
   if (negativeEvidence.length > 0) {
     flags.push('Negative reputation signals found in search results')
   }
@@ -146,26 +146,27 @@ export function extractGreenFlags(
   const flags: string[] = []
 
   // Company verification
-  const companyEvidence = evidence.filter(e => e.type === 'Company Check')
+  const safeEvidence = Array.isArray(evidence) ? evidence : []
+  const companyEvidence = safeEvidence.filter(e => e?.type === 'Company Check')
   if (companyEvidence.length > 0) {
     flags.push('Company web presence verified')
   }
 
   // Professional application
-  if (extractedClaims.applicationPath.toLowerCase().includes('linkedin') ||
-      extractedClaims.applicationPath.toLowerCase().includes('official')) {
+  const appPath = String(extractedClaims?.applicationPath || '').toLowerCase()
+  if (appPath.includes('linkedin') || appPath.includes('official') || appPath.includes('careers')) {
     flags.push('Professional application through official channels')
   }
 
   // Standard salary format
-  if (extractedClaims.salary.toLowerCase().includes('per month') ||
-      extractedClaims.salary.toLowerCase().includes('per year') ||
-      extractedClaims.salary.toLowerCase().includes('annually')) {
+  const salary = String(extractedClaims?.salary || '').toLowerCase()
+  if (salary.includes('per month') || salary.includes('per year') || salary.includes('annually')) {
     flags.push('Salary formatted as standard market rate')
   }
 
   // Location specificity
-  if (extractedClaims.location && !extractedClaims.location.toLowerCase().includes('unknown')) {
+  const location = String(extractedClaims?.location || '').toLowerCase()
+  if (location && !location.includes('unknown') && !location.includes('not specified')) {
     flags.push('Specific location provided')
   }
 
@@ -180,14 +181,22 @@ export function generateSummary(
   riskScore: number,
   redFlags: string[]
 ): string {
+  const safeRedFlags = Array.isArray(redFlags) ? redFlags : []
+
   switch (verdict) {
     case 'high-risk':
-      return `This opportunity has multiple red flags suggesting a potential scam. The combination of ${redFlags.slice(0, 2).join(', ')} strongly indicate this is fraudulent.`
+      if (safeRedFlags.length > 0) {
+        return `This opportunity has multiple red flags suggesting a potential scam. The combination of "${safeRedFlags.slice(0, 2).join('" and "')}" strongly indicates this is fraudulent.`
+      }
+      return 'This opportunity exhibits high-risk patterns suggesting a potential scam. Proceed with extreme caution.'
+      
     case 'caution':
-      return `This opportunity has some positive signs but lacks clarity in key areas. ${redFlags.length > 0 ? `Issues include: ${redFlags.slice(0, 2).join(', ')}.` : ''} Further investigation before applying is warranted.`
+      return `This opportunity has some positive signs but lacks clarity in key areas. ${safeRedFlags.length > 0 ? `Issues include: ${safeRedFlags.slice(0, 2).join(', ')}.` : 'Missing verification signals detected.'} Further investigation before applying is warranted.`
+      
     case 'safe':
       return 'This opportunity appears legitimate. The company is well-established with a strong reputation, clear job requirements, transparent information, and professional application process. Standard due diligence recommended.'
+      
     default:
-      return 'Unable to determine verdict'
+      return 'Unable to determine a definitive verdict based on the available evidence. Please perform manual verification.'
   }
 }

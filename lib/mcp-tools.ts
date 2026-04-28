@@ -75,8 +75,8 @@ export async function executeMCPTool(
   try {
     switch (toolName) {
       case 'search_company': {
-        const companyName = params.company_name || ''
-        const role = params.role || ''
+        const companyName = String(params.company_name || '')
+        const role = String(params.role || '')
         const evidence = await searchCompanyPresence(companyName, role)
         return {
           evidence,
@@ -88,7 +88,7 @@ export async function executeMCPTool(
       }
 
       case 'news_check': {
-        const companyName = params.company_name || ''
+        const companyName = String(params.company_name || '')
         const evidence = await searchNewsReputation(companyName)
         
         // Check for negative keywords in results
@@ -107,8 +107,8 @@ export async function executeMCPTool(
       }
 
       case 'jobs_compare': {
-        const role = params.role || ''
-        const location = params.location || 'United States'
+        const role = String(params.role || '')
+        const location = String(params.location || 'United States')
         const evidence = await searchComparableJobs(role, location)
         return {
           evidence,
@@ -120,8 +120,8 @@ export async function executeMCPTool(
       }
 
       case 'local_presence': {
-        const companyName = params.company_name || ''
-        const location = params.location || ''
+        const companyName = String(params.company_name || '')
+        const location = String(params.location || '')
         const evidence = await searchLocalPresence(companyName, location)
         return {
           evidence,
