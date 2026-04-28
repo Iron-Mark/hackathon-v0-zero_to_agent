@@ -71,5 +71,8 @@ export const AuditRequestSchema = z.object({
   text: z.string().min(1, 'Job post text is required'),
   url: z.string().url().optional().or(z.literal('')),
   location: z.string().optional(),
+  mode: z.enum(['live', 'demo']).optional(),
+  image: z.string().optional(),
+  webhook_url: z.string().url().optional(),
 })
 export type AuditRequest = z.infer<typeof AuditRequestSchema>

@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { FileText, Link2, Loader2, MapPin } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { FileText, Link2, Loader2, MapPin, Image as ImageIcon, X } from 'lucide-react'
 
 interface AuditFormProps {
-  onInvestigate: (data: { text: string; url?: string; location?: string }) => void
+  onInvestigate: (data: { text: string; url?: string; location?: string; image?: string }) => void
   loading?: boolean
 }
 
@@ -10,28 +10,91 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
   const [text, setText] = useState('')
   const [url, setUrl] = useState('')
   const [location, setLocation] = useState('Philippines')
+  const [image, setImage] = useState<string | null>(null)
+  
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image must be less than 5MB')
+        return
+      }
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64String = reader.result as string
+        setImage(base64String)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = () => {
+    setImage(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (text.trim()) {
-      onInvestigate({ text, url, location })
+    if (text.trim() || image) {
+      onInvestigate({ 
+        text: text.trim() || 'Please extract job details from the uploaded image.', 
+        url, 
+        location,
+        image: image || undefined
+      })
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="hireproof-card space-y-6 rounded-2xl p-6 sm:p-8">
       <div>
-        <label className="mb-2 flex items-center gap-2 text-sm font-black">
-          <FileText className="h-4 w-4 text-safe" />
-          Job post or message
-        </label>
+        <div className="mb-2 flex items-center justify-between">
+          <label className="flex items-center gap-2 text-sm font-black">
+            <FileText className="h-4 w-4 text-safe" />
+            Job post or message
+          </label>
+          <button 
+            type="button" 
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1 text-xs font-black text-muted hover:text-foreground"
+          >
+            <ImageIcon className="h-3.5 w-3.5" />
+            Upload Screenshot
+          </button>
+        </div>
+        
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          accept="image/*" 
+          className="hidden" 
+          onChange={handleImageUpload}
+        />
+
+        {image && (
+          <div className="mb-3 relative rounded-xl border border-border-soft p-2">
+            <img src={image} alt="Uploaded screenshot" className="h-32 w-auto rounded-lg object-contain" />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-background hover:bg-risk-text"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        )}
+
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Paste the job post, recruiter message, or email here..."
-          rows={8}
-          className="hireproof-focus w-full resize-none rounded-xl border border-border bg-background p-4 text-sm font-medium leading-6 placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg"
+          data-testid="job-input-text"
+          aria-label="Job Description"
+          className="hireproof-focus w-full resize-none rounded-xl border border-border bg-background p-4 text-sm font-medium leading-6 placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg dark:focus:bg-surface"
           disabled={loading}
+          rows={image ? 3 : 6}
         />
       </div>
 
@@ -44,8 +107,9 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://example.com/job-posting"
-          className="hireproof-focus w-full rounded-xl border border-border bg-background p-3 text-sm font-medium placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg"
+          data-testid="job-input-url"
+          aria-label="Job URL"
+          className="hireproof-focus w-full rounded-xl border border-border bg-background p-3 text-sm font-medium placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg dark:focus:bg-surface"
           disabled={loading}
         />
       </div>
@@ -59,16 +123,19 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          placeholder="e.g., Philippines, United States"
-          className="hireproof-focus w-full rounded-xl border border-border bg-background p-3 text-sm font-medium placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg"
+          data-testid="job-input-location"
+          aria-label="Location"
+          className="hireproof-focus w-full rounded-xl border border-border bg-background p-3 text-sm font-medium placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg dark:focus:bg-surface"
           disabled={loading}
         />
       </div>
 
       <button
         type="submit"
-        disabled={loading || !text.trim()}
-        className="hireproof-focus flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-3 font-black text-white shadow-lg hover:bg-safe disabled:cursor-not-allowed disabled:opacity-50"
+        data-testid="investigate-button"
+        aria-label="Investigate Job Post"
+        disabled={loading || (!text.trim() && !image)}
+        className="hireproof-focus flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-3 font-black text-background shadow-lg hover:bg-safe disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
         {loading ? 'Investigating...' : 'Investigate'}

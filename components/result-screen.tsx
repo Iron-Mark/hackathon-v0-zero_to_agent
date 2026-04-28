@@ -1,8 +1,12 @@
 'use client'
 
-import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, AlertCircle, Loader2, Link2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import html2canvas from 'html2canvas'
 
 interface Result {
+  id?: string
   verdict: 'safe' | 'caution' | 'high-risk'
   riskScore: number
   confidence: string
@@ -27,59 +31,46 @@ interface Result {
 interface ResultScreenProps {
   result: Result
   isDemo?: boolean
-  onBackToAudit: () => void
+  onBackToAudit?: () => void
 }
 
 export default function ResultScreen({ result, isDemo = true, onBackToAudit }: ResultScreenProps) {
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [isExporting, setIsExporting] = useState(false)
+  
   const getVerdictColor = (verdict: string) => {
     switch (verdict) {
-      case 'safe':
-        return 'text-safe-text'
-      case 'caution':
-        return 'text-caution-text'
-      case 'high-risk':
-        return 'text-risk-text'
-      default:
-        return 'text-foreground'
+      case 'safe': return 'text-safe-text'
+      case 'caution': return 'text-caution-text'
+      case 'high-risk': return 'text-risk-text'
+      default: return 'text-foreground'
     }
   }
 
   const getVerdictBg = (verdict: string) => {
     switch (verdict) {
-      case 'safe':
-        return 'border-safe-bg bg-safe-bg'
-      case 'caution':
-        return 'border-caution-bg bg-caution-bg'
-      case 'high-risk':
-        return 'border-risk-bg bg-risk-bg'
-      default:
-        return 'border-border bg-surface'
+      case 'safe': return 'border-safe-bg bg-safe-bg'
+      case 'caution': return 'border-caution-bg bg-caution-bg'
+      case 'high-risk': return 'border-risk-bg bg-risk-bg'
+      default: return 'border-border bg-surface'
     }
   }
 
   const getVerdictIcon = (verdict: string) => {
     switch (verdict) {
-      case 'safe':
-        return <CheckCircle2 className="w-8 h-8" />
-      case 'caution':
-        return <Zap className="w-8 h-8" />
-      case 'high-risk':
-        return <AlertTriangle className="w-8 h-8" />
-      default:
-        return null
+      case 'safe': return <CheckCircle2 className="w-8 h-8" />
+      case 'caution': return <Zap className="w-8 h-8" />
+      case 'high-risk': return <AlertTriangle className="w-8 h-8" />
+      default: return null
     }
   }
 
   const getVerdictText = (verdict: string) => {
     switch (verdict) {
-      case 'safe':
-        return 'Safe'
-      case 'caution':
-        return 'Caution'
-      case 'high-risk':
-        return 'High-Risk'
-      default:
-        return 'Unknown'
+      case 'safe': return 'Safe'
+      case 'caution': return 'Caution'
+      case 'high-risk': return 'High-Risk'
+      default: return 'Unknown'
     }
   }
 
@@ -98,38 +89,102 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
       })
       return
     }
-
     await navigator.clipboard.writeText(shareText)
   }
 
-  const handleDownload = () => {
-    window.print()
+  const handleDownload = async () => {
+    if (!contentRef.current) return
+    
+    try {
+      setIsExporting(true)
+      const canvas = await html2canvas(contentRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      })
+      
+      const image = canvas.toDataURL('image/png')
+      const link = document.createElement('a')
+      link.href = image
+      link.download = `hireproof-verdict-${result.verdict}.png`
+      link.click()
+    } catch (err) {
+      console.error('Failed to export image', err)
+      window.print()
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
   }
 
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-[73px] z-10 border-b border-border-soft bg-background/95 backdrop-blur-sm print:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <button
-            onClick={onBackToAudit}
-            className="hireproof-focus flex items-center gap-2 rounded-lg text-sm font-black hover:text-safe"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Audit
-          </button>
+          {onBackToAudit ? (
+            <button
+              onClick={onBackToAudit}
+              className="hireproof-focus flex items-center gap-2 rounded-lg text-sm font-black hover:text-safe"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Audit
+            </button>
+          ) : (
+            <a
+              href="/audit"
+              className="hireproof-focus flex items-center gap-2 rounded-lg text-sm font-black hover:text-safe"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Audit
+            </a>
+          )}
           <div className="flex gap-3">
-            <button onClick={handleShare} className="hireproof-focus rounded-lg border border-border bg-surface p-2 hover:bg-evidence-bg" title="Share">
+            {result.id && (
+              <button 
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(window.location.origin + '/audit/' + result.id)
+                  } catch (e) {}
+                }} 
+                className="hireproof-focus rounded-lg border border-border bg-surface p-2 hover:bg-evidence-bg" 
+                title="Copy Permalink" 
+                aria-label="Copy Permalink"
+              >
+                <Link2 className="w-4 h-4" />
+              </button>
+            )}
+            <button onClick={handleShare} className="hireproof-focus rounded-lg border border-border bg-surface p-2 hover:bg-evidence-bg" title="Share" aria-label="Share result">
               <Share2 className="w-4 h-4" />
             </button>
-            <button onClick={handleDownload} className="hireproof-focus rounded-lg border border-border bg-surface p-2 hover:bg-evidence-bg" title="Print or save as PDF">
-              <Download className="w-4 h-4" />
+            <button onClick={handleDownload} disabled={isExporting} className="hireproof-focus rounded-lg border border-border bg-surface p-2 hover:bg-evidence-bg disabled:opacity-50" title="Download as Image" aria-label="Download result as image">
+              {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             </button>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl space-y-10 px-4 py-10">
-        <section className={`rounded-2xl border p-6 shadow-sm sm:p-8 ${getVerdictBg(result.verdict)}`}>
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        ref={contentRef} 
+        className="mx-auto max-w-4xl space-y-10 px-4 py-10" 
+        aria-live="polite"
+      >
+        <motion.section variants={itemVariants} className={`rounded-2xl border p-6 shadow-sm sm:p-8 ${getVerdictBg(result.verdict)}`}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
             <div className={`${getVerdictColor(result.verdict)} flex-shrink-0`}>
               {getVerdictIcon(result.verdict)}
@@ -149,7 +204,10 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
                   <div className="mb-1 text-sm font-black text-muted">Risk Score</div>
                   <div className="text-4xl font-black">{result.riskScore}/100</div>
                   <div className="mt-3 h-2.5 w-56 max-w-full overflow-hidden rounded-full bg-surface/80">
-                    <div
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${result.riskScore}%` }}
+                      transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
                       className={`h-full rounded-full ${
                         result.verdict === 'safe'
                           ? 'bg-safe'
@@ -157,16 +215,15 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
                             ? 'bg-caution'
                             : 'bg-high-risk'
                       }`}
-                      style={{ width: `${result.riskScore}%` }}
                     />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
-        <section>
+        <motion.section variants={itemVariants}>
           <h2 className="mb-5 text-2xl font-black">Extracted Information</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {Object.entries(result.extractedClaims).map(([key, value]) => (
@@ -178,93 +235,66 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
               </div>
             ))}
           </div>
-        </section>
-
-        <section>
-          <h2 className="mb-5 flex items-center gap-2 text-2xl font-black">
-            <Clock className="w-5 h-5" />
-            Investigation Timeline
-          </h2>
-          <div className="space-y-3 rounded-2xl border border-border-soft bg-surface p-5 shadow-sm">
-            <div className="flex gap-4">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-safe" />
-              <div>
-                <div className="font-black">Parsed job post claims</div>
-                <div className="text-sm font-semibold text-muted">Extracted company, role, salary, and contact details</div>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-safe" />
-              <div>
-                <div className="font-black">Searched company web presence</div>
-                <div className="text-sm font-semibold text-muted">Checked domain registration and LinkedIn profile</div>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-evidence" />
-              <div>
-                <div className="font-black">Checked recent news and reputation</div>
-                <div className="text-sm font-semibold text-muted">Searched for scam reports and company mentions</div>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-caution" />
-              <div>
-                <div className="font-black">Compared market standards</div>
-                <div className="text-sm font-semibold text-muted">Looked up comparable legitimate job listings</div>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-high-risk" />
-              <div>
-                <div className="font-black">Verified local presence</div>
-                <div className="text-sm font-semibold text-muted">Checked maps, directories, and business registrations</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        </motion.section>
 
         {result.redFlags.length > 0 && (
-          <section>
+          <motion.section variants={itemVariants}>
             <h2 className="mb-5 flex items-center gap-2 text-2xl font-black text-risk-text">
               <AlertTriangle className="w-5 h-5" />
               Red Flags
             </h2>
             <div className="space-y-2">
               {result.redFlags.map((flag, i) => (
-                <div key={i} className="flex gap-3 rounded-xl border border-risk-bg bg-risk-bg p-3 text-risk-text">
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + (i * 0.1) }}
+                  key={i} 
+                  className="flex gap-3 rounded-xl border border-risk-bg bg-risk-bg p-3 text-risk-text"
+                >
                   <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                   <div className="font-semibold">{flag}</div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
         )}
 
-        {/* Green Flags */}
         {result.greenFlags.length > 0 && (
-          <section>
+          <motion.section variants={itemVariants}>
             <h2 className="mb-5 flex items-center gap-2 text-2xl font-black text-safe-text">
               <CheckCircle2 className="w-5 h-5" />
               Green Flags
             </h2>
             <div className="space-y-2">
               {result.greenFlags.map((flag, i) => (
-                <div key={i} className="flex gap-3 rounded-xl border border-safe-bg bg-safe-bg p-3 text-safe-text">
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + (i * 0.1) }}
+                  key={i} 
+                  className="flex gap-3 rounded-xl border border-safe-bg bg-safe-bg p-3 text-safe-text"
+                >
                   <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
                   <div className="font-semibold">{flag}</div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
         )}
 
         {result.evidence.length > 0 && (
-          <section>
+          <motion.section variants={itemVariants}>
             <h2 className="mb-5 text-2xl font-black">Supporting Evidence</h2>
             <div className="space-y-3">
               {result.evidence.map((ev, i) => (
-                <div key={i} className="rounded-2xl border border-border-soft bg-surface p-4 shadow-sm">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 + (i * 0.1) }}
+                  key={i} 
+                  className="rounded-2xl border border-border-soft bg-surface p-4 shadow-sm"
+                >
                   <div className="mb-2 flex items-start justify-between gap-3">
                     <div className="text-sm font-black">{ev.source}</div>
                     <span className="rounded-full bg-evidence-bg px-2 py-1 text-xs font-black text-evidence">{ev.type}</span>
@@ -275,28 +305,34 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
                       Read full article
                     </a>
                   )}
-                </div>
+                </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
         )}
 
         {result.alternatives.length > 0 && (
-          <section>
+          <motion.section variants={itemVariants}>
             <h2 className="mb-5 text-2xl font-black">Safer Alternatives</h2>
             <div className="space-y-3">
               {result.alternatives.map((alt, i) => (
-                <div key={i} className="rounded-2xl border border-safe-bg bg-safe-bg p-4 text-safe-text">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 + (i * 0.1) }}
+                  key={i} 
+                  className="rounded-2xl border border-safe-bg bg-safe-bg p-4 text-safe-text"
+                >
                   <div className="font-black">{alt.title}</div>
                   <div className="text-sm font-semibold">{alt.company}</div>
                   {alt.salary && <div className="mt-1 text-sm font-black">{alt.salary}</div>}
-                </div>
+                </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
         )}
 
-        <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+        <motion.section variants={itemVariants} className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <h2 className="mb-4 flex items-center gap-2 text-2xl font-black">
             <AlertCircle className="w-5 h-5" />
             Next Steps
@@ -306,24 +342,33 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
               <li key={i} className="font-semibold text-muted">{step}</li>
             ))}
           </ol>
-        </section>
+        </motion.section>
 
         {isDemo && (
-          <div className="rounded-2xl border border-evidence-bg bg-evidence-bg p-4 text-center text-sm text-evidence">
+          <motion.div variants={itemVariants} className="rounded-2xl border border-evidence-bg bg-evidence-bg p-4 text-center text-sm text-evidence">
             <span className="font-black">Demo Data</span>
             <p className="mt-1 font-semibold">This is a sample investigation. Connect live APIs for real-time verification.</p>
-          </div>
+          </motion.div>
         )}
 
         <div className="text-center pb-6 print:hidden">
-          <button
-            onClick={onBackToAudit}
-            className="hireproof-focus rounded-xl bg-foreground px-6 py-3 font-black text-white shadow-lg hover:bg-safe"
-          >
-            Run Another Investigation
-          </button>
+          {onBackToAudit ? (
+            <button
+              onClick={onBackToAudit}
+              className="hireproof-focus rounded-xl bg-foreground px-6 py-3 font-black text-background shadow-lg hover:bg-safe"
+            >
+              Run Another Investigation
+            </button>
+          ) : (
+            <a
+              href="/audit"
+              className="hireproof-focus inline-block rounded-xl bg-foreground px-6 py-3 font-black text-background shadow-lg hover:bg-safe"
+            >
+              Run Another Investigation
+            </a>
+          )}
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

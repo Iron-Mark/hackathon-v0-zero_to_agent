@@ -1,0 +1,48 @@
+HIREPROOF DEMO INPUTS
+
+Use these in the Audit form for manual live demos.
+
+
+HIGH-RISK SAMPLE
+
+Company: Not provided
+Role: Remote Frontend Intern
+Salary: PHP 80,000 per week
+Location: Philippines / Remote
+Contact method: Telegram
+Application link: None
+Recruiter name: Not provided
+Interview process: No interview needed
+Requirements: Basic HTML/CSS knowledge
+Job post / message:
+We are hiring remote frontend interns. Earn PHP 80,000 weekly. No interview required. Basic HTML and CSS only. Message us on Telegram to start today.
+
+
+CAUTION SAMPLE
+
+Company: TechStart Solutions
+Role: Software Engineer
+Salary: Competitive package
+Location: Philippines / Remote or Hybrid
+Contact method: Email application
+Application link: Online form
+Recruiter name: Not provided
+Interview process: Not clearly explained
+Requirements: Software development experience, flexible role responsibilities
+Job post / message:
+TechStart Solutions is hiring a Software Engineer for a remote or hybrid role. We offer a competitive package and benefits. Responsibilities include building internal tools, supporting client projects, and helping with general technical tasks. Apply through our online form. More details will be shared after screening.
+
+
+SAFE SAMPLE
+
+Company: Microsoft
+Role: Senior Software Engineer
+Salary: $200,000 - $250,000 per year plus benefits
+Location: Seattle, WA / Hybrid
+Contact method: LinkedIn recruiter
+Application link: https://careers.microsoft.com
+Recruiter name: Provided on LinkedIn
+Interview process: Recruiter screen, technical interviews, final interview
+Requirements: React, TypeScript, cloud experience, distributed systems
+Job post / message:
+Senior Software Engineer role at Microsoft. Hybrid role in Seattle, WA. Recruiter contacted me on LinkedIn and directed me to apply through the official Microsoft careers portal. The process includes a recruiter screen, technical interviews, and a final interview.

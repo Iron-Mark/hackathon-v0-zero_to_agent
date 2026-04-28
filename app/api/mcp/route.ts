@@ -14,6 +14,13 @@ import { executeMCPTool, MCP_TOOLS } from '@/lib/mcp-tools'
 export const runtime = 'nodejs'
 
 export async function POST(request: Request) {
+  const apiKey = request.headers.get('x-api-key')
+  const expectedKey = process.env.AGENT_API_KEY || 'hireproof_agent_demo_key'
+  
+  if (!apiKey || apiKey !== expectedKey) {
+    return new Response(JSON.stringify({ error: 'Unauthorized. Invalid or missing x-api-key header.' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+  }
+
   try {
     const body = await request.json()
 
@@ -70,8 +77,15 @@ export async function POST(request: Request) {
   }
 }
 
-// Health check
-export async function GET() {
+// Health check & List
+export async function GET(request: Request) {
+  const apiKey = request.headers.get('x-api-key')
+  const expectedKey = process.env.AGENT_API_KEY || 'hireproof_agent_demo_key'
+  
+  if (!apiKey || apiKey !== expectedKey) {
+    return new Response(JSON.stringify({ error: 'Unauthorized.' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+  }
+
   return new Response(
     JSON.stringify({
       status: 'ok',
