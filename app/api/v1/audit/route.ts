@@ -1,4 +1,6 @@
 import { generateObject, generateText, tool, stepCountIs } from 'ai'
+import dns from 'node:dns'
+import { promisify } from 'node:util'
 import { createOpenAI } from '@ai-sdk/openai'
 import { z } from 'zod'
 import {
@@ -226,17 +228,36 @@ export async function POST(request: Request) {
     if (validated.webhook_url) {
       const url = new URL(validated.webhook_url)
       const hostname = url.hostname
-      // SSRF Protection: block local, private, and loopback addresses
-      const isLocal = ['localhost', '127.0.0.1', '0.0.0.0', '::1'].includes(hostname) || 
-                      hostname.startsWith('10.') || 
-                      hostname.startsWith('192.168.') || 
-                      hostname.startsWith('169.254.') || 
-                      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
-                      hostname.endsWith('.local') ||
-                      hostname.endsWith('.internal')
       
-      if (isLocal) {
+      // SSRF Protection: block local, private, and loopback addresses
+      // 1. Literal hostname check
+      const isLocalHostname = ['localhost', '127.0.0.1', '0.0.0.0', '::1', '::'].includes(hostname) || 
+                              hostname.endsWith('.local') ||
+                              hostname.endsWith('.internal')
+      
+      if (isLocalHostname) {
         return new Response(JSON.stringify({ error: 'Webhook URL cannot be a private or local network address' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+      }
+
+      // 2. Resolve IP and check ranges to prevent DNS Rebinding and IP encoding bypasses
+      try {
+        const lookup = promisify(dns.lookup)
+        const { address } = await lookup(hostname)
+        
+        const isPrivateIp = 
+          address.startsWith('10.') || 
+          address.startsWith('192.168.') || 
+          address.startsWith('169.254.') || 
+          address.startsWith('127.') ||
+          /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(address) ||
+          address === '::1' || address === '::' || address.startsWith('fe80:')
+          
+        if (isPrivateIp) {
+          return new Response(JSON.stringify({ error: 'Webhook URL resolves to a private or local network address' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+        }
+      } catch (e) {
+        // If we can't resolve the IP, it's safer to proceed but the fetch will likely fail anyway.
+        // However, we don't block here because it could be a valid but transient DNS issue.
       }
     }
   } catch (error: any) {

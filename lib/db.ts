@@ -1,5 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
+import crypto from 'crypto'
 import { AuditReport, AuditReportSchema } from './schemas'
 
 const dataDir = path.join(process.cwd(), 'data')
@@ -16,18 +17,18 @@ export async function saveReport(report: AuditReport) {
   writeLock = writeLock.then(async () => {
     try {
       await fs.mkdir(dataDir, { recursive: true })
-      let reports: Record<string, AuditReport> = {}
+      let reports: Record<string, AuditReport> = Object.create(null)
       try {
         const data = await fs.readFile(dbFile, 'utf-8')
         reports = JSON.parse(data)
         if (typeof reports !== 'object' || reports === null || Array.isArray(reports)) {
-          reports = {} // Corrupted file, reset
+          reports = Object.create(null) // Corrupted file, reset
         }
       } catch {
         // file doesn't exist or is corrupted
       }
 
-      if (!report.id) report.id = `report_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+      if (!report.id) report.id = `report_${crypto.randomUUID()}`
 
       // Evict oldest reports if over limit
       const keys = Object.keys(reports)
@@ -65,6 +66,8 @@ export async function getReport(id: string): Promise<AuditReport | null> {
     const data = await fs.readFile(dbFile, 'utf-8')
     const reports = JSON.parse(data)
     if (typeof reports !== 'object' || reports === null) return null
+    // Ensure we don't return properties from the object prototype
+    if (id === '__proto__' || id === 'constructor') return null
     return reports[id] || null
   } catch {
     return null

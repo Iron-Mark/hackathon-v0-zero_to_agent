@@ -75,6 +75,7 @@ export default function AuditPage() {
       const isLiveRequest = isLiveMode && !demoFixture
 
       const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
 
       const response = await fetch('/api/audit', {
         method: 'POST',
@@ -82,6 +83,8 @@ export default function AuditPage() {
         body: JSON.stringify({ ...data, mode: isLiveRequest ? 'live' : 'demo' }),
         signal: controller.signal,
       })
+
+      clearTimeout(timeoutId)
 
       if (!response.ok) {
         const errBody = await response.json().catch(() => ({}))
@@ -129,8 +132,14 @@ export default function AuditPage() {
           reader.releaseLock()
         }
       }
-    } catch (err) {
-      console.error('[AuditPage] Investigation failed:', err)
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.error('[AuditPage] Investigation timed out')
+        setError('Investigation timed out after 30 seconds. Loading demo report as fallback...')
+      } else {
+        console.error('[AuditPage] Investigation failed:', err)
+        setError('Live investigation failed, so HireProof loaded the demo report instead.')
+      }
       const fallbackReport: AuditReport = {
         ...(demoFixture || DEMO_FIXTURES.highRisk),
         id: `report_${Date.now()}`,

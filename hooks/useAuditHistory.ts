@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { AuditReport } from '@/lib/schemas'
 
 const STORAGE_KEY = 'hireproof_audit_history'
+const MAX_HISTORY = 50 // Limit local history to prevent QuotaExceededError and slow UI
 
 export function useAuditHistory() {
   const [history, setHistory] = useState<AuditReport[]>([])
@@ -28,7 +29,7 @@ export function useAuditHistory() {
         id: report.id || `report_${Date.now()}`,
         timestamp: report.timestamp || new Date().toISOString(),
       }
-      const updated = [newReport, ...history]
+      const updated = [newReport, ...history].slice(0, MAX_HISTORY)
       setHistory(updated)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return newReport

@@ -195,14 +195,30 @@ function buildNextSteps(verdict: AuditReport['verdict'], company: string) {
 }
 
 export async function POST(request: Request) {
-  // 1. CSRF Protection: Only allow requests from our frontend (localhost, vercel, or specified base url)
+  // 1. CSRF Protection: Mandatory check for all non-GET requests
   const origin = request.headers.get('origin')
-  if (origin) {
-    const isAllowed = ['localhost', 'vercel.app', 'hireproof'].some(o => origin.includes(o)) || 
-                      (process.env.APP_BASE_URL && origin.includes(process.env.APP_BASE_URL))
-    if (!isAllowed) {
-      return new Response(JSON.stringify({ error: 'Cross-Origin Request Blocked' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
-    }
+  const referer = request.headers.get('referer')
+  
+  // If both origin and referer are missing, it's a suspicious request (except for direct API calls with keys, which we handle differently)
+  if (!origin && !referer) {
+    return new Response(JSON.stringify({ error: 'Insecure Request: Missing Origin/Referer' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
+  }
+
+  const source = origin || referer || ''
+  const isAllowed = ['localhost', 'vercel.app', 'hireproof'].some(o => source.includes(o)) || 
+                    (process.env.APP_BASE_URL && source.includes(process.env.APP_BASE_URL))
+  
+  if (!isAllowed) {
+    return new Response(JSON.stringify({ error: 'Cross-Origin Request Blocked' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
+  }
+
+  // 1.5. Payload Size Limit (5MB)
+  const contentLength = Number(request.headers.get('content-length') || '0')
+  if (contentLength > 5 * 1024 * 1024) {
+    return new Response(JSON.stringify({ error: 'Payload too large (max 5MB)' }), { 
+      status: 413, 
+      headers: { 'Content-Type': 'application/json' } 
+    })
   }
 
   // 2. Rate Limiting (UI Tier: 5 reqs / 1 min per IP)

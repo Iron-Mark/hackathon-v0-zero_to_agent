@@ -18,6 +18,8 @@ const nextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           // Referrer policy
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // Cross-Origin Opener Policy (COOP)
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
           // Permissions policy
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=()' },
           // Content Security Policy

@@ -18,9 +18,9 @@
 
     <div id="config-section">
       <label class="label">API Server URL</label>
-      <input type="text" id="server-url" placeholder="https://hireproof.vercel.app" value="http://localhost:3000" />
+      <input type="text" id="server-url" placeholder="https://hireproof.vercel.app" value="http://localhost:3000" autocomplete="off" spellcheck="false" />
       <label class="label">API Key</label>
-      <input type="text" id="api-key" placeholder="x-api-key" value="hireproof_agent_demo_key" />
+      <input type="password" id="api-key" placeholder="x-api-key" value="hireproof_agent_demo_key" autocomplete="off" spellcheck="false" />
     </div>
 
     <div class="actions">
@@ -48,7 +48,7 @@
         <p id="summary" class="summary"></p>
       </div>
       <div id="flags-section"></div>
-      <a id="full-report-link" class="link" href="#" target="_blank">View Full Report →</a>
+      <a id="full-report-link" class="link" href="#" target="_blank" rel="noopener noreferrer">View Full Report →</a>
     </div>
 
     <div id="error" class="error" style="display:none;"></div>

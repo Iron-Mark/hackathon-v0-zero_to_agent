@@ -97,6 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     showLoading();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
       const res = await fetch(config.serverUrl + '/api/v1/audit', {
@@ -106,7 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
           'x-api-key': config.apiKey,
         },
         body: JSON.stringify({ text, mode: 'demo' }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -116,7 +121,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const report = await res.json();
       displayResult(report);
     } catch (err) {
-      showError('Investigation failed: ' + err.message);
+      if (err.name === 'AbortError') {
+        showError('Request timed out. The investigation is taking longer than expected.');
+      } else {
+        showError('Investigation failed: ' + err.message);
+      }
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

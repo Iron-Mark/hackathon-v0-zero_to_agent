@@ -13,6 +13,19 @@ interface PdfReportData {
   timestamp?: string
 }
 
+function sanitizePdfUrl(url?: string): string | undefined {
+  if (!url) return undefined
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return url
+    }
+    return undefined
+  } catch {
+    return undefined
+  }
+}
+
 export function generatePdfDossier(data: PdfReportData) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
   const pageWidth = doc.internal.pageSize.getWidth()
@@ -158,9 +171,12 @@ export function generatePdfDossier(data: PdfReportData) {
       y += snippetLines.length * 4.5 + 2
 
       if (ev.url) {
-        doc.setTextColor(59, 130, 246)
-        doc.textWithLink(ev.url.substring(0, 80), margin + 4, y, { url: ev.url })
-        y += 5
+        const safeUrl = sanitizePdfUrl(ev.url)
+        if (safeUrl) {
+          doc.setTextColor(59, 130, 246)
+          doc.textWithLink(safeUrl.substring(0, 80), margin + 4, y, { url: safeUrl })
+          y += 5
+        }
       }
       y += 3
     })
