@@ -1,4 +1,5 @@
 import { executeMCPTool, MCP_TOOLS } from '@/lib/mcp-tools'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 /**
  * MCP Route for HireProof
@@ -7,11 +8,11 @@ import { executeMCPTool, MCP_TOOLS } from '@/lib/mcp-tools'
  * - news_check: Check reputation and scams
  * - jobs_compare: Compare with legitimate jobs
  * - local_presence: Verify local footprint
- *
- * TODO: Replace mock responses with real SerpApi calls in Phase 5
  */
 
 export const runtime = 'nodejs'
+
+const VALID_METHODS = new Set(['tools/call', 'tools/list'])
 
 export async function POST(request: Request) {
   const apiKey = request.headers.get('x-api-key')
@@ -21,12 +22,48 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: 'Unauthorized. Invalid or missing x-api-key header.' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
   }
 
+  // Rate limit MCP tool calls (30 reqs / 1 min per key)
+  const rateLimitResult = checkRateLimit(`mcp_${apiKey}`, { limit: 30, windowMs: 60000 })
+  if (!rateLimitResult.success) {
+    const retryAfter = 'retryAfterMs' in rateLimitResult ? Math.ceil((rateLimitResult as any).retryAfterMs / 1000) : 60
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded.' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) },
+    })
+  }
+
   try {
-    const body = await request.json()
+    // Guard against oversized payloads
+    const contentLength = request.headers.get('content-length')
+    if (contentLength && parseInt(contentLength) > 100_000) {
+      return new Response(JSON.stringify({ error: 'Payload too large' }), { status: 413, headers: { 'Content-Type': 'application/json' } })
+    }
+
+    let body: any
+    try {
+      body = await request.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+    }
+
+    if (!body.method || typeof body.method !== 'string') {
+      return new Response(JSON.stringify({ error: 'Missing or invalid `method` field' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+    }
+
+    if (!VALID_METHODS.has(body.method)) {
+      return new Response(
+        JSON.stringify({ error: `Unknown method: ${body.method}`, valid_methods: [...VALID_METHODS] }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
 
     // Handle MCP tool calls
     if (body.method === 'tools/call') {
       const { name, arguments: params } = body
+
+      if (!name || typeof name !== 'string') {
+        return new Response(JSON.stringify({ error: 'Missing or invalid `name` field' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+      }
 
       // Validate tool exists
       const toolDefs = Object.values(MCP_TOOLS)
@@ -40,14 +77,18 @@ export async function POST(request: Request) {
         )
       }
 
-      // Execute tool
-      const result = await executeMCPTool(name, params)
+      // Sanitize params — only allow plain objects
+      const safeParams = (params && typeof params === 'object' && !Array.isArray(params)) ? params : {}
+
+      // Execute tool with timeout
+      const timeoutMs = 15_000
+      const result = await Promise.race([
+        executeMCPTool(name, safeParams),
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`Tool ${name} timed out after ${timeoutMs}ms`)), timeoutMs)),
+      ])
 
       return new Response(
-        JSON.stringify({
-          tool: name,
-          result,
-        }),
+        JSON.stringify({ tool: name, result }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
     }
@@ -55,9 +96,7 @@ export async function POST(request: Request) {
     // Handle tool listing
     if (body.method === 'tools/list') {
       return new Response(
-        JSON.stringify({
-          tools: Object.values(MCP_TOOLS),
-        }),
+        JSON.stringify({ tools: Object.values(MCP_TOOLS) }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
     }
@@ -68,10 +107,10 @@ export async function POST(request: Request) {
     )
   } catch (error) {
     console.error('[MCP] Error:', error)
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    // Don't leak stack traces in production
     return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Internal server error',
-      }),
+      JSON.stringify({ error: message.includes('timed out') ? message : 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }

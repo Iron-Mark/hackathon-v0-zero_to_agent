@@ -37,10 +37,19 @@ export function isSerpApiConfigured() {
   return Boolean(SERPAPI_KEY)
 }
 
+// Truncate inputs to prevent massive queries that could break the URL limit or abuse the API
+function sanitizeQuery(query: string, maxLength: number = 200): string {
+  if (!query) return ''
+  return query.trim().slice(0, maxLength)
+}
+
 async function fetchSerpApi(params: Record<string, any>): Promise<SerpApiResponse | null> {
   if (!SERPAPI_KEY) {
     return null // Return null if API key not configured
   }
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 8000) // 8s timeout to prevent hanging
 
   try {
     const queryParams = new URLSearchParams({
@@ -51,6 +60,7 @@ async function fetchSerpApi(params: Record<string, any>): Promise<SerpApiRespons
     const response = await fetch(`${API_BASE}?${queryParams.toString()}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
     })
 
     if (!response.ok) {
@@ -60,8 +70,14 @@ async function fetchSerpApi(params: Record<string, any>): Promise<SerpApiRespons
 
     return await response.json()
   } catch (error) {
-    console.error('[SerpApi] search error:', error)
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      console.warn('[SerpApi] search timed out')
+    } else {
+      console.error('[SerpApi] search error:', error)
+    }
     return null
+  } finally {
+    clearTimeout(timeoutId)
   }
 }
 
@@ -73,11 +89,14 @@ export async function searchCompanyPresence(
   role: string
 ): Promise<EvidenceItem[]> {
   const evidence: EvidenceItem[] = []
+  const safeCompany = sanitizeQuery(companyName, 100)
+  
+  if (!safeCompany) return evidence
 
   try {
     const data = await fetchSerpApi({
       engine: 'google',
-      q: `${companyName} company official website linkedin`,
+      q: `${safeCompany} company official website linkedin`,
       num: 5,
       gl: 'us',
     })
@@ -86,8 +105,8 @@ export async function searchCompanyPresence(
       data.organic_results.slice(0, 3).forEach((result: SerpApiSearchResult) => {
         evidence.push({
           source: 'Web Search',
-          snippet: result.snippet || result.title,
-          url: result.link,
+          snippet: (result.snippet || result.title || '').slice(0, 1000),
+          url: result.link ? result.link.slice(0, 2000) : undefined,
           type: 'Company Check',
         })
       })
@@ -104,11 +123,14 @@ export async function searchCompanyPresence(
  */
 export async function searchNewsReputation(companyName: string): Promise<EvidenceItem[]> {
   const evidence: EvidenceItem[] = []
+  const safeCompany = sanitizeQuery(companyName, 100)
+
+  if (!safeCompany) return evidence
 
   try {
     const data = await fetchSerpApi({
       engine: 'google_news',
-      q: `${companyName} scam fraud review reputation`,
+      q: `${safeCompany} scam fraud review reputation`,
       num: 5,
       gl: 'us',
     })
@@ -120,9 +142,9 @@ export async function searchNewsReputation(companyName: string): Promise<Evidenc
           : result.source?.name
 
         evidence.push({
-          source: source || 'News',
-          snippet: result.title || '',
-          url: result.link,
+          source: sanitizeQuery(source || 'News', 100),
+          snippet: sanitizeQuery(result.title || '', 1000),
+          url: result.link ? result.link.slice(0, 2000) : undefined,
           type: 'Reputation',
         })
       })
@@ -142,11 +164,15 @@ export async function searchComparableJobs(
   location: string
 ): Promise<EvidenceItem[]> {
   const evidence: EvidenceItem[] = []
+  const safeRole = sanitizeQuery(role, 100)
+  const safeLocation = sanitizeQuery(location, 100)
+
+  if (!safeRole) return evidence
 
   try {
     const data = await fetchSerpApi({
       engine: 'google_jobs',
-      q: `${role} jobs ${location}`,
+      q: `${safeRole} jobs ${safeLocation}`,
       num: 5,
       gl: 'us',
     })
@@ -155,9 +181,9 @@ export async function searchComparableJobs(
       data.jobs_results.slice(0, 3).forEach((result) => {
         const salaryInfo = result.salary ? ` - ${result.salary}` : ''
         evidence.push({
-          source: result.via || 'Job Board',
-          snippet: `${result.title} at ${result.company_name}${salaryInfo}`,
-          url: result.related_links?.find(link => link.link)?.link,
+          source: sanitizeQuery(result.via || 'Job Board', 100),
+          snippet: sanitizeQuery(`${result.title} at ${result.company_name}${salaryInfo}`, 1000),
+          url: result.related_links?.find(link => link.link)?.link?.slice(0, 2000),
           type: 'Comparable Jobs',
         })
       })
@@ -177,11 +203,15 @@ export async function searchLocalPresence(
   location: string
 ): Promise<EvidenceItem[]> {
   const evidence: EvidenceItem[] = []
+  const safeCompany = sanitizeQuery(companyName, 100)
+  const safeLocation = sanitizeQuery(location, 100)
+
+  if (!safeCompany) return evidence
 
   try {
     const data = await fetchSerpApi({
       engine: 'google',
-      q: `"${companyName}" business address ${location} maps`,
+      q: `"${safeCompany}" business address ${safeLocation} maps`,
       num: 5,
       gl: 'us',
     })
@@ -190,7 +220,7 @@ export async function searchLocalPresence(
       data.local_results.slice(0, 2).forEach((result: any) => {
         evidence.push({
           source: 'Local Search',
-          snippet: `${result.title} - ${result.address}`,
+          snippet: sanitizeQuery(`${result.title} - ${result.address}`, 1000),
           type: 'Local Presence',
         })
       })
@@ -198,8 +228,8 @@ export async function searchLocalPresence(
       data.organic_results.slice(0, 2).forEach((result: SerpApiSearchResult) => {
         evidence.push({
           source: 'Local Search',
-          snippet: result.snippet || result.title,
-          url: result.link,
+          snippet: sanitizeQuery(result.snippet || result.title, 1000),
+          url: result.link ? result.link.slice(0, 2000) : undefined,
           type: 'Local Presence',
         })
       })

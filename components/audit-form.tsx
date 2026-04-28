@@ -102,6 +102,7 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
           className="hireproof-focus w-full resize-none rounded-xl border border-border bg-background p-4 text-sm font-medium leading-6 placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg dark:focus:bg-surface"
           disabled={loading}
           rows={image ? 3 : 6}
+          maxLength={10000}
         />
       </div>
 
@@ -118,6 +119,7 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
           aria-label="Job URL"
           className="hireproof-focus w-full rounded-xl border border-border bg-background p-3 text-sm font-medium placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg dark:focus:bg-surface"
           disabled={loading}
+          maxLength={2000}
         />
       </div>
 
@@ -134,6 +136,7 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
           aria-label="Location"
           className="hireproof-focus w-full rounded-xl border border-border bg-background p-3 text-sm font-medium placeholder:text-muted/70 focus:border-evidence focus:bg-white focus:outline-none focus:ring-4 focus:ring-evidence-bg dark:focus:bg-surface"
           disabled={loading}
+          maxLength={200}
         />
       </div>
 

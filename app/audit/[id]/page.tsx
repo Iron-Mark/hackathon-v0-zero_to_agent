@@ -2,11 +2,18 @@ import { getReport } from '@/lib/db'
 import ResultScreen from '@/components/result-screen'
 import { SiteHeader } from '@/components/site-header'
 import { redirect } from 'next/navigation'
+import { ErrorBoundary } from '@/components/error-boundary'
 
 export const runtime = 'nodejs'
 
 export default async function AuditPermalinkPage({ params }: { params: { id: string } }) {
-  const report = await getReport(params.id)
+  // Input validation: ensure ID only contains valid characters to guard against path traversal or injections
+  const safeId = typeof params.id === 'string' ? params.id.trim() : ''
+  if (!safeId || !/^report_[a-zA-Z0-9_-]+$/.test(safeId) || safeId.length > 100) {
+    redirect('/audit')
+  }
+
+  const report = await getReport(safeId)
 
   if (!report) {
     redirect('/audit')
@@ -20,10 +27,12 @@ export default async function AuditPermalinkPage({ params }: { params: { id: str
           Archived Report • {new Date(report.timestamp || Date.now()).toLocaleDateString()}
         </span>
       </div>
-      <ResultScreen 
-        result={report} 
-        isDemo={report.mode !== 'live'} 
-      />
+      <ErrorBoundary fallbackMessage="Failed to render the archived report.">
+        <ResultScreen 
+          result={report} 
+          isDemo={report.mode !== 'live'} 
+        />
+      </ErrorBoundary>
     </div>
   )
 }
