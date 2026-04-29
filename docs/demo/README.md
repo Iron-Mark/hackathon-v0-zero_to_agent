@@ -9,6 +9,8 @@ This folder contains presentation-ready materials for pitching HireProof.
 - `slides.md`: Markdown slide deck outline for presenting the idea.
 - `slide-wireframe.md`: visual layout blueprint for turning the slide outline into a polished deck.
 - `research-notes.md`: sourced research notes supporting the demo narrative and technical framing.
+- `proof-archive.md`: production proof archive for the deployed web app, ChatSDK Slack screenshot, and WDK accepted run.
+- `Screenshot 2026-04-30 024756.jpg`: Slack proof showing `@HireProof` returning a High-Risk verdict.
 
 ## Core Message
 

@@ -23,6 +23,7 @@ For the most up-to-date technical documentation, visit the **[Live Documentation
 - `platform-proof-status.md`: Current ChatSDK, WDK, AI Gateway, and Vercel environment proof state.
 - `remaining-work.md`: Current punch list for runtime wiring, product gaps, and hardening work.
 - `submission-package.md`: Original submission copy and demo checklists.
+- `demo/proof-archive.md`: Judge-facing proof archive for production readiness, Slack proof, and WDK accepted-run evidence.
 
 ### Guidelines & Security
 - `AGENTS.md`: Contributor and AI Agent guidelines for this repository.
@@ -30,4 +31,4 @@ For the most up-to-date technical documentation, visit the **[Live Documentation
 
 ### Assets
 - `prompts/`: Historical prompt packs used to generate the initial v0 scaffolds.
-- `demo/`: Seeded investigation fixtures used for the "Demo Mode" fallback.
+- `demo/`: Demo scripts, proof archive, Slack screenshot evidence, and seeded investigation fixtures used for fallback demos.

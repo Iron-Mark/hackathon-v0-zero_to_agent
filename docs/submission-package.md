@@ -99,7 +99,7 @@ Paste a job post, recruiter message, or suspicious listing, and it investigates 
 
 It returns a Safe, Caution, or High-Risk verdict with red flags, proof links, and safer alternatives.
 
-Built with v0, Vercel, MCP, AI SDK, and SerpApi, with ChatSDK and workflow expansion documented as the next delivery layers.
+Built with v0, Vercel, MCP, AI SDK, and SerpApi, with live-tested ChatSDK Slack proof and a production-accepted Vercel Workflow run.
 
 ### Short Video Caption
 
@@ -115,7 +115,7 @@ Hey, I built HireProof for Zero to Agent. It checks suspicious job posts with li
 2. Share the 15-second clip first, then the full demo link.
 3. Lead with the pain: "Would this save someone from a sketchy job post?"
 4. Ask for votes only after showing the result.
-5. Reply quickly to technical questions about v0, MCP, SerpApi, Vercel, ChatSDK, and workflow expansion.
+5. Reply quickly to technical questions about v0, MCP, SerpApi, Vercel, ChatSDK, and WDK proof.
 6. Keep the app no-auth and demo-ready during the full voting window.
 7. Use the same sample flow for every live walkthrough.
 
