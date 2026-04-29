@@ -102,9 +102,10 @@ export default function HistoryPage() {
         ) : filtered.length > 0 ? (
           <div className="space-y-3">
             {filtered.map((item) => (
-              <div
+              <Link
                 key={item.id}
-                className="flex items-center justify-between gap-4 rounded-2xl border border-border-soft bg-surface p-4 shadow-sm transition-colors hover:bg-background"
+                href={item.id ? `/audit/${item.id}` : '/audit'}
+                className="flex items-center justify-between gap-4 rounded-2xl border border-border-soft bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-evidence/30 hover:shadow-md hover:bg-background"
               >
                 <div className="min-w-0 flex-1">
                   <div className="mb-3 flex flex-wrap items-center gap-3">
@@ -117,8 +118,8 @@ export default function HistoryPage() {
                     {item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'Recently'}
                   </p>
                 </div>
-                <ArrowRight className="h-5 w-5 shrink-0 text-muted" />
-              </div>
+                <ArrowRight className="h-5 w-5 shrink-0 text-muted transition-transform group-hover:translate-x-1" />
+              </Link>
             ))}
           </div>
         ) : (

@@ -15,11 +15,13 @@ type Trends = {
 
 export default function TrendsPage() {
   const [trends, setTrends] = useState<Trends | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/intelligence/trends')
       .then((res) => res.json())
       .then(setTrends)
+      .finally(() => setLoading(false))
   }, [])
 
   function downloadReport() {
@@ -44,19 +46,38 @@ export default function TrendsPage() {
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 inline-flex rounded-full bg-risk-bg px-3 py-1 text-xs font-black uppercase tracking-normal text-risk-text">
-              {trends?.mode === 'hybrid' ? 'Stored audits + live search' : 'Stored audit aggregate'}
+              {loading ? 'Analyzing data...' : (trends?.mode === 'hybrid' ? 'Stored audits + live search' : 'Stored audit aggregate')}
             </div>
             <h1 className="text-4xl font-black lg:text-5xl">Global Scam Trends</h1>
             <p className="mt-4 max-w-2xl text-lg font-medium leading-relaxed text-muted">
               Aggregated from reports saved by this HireProof deployment.
             </p>
           </div>
-          <button onClick={downloadReport} className="inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 font-black text-background hover:bg-safe">
-            <Download className="h-4 w-4" /> Export report
-          </button>
+          {!loading && (
+            <button onClick={downloadReport} className="inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 font-black text-background hover:bg-safe">
+              <Download className="h-4 w-4" /> Export report
+            </button>
+          )}
         </div>
 
-        <div className="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {loading ? (
+          <div className="space-y-10">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-32 animate-pulse rounded-3xl border border-border-soft bg-surface/50" />
+              ))}
+            </div>
+            <div className="grid gap-8 lg:grid-cols-[1fr_350px]">
+              <div className="h-96 animate-pulse rounded-3xl border border-border-soft bg-surface/50" />
+              <div className="space-y-6">
+                <div className="h-48 animate-pulse rounded-3xl border border-border-soft bg-surface/50" />
+                <div className="h-48 animate-pulse rounded-3xl border border-border-soft bg-surface/50" />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Total Audits" value={trends?.totalReports ?? 0} icon={Globe} />
           <StatCard title="High-Risk" value={highRisk} icon={AlertCircle} color="text-risk-text" />
           <StatCard title="Caution" value={caution} icon={TrendingUp} color="text-caution-text" />
@@ -88,11 +109,13 @@ export default function TrendsPage() {
             </div>
           </section>
 
-          <aside className="space-y-6">
-            <ListCard title="Top Roles" items={trends?.topRoles || []} />
-            <ListCard title="Contact Methods" items={trends?.topContactMethods || []} />
-          </aside>
-        </div>
+            <aside className="space-y-6">
+              <ListCard title="Top Roles" items={trends?.topRoles || []} />
+              <ListCard title="Contact Methods" items={trends?.topContactMethods || []} />
+            </aside>
+          </div>
+        </>
+      )}
       </main>
     </div>
   )

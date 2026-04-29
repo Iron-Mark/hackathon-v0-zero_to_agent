@@ -149,7 +149,7 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
         data-testid="investigate-button"
         aria-label="Investigate Job Post"
         disabled={loading || (!text.trim() && !image)}
-        className="hireproof-focus flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-3 font-black text-background shadow-lg hover:bg-safe disabled:cursor-not-allowed disabled:opacity-50"
+        className="hireproof-focus cta-glow flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-3 font-black text-background shadow-lg hover:bg-safe disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
         {loading ? 'Investigating...' : 'Investigate'}

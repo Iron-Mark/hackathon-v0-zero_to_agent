@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { AlertTriangle, CheckCircle2, Play, Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AuditForm from '@/components/audit-form'
@@ -36,7 +37,7 @@ const demoFixtures: Record<DemoScenario, AuditReport> = {
   safe: DEMO_FIXTURES.safe,
 }
 
-export default function AuditPage() {
+function AuditContent() {
   const [result, setResult] = useState<AuditReport | null>(null)
   const [loading, setLoading] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
@@ -44,9 +45,10 @@ export default function AuditPage() {
   const [lastRequest, setLastRequest] = useState<AuditRequest | null>(null)
   const [agentLogs, setAgentLogs] = useState<string[]>([])
   
-  const startedFromUrl = useRef(false)
   const { addReport } = useAuditHistory()
   const { isLiveMode } = useLiveMode()
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
   const handleInvestigate = async (data: AuditRequest, demoFixture?: AuditReport) => {
     setLoading(true)
@@ -122,7 +124,7 @@ export default function AuditPage() {
                   setIsDemo(report.mode !== 'live')
                   setResult(report)
                   addReport(report)
-                  window.history.pushState(null, '', '/audit/' + report.id)
+                  router.push('/audit/' + report.id, { scroll: false })
                 } else if (parsed.type === 'error') {
                   throw new Error(parsed.message)
                 }
@@ -161,22 +163,17 @@ export default function AuditPage() {
   }
 
   useEffect(() => {
-    if (startedFromUrl.current || typeof window === 'undefined') return
-
-    const params = new URLSearchParams(window.location.search)
-    const demo = params.get('demo')
-    const text = params.get('text')
+    const demo = searchParams.get('demo')
+    const text = searchParams.get('text')
 
     if (demo === 'high-risk' || demo === 'caution' || demo === 'safe') {
-      startedFromUrl.current = true
-      runQuickDemo(demo)
-      window.history.replaceState(null, '', '/audit')
+      runQuickDemo(demo as DemoScenario)
+      router.replace('/audit')
     } else if (text) {
-      startedFromUrl.current = true
       void handleInvestigate({ text })
-      window.history.replaceState(null, '', '/audit')
+      router.replace('/audit')
     }
-  }, [])
+  }, [searchParams, router])
 
   if (result) {
     return (
@@ -238,13 +235,14 @@ export default function AuditPage() {
               exit={{ opacity: 0 }}
               className="mb-10"
             >
-              <div className="mb-6 rounded-2xl border border-border bg-surface shadow-sm p-6">
-                <div className="mb-5 flex items-center justify-between gap-4">
+              <div className="relative mb-6 rounded-2xl border border-border bg-surface shadow-sm p-6 overflow-hidden">
+                <div className="bot-scan-line" />
+                <div className="mb-5 flex items-center justify-between gap-4 relative z-10">
                   <div>
-                    <p className="text-sm font-black">Investigation running</p>
+                    <p className="text-sm font-black uppercase tracking-widest text-muted mb-1">Investigation running</p>
                     <p className="text-sm font-semibold text-muted">Agent is orchestrating tools to gather live evidence.</p>
                   </div>
-                  <span className="rounded-full bg-evidence-bg px-3 py-1 text-xs font-black text-evidence animate-pulse">Agent Active</span>
+                  <span className="rounded-full bg-evidence-bg px-3 py-1 text-xs font-black text-evidence animate-pulse border border-evidence/20">Agent Active</span>
                 </div>
                 <div className="space-y-3">
                   {agentLogs.length === 0 ? (
@@ -330,5 +328,20 @@ export default function AuditPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AuditPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <div className="mx-auto max-w-4xl px-4 py-10">
+          <AuditSkeleton />
+        </div>
+      </div>
+    }>
+      <AuditContent />
+    </Suspense>
   )
 }

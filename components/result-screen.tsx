@@ -13,6 +13,7 @@ import { Confetti } from '@/components/confetti'
 
 interface Result {
   id?: string
+  userFeedback?: 'helpful' | 'incorrect'
   verdict: 'safe' | 'caution' | 'high-risk'
   riskScore: number
   confidence: string
@@ -56,6 +57,8 @@ function sanitizeUrl(url?: string): string | undefined {
 export default function ResultScreen({ result, isDemo = true, onBackToAudit }: ResultScreenProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [isExporting, setIsExporting] = useState(false)
+  const [feedbackGiven, setFeedbackGiven] = useState<boolean>(Boolean(result.userFeedback))
+  const [submittingFeedback, setSubmittingFeedback] = useState<'helpful' | 'incorrect' | null>(null)
   const { resolvedTheme } = useTheme()
   
   const getVerdictColor = (verdict: string) => {
@@ -169,6 +172,38 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
     showToast('Scam Alert card downloaded! Share it on social media.', 'success')
   }
 
+  const submitFeedback = async (vote: 'helpful' | 'incorrect') => {
+    if (feedbackGiven || !result.id || submittingFeedback) return
+    setSubmittingFeedback(vote)
+    setFeedbackGiven(true)
+    
+    try {
+      const res = await fetch('/api/intelligence/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: result.id, feedback: vote }),
+      })
+      
+      if (res.ok) {
+        showToast(
+          vote === 'helpful' 
+            ? 'Thanks! We use your feedback to improve our AI model.' 
+            : 'Thanks for the report! Our security team will review this case.',
+          'success'
+        )
+      } else {
+        // Revert UI state if failed
+        setFeedbackGiven(false)
+        showToast('Failed to submit feedback. Please try again.', 'error')
+      }
+    } catch {
+      setFeedbackGiven(false)
+      showToast('Network error while submitting feedback.', 'error')
+    } finally {
+      setSubmittingFeedback(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {result.verdict === 'safe' && result.riskScore < 15 && <Confetti />}
@@ -253,10 +288,17 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
         animate="show"
         ref={contentRef} 
         id="result-content"
-        className="mx-auto max-w-4xl space-y-10 px-4 py-10" 
+        className="mx-auto max-w-4xl space-y-10 px-4 py-10 relative" 
         aria-live="polite"
       >
-        <motion.section variants={itemVariants} className={`rounded-2xl border p-6 shadow-sm sm:p-8 ${getVerdictBg(result.verdict)}`}>
+        {/* Dossier Watermark */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03] select-none z-0">
+          <div className="text-[20vw] font-black rotate-[-30deg] whitespace-nowrap">
+            {result.verdict === 'safe' ? 'VERIFIED' : result.verdict === 'high-risk' ? 'SCAM ALERT' : 'CAUTION'}
+          </div>
+        </div>
+
+        <motion.section variants={itemVariants} className={`relative z-10 rounded-2xl border p-6 shadow-sm sm:p-8 ${getVerdictBg(result.verdict)}`}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
             <div className={`${getVerdictColor(result.verdict)} flex-shrink-0`}>
               {getVerdictIcon(result.verdict)}
@@ -534,19 +576,23 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
 
         <div className="text-center pb-6 print:hidden">
           <div className="mb-10 rounded-2xl border border-border-soft bg-surface/30 p-6">
-            <p className="mb-4 text-xs font-black uppercase tracking-wider text-muted">Was this investigation accurate?</p>
+            <p className="mb-4 text-xs font-black uppercase tracking-wider text-muted">
+              {feedbackGiven ? 'Thank you for your feedback!' : 'Was this investigation accurate?'}
+            </p>
             <div className="flex justify-center gap-4">
               <button 
-                onClick={() => showToast('Thanks! We use your feedback to improve our AI model.')}
-                className="hireproof-focus flex items-center gap-2 rounded-full border border-border px-6 py-2 text-sm font-bold hover:bg-safe/10 hover:text-safe"
+                onClick={() => submitFeedback('helpful')}
+                disabled={feedbackGiven || !result.id || !!submittingFeedback}
+                className="hireproof-focus flex items-center gap-2 rounded-full border border-border px-6 py-2 text-sm font-bold hover:bg-safe/10 hover:text-safe disabled:opacity-50 disabled:pointer-events-none"
               >
-                👍 Helpful
+                {submittingFeedback === 'helpful' ? <Loader2 className="w-4 h-4 animate-spin" /> : '👍'} Helpful
               </button>
               <button 
-                onClick={() => showToast('Thanks for the report! Our security team will review this case.')}
-                className="hireproof-focus flex items-center gap-2 rounded-full border border-border px-6 py-2 text-sm font-bold hover:bg-risk/10 hover:text-risk"
+                onClick={() => submitFeedback('incorrect')}
+                disabled={feedbackGiven || !result.id || !!submittingFeedback}
+                className="hireproof-focus flex items-center gap-2 rounded-full border border-border px-6 py-2 text-sm font-bold hover:bg-risk/10 hover:text-risk disabled:opacity-50 disabled:pointer-events-none"
               >
-                👎 Incorrect
+                {submittingFeedback === 'incorrect' ? <Loader2 className="w-4 h-4 animate-spin" /> : '👎'} Incorrect
               </button>
             </div>
             <div className="mt-6 border-t border-border-soft pt-4">

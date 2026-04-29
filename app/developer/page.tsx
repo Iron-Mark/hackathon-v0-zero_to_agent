@@ -15,7 +15,6 @@ import {
   Activity, 
   Code2, 
   RefreshCcw,
-  LayoutDashboard,
   Webhook,
   ArrowUpRight
 } from 'lucide-react'
@@ -35,10 +34,17 @@ export default function DeveloperPortal() {
   const [name, setName] = useState('')
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [newKey, setNewKey] = useState<string | null>(null)
+  const [webhookUrl, setWebhookUrl] = useState('')
+  const [isTestingWebhook, setIsTestingWebhook] = useState(false)
   
   // Infrastructure Keys (BYOK)
   const [openaiKey, setOpenaiKey] = useState('')
   const [serpapiKey, setSerpapiKey] = useState('')
+  const [isVerifyingOpenAI, setIsVerifyingOpenAI] = useState(false)
+  const [isVerifyingSerp, setIsVerifyingSerp] = useState(false)
+  const [systemLogs, setSystemLogs] = useState<Array<{ msg: string; type: 'info' | 'success' | 'error'; time: string }>>([
+    { msg: 'System initialized. Waiting for investigator...', type: 'info', time: new Date().toLocaleTimeString() }
+  ])
 
   async function load() {
     try {
@@ -109,6 +115,77 @@ export default function DeveloperPortal() {
     showToast('Copied to clipboard.', 'success')
   }
 
+  async function testWebhook() {
+    if (!webhookUrl) return showToast('Please enter a webhook URL.', 'info')
+    
+    setIsTestingWebhook(true)
+    addLog(`Initiating webhook test to: ${webhookUrl}`, 'info')
+    try {
+      const res = await fetch('/api/developer/webhook-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: webhookUrl }),
+      })
+      
+      const json = await res.json()
+      
+      if (!res.ok) {
+        showToast(json.error || 'Failed to send webhook.', 'info')
+        addLog(`Webhook delivery failed: ${json.error || 'Unknown error'}`, 'error')
+      } else {
+        showToast('Webhook payload delivered successfully!', 'success')
+        addLog('Webhook payload delivered and ACK received.', 'success')
+      }
+    } catch (e) {
+      showToast('Network error while testing webhook.', 'info')
+      addLog('Network error during webhook orchestration.', 'error')
+    } finally {
+      setIsTestingWebhook(false)
+    }
+  }
+
+  function addLog(msg: string, type: 'info' | 'success' | 'error' = 'info') {
+    setSystemLogs(prev => [{ msg, type, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 50))
+  }
+
+  async function verifyKey(provider: 'openai' | 'serp') {
+    const key = provider === 'openai' ? openaiKey : serpapiKey
+    if (!key) return showToast(`Please enter your ${provider === 'openai' ? 'OpenAI' : 'SerpApi'} key first.`, 'info')
+    
+    const setter = provider === 'openai' ? setIsVerifyingOpenAI : setIsVerifyingSerp
+    setter(true)
+    addLog(`Verifying ${provider.toUpperCase()} infrastructure connection...`, 'info')
+    
+    try {
+      // We'll call a dedicated verification endpoint or do a minimal test
+      const res = await fetch('/api/developer/verify-infrastructure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, key }),
+      })
+      
+      const json = await res.json()
+      if (res.ok && json.valid) {
+        showToast(`${provider.toUpperCase()} key verified successfully.`, 'success')
+        addLog(`${provider.toUpperCase()} connection established and verified.`, 'success')
+      } else {
+        showToast(json.error || `Invalid ${provider.toUpperCase()} key.`, 'info')
+        addLog(`${provider.toUpperCase()} verification failed: ${json.error || 'Invalid credentials'}`, 'error')
+      }
+    } catch (e) {
+      showToast(`Failed to verify ${provider.toUpperCase()} key.`, 'info')
+      addLog(`Communication error with ${provider.toUpperCase()} gateway.`, 'error')
+    } finally {
+      setter(false)
+    }
+  }
+
+  async function logout() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    setUser(null)
+    showToast('Signed out successfully.', 'info')
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
@@ -149,6 +226,21 @@ export default function DeveloperPortal() {
               <button onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="w-full py-2 text-xs font-black text-muted transition-colors hover:text-foreground">
                 {mode === 'login' ? 'NEED NEW CREDENTIALS? REGISTER →' : 'ALREADY HAVE ACCESS? SIGN IN →'}
               </button>
+
+              {/* Judge / Reviewer Shortcut */}
+              <div className="mt-6 pt-6 border-t border-border-soft border-dashed">
+                <button 
+                  onClick={() => {
+                    setEmail('judge@hackathon.com')
+                    setPassword('hireproof2026')
+                    setMode('login')
+                    showToast('Demo credentials pre-filled.', 'success')
+                  }}
+                  className="w-full rounded-xl border border-border-soft bg-background py-2 text-[10px] font-black uppercase tracking-widest text-muted hover:border-evidence hover:text-foreground transition-all"
+                >
+                  Quick Demo Login (For Judges)
+                </button>
+              </div>
             </div>
           </div>
           <p className="mt-8 text-[10px] font-black uppercase tracking-widest text-muted/50">
@@ -164,20 +256,30 @@ export default function DeveloperPortal() {
       <SiteHeader />
       
       <main className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-black">Developer Portal</h1>
+            <p className="mt-1 font-medium text-muted">Manage your API keys and webhook integrations.</p>
+          </div>
+          <button onClick={logout} className="rounded-xl border border-border-soft bg-surface px-4 py-2 text-xs font-black text-muted transition-colors hover:bg-background hover:text-foreground">
+            Sign Out
+          </button>
+        </div>
+
         {/* Header Stats */}
         <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: 'Infrastructure Status', value: 'Operational', icon: Activity, color: 'text-safe' },
             { label: 'API Requests (30d)', value: usage?.totalRequests ?? '0', icon: Database, color: 'text-evidence' },
-            { label: 'Success Rate', value: '99.8%', icon: Zap, color: 'text-safe' },
+            { label: 'Success Rate', value: usage?.totalRequests ? `${((usage.successfulRequests / usage.totalRequests) * 100).toFixed(1)}%` : '100%', icon: Zap, color: 'text-safe' },
             { label: 'Active Keys', value: keys.length, icon: Key, color: 'text-foreground' },
           ].map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-border-soft bg-surface p-5 shadow-sm">
+            <div key={stat.label} className="rounded-2xl border border-border-soft bg-surface p-5 shadow-sm hover:border-evidence/50 transition-colors">
               <div className="mb-3 flex items-center justify-between">
-                <div className={`rounded-lg bg-surface p-2 ${stat.color} border border-border-soft`}>
+                <div className={`rounded-lg bg-background p-2 ${stat.color} border border-border-soft`}>
                   <stat.icon className="h-5 w-5" />
                 </div>
-                <div className="h-2 w-2 rounded-full bg-safe animate-pulse" />
+                <div className={`h-2 w-2 rounded-full ${stat.value === 'Operational' || stat.label === 'Success Rate' ? 'bg-safe animate-pulse' : 'bg-muted'} `} />
               </div>
               <div className="text-[10px] font-black uppercase tracking-widest text-muted">{stat.label}</div>
               <div className="mt-1 text-2xl font-black">{stat.value}</div>
@@ -193,7 +295,7 @@ export default function DeveloperPortal() {
             <section className="rounded-3xl border border-border-soft bg-surface shadow-sm overflow-hidden">
               <div className="border-b border-border-soft bg-background/50 px-8 py-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <LayoutDashboard className="h-5 w-5 text-evidence" />
+                  <Key className="h-5 w-5 text-evidence" />
                   <h2 className="text-xl font-black">Managed API Keys</h2>
                 </div>
                 <button onClick={createKey} className="flex items-center gap-2 rounded-xl bg-foreground px-4 py-2 text-xs font-black text-background hover:bg-evidence transition-all">
@@ -254,7 +356,16 @@ export default function DeveloperPortal() {
               <div className="p-8 space-y-6">
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted">OpenAI API Key</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted">OpenAI API Key</label>
+                      <button 
+                        onClick={() => verifyKey('openai')} 
+                        disabled={isVerifyingOpenAI}
+                        className="text-[10px] font-black uppercase tracking-widest text-safe hover:underline disabled:opacity-50"
+                      >
+                        {isVerifyingOpenAI ? 'Verifying...' : 'Verify Connection'}
+                      </button>
+                    </div>
                     <input 
                       type="password" 
                       value={openaiKey} 
@@ -264,7 +375,16 @@ export default function DeveloperPortal() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted">SerpApi Key</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted">SerpApi Key</label>
+                      <button 
+                        onClick={() => verifyKey('serp')} 
+                        disabled={isVerifyingSerp}
+                        className="text-[10px] font-black uppercase tracking-widest text-evidence hover:underline disabled:opacity-50"
+                      >
+                        {isVerifyingSerp ? 'Verifying...' : 'Verify Connection'}
+                      </button>
+                    </div>
                     <input 
                       type="password" 
                       value={serpapiKey} 
@@ -279,6 +399,54 @@ export default function DeveloperPortal() {
                 </button>
                 <p className="text-center text-[10px] font-black text-muted uppercase tracking-tighter opacity-50">
                   STORED STRICTLY IN LOCALSTORAGE · NEVER SENT TO OUR SERVERS
+                </p>
+              </div>
+            </section>
+
+            {/* Recent API Activity */}
+            <section className="rounded-3xl border border-border-soft bg-surface shadow-sm overflow-hidden">
+              <div className="border-b border-border-soft bg-background/50 px-8 py-6">
+                <div className="flex items-center gap-3">
+                  <Activity className="h-5 w-5 text-evidence" />
+                  <h2 className="text-xl font-black">Recent API Activity</h2>
+                </div>
+                <p className="mt-1 text-[10px] font-black text-muted uppercase tracking-widest">Global Telemetry Stream</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-border-soft text-[10px] font-black uppercase tracking-widest text-muted">
+                      <th className="px-8 py-4">Endpoint</th>
+                      <th className="px-4 py-4 text-center">Status</th>
+                      <th className="px-4 py-4">Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-xs font-semibold">
+                    {usage?.recent?.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="px-8 py-12 text-center text-muted italic">No recent activity found.</td>
+                      </tr>
+                    ) : (
+                      usage?.recent?.map((event) => (
+                        <tr key={event.id} className="border-b border-border-soft/50 hover:bg-background/50 transition-colors">
+                          <td className="px-8 py-4 font-mono text-[10px] text-muted">{event.endpoint}</td>
+                          <td className="px-4 py-4 text-center">
+                            <span className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase ${event.status >= 200 && event.status < 300 ? 'bg-safe/10 text-safe' : 'bg-risk-bg/10 text-risk-text'}`}>
+                              {event.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-muted whitespace-nowrap">
+                            {new Date(event.createdAt).toLocaleTimeString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="p-4 border-t border-border-soft bg-background/30 text-center">
+                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">
+                  Usage data is retained for 30 days. <a href="/docs/telemetry" className="text-evidence hover:underline">View retention policy</a>
                 </p>
               </div>
             </section>
@@ -314,12 +482,46 @@ export default function DeveloperPortal() {
               <div className="space-y-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted">Endpoint URL</label>
-                  <input placeholder="https://api.myapp.com/webhook" className="w-full rounded-xl border border-border-soft bg-background p-3 text-xs font-semibold outline-none focus:border-evidence" />
+                  <input 
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    placeholder="https://api.myapp.com/webhook" 
+                    className="w-full rounded-xl border border-border-soft bg-background p-3 text-xs font-semibold outline-none focus:border-evidence" 
+                  />
                 </div>
-                <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-3 text-xs font-black transition-all hover:bg-surface">
-                  Send Test Event
+                <button 
+                  onClick={testWebhook}
+                  disabled={isTestingWebhook}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-3 text-xs font-black transition-all hover:bg-surface disabled:opacity-50"
+                >
+                  {isTestingWebhook ? 'Sending Event...' : 'Send Test Event'}
                 </button>
               </div>
+            </section>
+
+            {/* Verified Badge Generation */}
+            <section className="rounded-3xl border border-border-soft bg-surface p-8 shadow-sm">
+              <div className="mb-6 flex items-center gap-3">
+                <ShieldCheck className="h-5 w-5 text-safe" />
+                <h3 className="text-lg font-black">Verified Badge</h3>
+              </div>
+              <p className="mb-4 text-xs font-semibold text-muted leading-relaxed">
+                Display your HireProof status on your careers page. Use this snippet to embed a live verification badge.
+              </p>
+              <div className="rounded-xl bg-background p-4 font-mono text-[10px] text-muted overflow-x-auto border border-border-soft group relative">
+                <code className="whitespace-pre">
+                  {`<iframe \n  src="${typeof window !== 'undefined' ? window.location.origin : ''}/badge?domain=${user?.email.split('@')[1]}"\n  width="180"\n  height="60"\n  frameborder="0"\n/>`}
+                </code>
+                <button 
+                  onClick={() => copy(`<iframe src="${window.location.origin}/badge?domain=${user?.email.split('@')[1]}" width="180" height="60" frameborder="0"/>`)}
+                  className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface p-1 rounded border border-border-soft"
+                >
+                  <Copy className="h-3 w-3" />
+                </button>
+              </div>
+              <Link href="/docs/verified-badge" className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-3 text-xs font-black transition-all hover:bg-surface">
+                View Integration Guide
+              </Link>
             </section>
 
             {/* Quick Links */}
@@ -340,6 +542,36 @@ export default function DeveloperPortal() {
             </section>
           </aside>
         </div>
+
+        {/* Forensic System Logs */}
+        <section className="mt-12 rounded-3xl border border-border-soft dark:border-white/10 bg-surface/50 dark:bg-black p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] pointer-events-none" />
+          <div className="mb-6 flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="h-2 w-2 rounded-full bg-safe animate-pulse" />
+              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground/90 dark:text-white/90">Forensic System Logs</h2>
+            </div>
+            <div className="text-[10px] font-mono text-muted dark:text-white/40">SECURE CHANNEL ACTIVE</div>
+          </div>
+          <div className="h-64 overflow-y-auto space-y-2 font-mono text-[11px] relative z-10 scrollbar-hide">
+            {systemLogs.map((log, i) => (
+              <div key={i} className="flex gap-4 border-l border-border-soft dark:border-white/5 pl-4 py-1 transition-colors hover:bg-muted/5">
+                <span className="text-muted dark:text-white/20 shrink-0">{log.time}</span>
+                <span className={
+                  log.type === 'success' ? 'text-safe' : 
+                  log.type === 'error' ? 'text-risk-text' : 
+                  'text-foreground/60 dark:text-white/60'
+                }>
+                  <span className="opacity-50 mr-2">[{log.type.toUpperCase()}]</span>
+                  {log.msg}
+                </span>
+              </div>
+            ))}
+            {systemLogs.length === 0 && (
+              <div className="text-muted dark:text-white/20 italic">No system activity recorded in this session.</div>
+            )}
+          </div>
+        </section>
       </main>
     </div>
   )

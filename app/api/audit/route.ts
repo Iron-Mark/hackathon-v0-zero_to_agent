@@ -274,7 +274,10 @@ export async function POST(request: Request) {
 
         if (hasCompany && isSerpApiConfigured() && process.env.MODEL_PROVIDER_KEY) {
           try {
-            const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3000'
+            const host = request.headers.get('host') || 'localhost:3000'
+            const protocol = host.includes('localhost') ? 'http' : 'https'
+            const baseUrl = process.env.APP_BASE_URL || `${protocol}://${host}`
+            
             sendEvent('log', { message: `Orchestrating agent to investigate ${extractedClaims.company}...` })
             
             const result = await generateText({

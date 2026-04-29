@@ -67,6 +67,7 @@ export const AuditReportSchema = z.object({
   apiKeyId: z.string().max(100).optional(),
   source: z.enum(['web', 'api', 'mcp', 'demo']).optional(),
   publiclyListed: z.boolean().optional(),
+  userFeedback: z.enum(['helpful', 'incorrect']).optional(),
 })
 export type AuditReport = z.infer<typeof AuditReportSchema>
 

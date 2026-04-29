@@ -91,6 +91,26 @@ textarea {
   outline-offset: 2px;
 }
 
+.cta-glow {
+  position: relative;
+}
+
+.cta-glow::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, var(--hireproof-safe), var(--hireproof-evidence));
+  filter: blur(15px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.cta-glow:hover::after {
+  opacity: 0.3;
+}
+
 /* Dead Internet Glitch Animations */
 @keyframes glitch {
   0% { transform: translate(0) }

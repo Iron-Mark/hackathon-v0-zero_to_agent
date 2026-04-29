@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { BrandMark } from '@/components/brand-mark'
 import { useLiveMode } from '@/hooks/useLiveMode'
 import {
@@ -56,8 +56,16 @@ const resourceGroups: { label: string; links: NavLink[] }[] = [
 export function SiteHeader() {
   const { isLiveMode, isLoaded, toggleLiveMode } = useLiveMode()
   const pathname = usePathname()
+  const router = useRouter()
   const menuRef = useRef<HTMLDivElement>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const handleQuickDemoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const scenarios = ['high-risk', 'caution', 'safe'];
+    const randomScenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+    router.push(`/audit?demo=${randomScenario}`);
+  };
 
   const isActive = (href: string) => href === '/docs' ? pathname.startsWith('/docs') : pathname === href
   const resourceLinks = resourceGroups.flatMap((group) => group.links)
@@ -119,10 +127,13 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-border-soft bg-background/92 backdrop-blur-md print:hidden">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-6 md:px-12 lg:px-20 xl:px-32 py-3">
-        <Link href="/" className="hireproof-focus flex min-w-0 items-center gap-3 rounded-sm">
-          <BrandMark className="h-9 w-9 shrink-0" />
+        <Link href="/" className="hireproof-focus flex min-w-0 items-center gap-3 rounded-sm group">
+          <BrandMark className="h-9 w-9 shrink-0 transition-transform group-hover:scale-110 glitch-hover" />
           <div className="min-w-0 leading-tight">
-            <div className="text-lg font-black tracking-normal">HireProof</div>
+            <div className="flex items-center gap-2">
+              <div className="text-lg font-black tracking-normal">HireProof</div>
+              <div className="hidden rounded-full border border-evidence/30 bg-evidence/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-evidence sm:block">Vercel Hackathon</div>
+            </div>
             <div className="hidden text-xs font-semibold text-muted sm:block">Job-post verification with receipts</div>
           </div>
         </Link>
@@ -236,10 +247,10 @@ export function SiteHeader() {
               </button>
             )}
             <ThemeToggle />
-            <Link href="/audit?demo=high-risk" className="hireproof-focus ml-1 flex min-h-[44px] items-center rounded-full bg-foreground px-3 text-sm font-black text-background hover:bg-safe sm:px-4">
+            <button onClick={handleQuickDemoClick} className="hireproof-focus ml-1 flex min-h-[44px] items-center rounded-full bg-foreground px-3 text-sm font-black text-background hover:bg-safe sm:px-4">
               <span className="sm:hidden">Demo</span>
               <span className="hidden sm:inline">Quick demo</span>
-            </Link>
+            </button>
           </div>
         </div>
       </div>
