@@ -6,31 +6,22 @@ import { Play, Terminal, Zap, Loader2 } from 'lucide-react'
 
 export function ApiPlayground() {
   const [text, setText] = useState('Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.')
+  const [apiKey, setApiKey] = useState('hireproof_agent_demo_key')
   const [loading, setLoading] = useState(false)
   const [response, setResponse] = useState<any>(null)
 
   const handleTest = async () => {
     setLoading(true)
-    // Simulate API delay
-    await new Promise(r => setTimeout(r, 1500))
-    
-    // Use the demo logic to return a JSON response
-    const mockRes = {
-      id: "audit_98231",
-      verdict: "high-risk",
-      riskScore: 92,
-      analysis: "Listing displays multiple scam patterns including unrealistic salary and non-standard communication.",
-      flags: [
-        { type: "salary", severity: "high", message: "Pay is 10x market rate for role" },
-        { type: "contact", severity: "high", message: "Telegram used for primary hiring" }
-      ],
-      metadata: {
-        latency: "1.2s",
-        model: "hireproof-agent-v1"
-      }
+    try {
+      const res = await fetch('/api/v1/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+        body: JSON.stringify({ text, mode: 'demo' }),
+      })
+      setResponse(await res.json())
+    } finally {
+      setLoading(false)
     }
-    setResponse(mockRes)
-    setLoading(false)
   }
 
   return (
@@ -60,6 +51,14 @@ export function ApiPlayground() {
                 } catch (e) {}
               }}
               className="h-[200px] w-full rounded-xl border border-border-soft bg-background p-4 font-mono text-xs leading-relaxed outline-none focus:border-safe/30 focus:ring-4 focus:ring-safe/5"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-wider text-muted">API Key</label>
+            <input
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="w-full rounded-xl border border-border-soft bg-background p-3 font-mono text-xs outline-none focus:border-safe/30 focus:ring-4 focus:ring-safe/5"
             />
           </div>
           <button

@@ -6,6 +6,7 @@ import { Redis } from '@upstash/redis'
 
 const dataDir = path.join(process.cwd(), 'data')
 const dbFile = path.join(dataDir, 'reports.json')
+const redisIndexKey = 'hireproof:report-index'
 
 // Maximum reports to keep in the JSON file (prevent unbounded growth)
 const MAX_REPORTS = 500
@@ -44,6 +45,9 @@ export async function saveReport(report: AuditReport) {
     try {
       // Save directly to Redis with a 30-day TTL to auto-manage storage
       await redis.set(safeReport.id!, JSON.stringify(safeReport), { ex: REDIS_TTL_SECONDS })
+      const index = ((await redis.get(redisIndexKey)) || []) as string[]
+      const nextIndex = [safeReport.id!, ...index.filter((id) => id !== safeReport.id)].slice(0, MAX_REPORTS)
+      await redis.set(redisIndexKey, JSON.stringify(nextIndex))
       return // Successfully saved to Redis, skip local FS
     } catch (e) {
       console.warn("[Database] Upstash save failed, falling back to local FS.", e)
@@ -89,6 +93,66 @@ export async function saveReport(report: AuditReport) {
     }
   })
   await writeLock
+}
+
+export async function listReports(limit = 100): Promise<AuditReport[]> {
+  const redis = getRedis()
+  if (redis) {
+    try {
+      const index = ((await redis.get(redisIndexKey)) || []) as string[]
+      const reports = await Promise.all(index.slice(0, limit).map((id) => getReport(id)))
+      return reports.filter((report): report is AuditReport => Boolean(report))
+    } catch (e) {
+      console.warn("[Database] Upstash list failed, falling back to local FS.", e)
+    }
+  }
+
+  try {
+    const data = await fs.readFile(dbFile, 'utf-8')
+    const reports = JSON.parse(data)
+    if (typeof reports !== 'object' || reports === null) return []
+    return Object.values(reports)
+      .map((report) => AuditReportSchema.safeParse(report))
+      .filter((parsed) => parsed.success)
+      .map((parsed) => parsed.data)
+      .sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''))
+      .slice(0, limit)
+  } catch {
+    return []
+  }
+}
+
+export async function getReportTrends() {
+  const reports = await listReports(500)
+  const verdicts = { safe: 0, caution: 0, 'high-risk': 0 }
+  const locations: Record<string, number> = {}
+  const roles: Record<string, number> = {}
+  const contactMethods: Record<string, number> = {}
+
+  for (const report of reports) {
+    verdicts[report.verdict] += 1
+    const location = report.extractedClaims.location || 'Unknown'
+    const role = report.extractedClaims.role || 'Unknown'
+    const contact = report.extractedClaims.contactMethod || 'Unknown'
+    locations[location] = (locations[location] || 0) + 1
+    roles[role] = (roles[role] || 0) + 1
+    contactMethods[contact] = (contactMethods[contact] || 0) + 1
+  }
+
+  const topEntries = (items: Record<string, number>) =>
+    Object.entries(items)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([label, count]) => ({ label, count }))
+
+  return {
+    totalReports: reports.length,
+    verdicts,
+    topLocations: topEntries(locations),
+    topRoles: topEntries(roles),
+    topContactMethods: topEntries(contactMethods),
+    recentReports: reports.slice(0, 10),
+  }
 }
 
 export async function getReport(id: string): Promise<AuditReport | null> {

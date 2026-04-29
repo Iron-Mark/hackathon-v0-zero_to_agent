@@ -433,6 +433,9 @@ export async function POST(request: Request) {
           nextSteps: buildNextSteps(verdict, extractedClaims.company),
           timestamp: new Date().toISOString(),
           mode: 'live',
+          ownerId: 'web',
+          source: 'web',
+          publiclyListed: true,
         }
 
         await saveReport(report)
@@ -456,6 +459,9 @@ export async function POST(request: Request) {
           ...DEMO_FIXTURES.highRisk,
           timestamp: new Date().toISOString(),
           mode: 'demo',
+          ownerId: 'web',
+          source: 'demo',
+          publiclyListed: true,
         }
       } else if (textLower.includes('unclear') || textLower.includes('caution')) {
         fixture = {
@@ -463,6 +469,9 @@ export async function POST(request: Request) {
           ...DEMO_FIXTURES.caution,
           timestamp: new Date().toISOString(),
           mode: 'demo',
+          ownerId: 'web',
+          source: 'demo',
+          publiclyListed: true,
         }
       } else {
         fixture = {
@@ -470,6 +479,9 @@ export async function POST(request: Request) {
           ...DEMO_FIXTURES.safe,
           timestamp: new Date().toISOString(),
           mode: 'demo',
+          ownerId: 'web',
+          source: 'demo',
+          publiclyListed: true,
         }
       }
 

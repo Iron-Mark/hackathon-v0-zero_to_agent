@@ -569,46 +569,6 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="bg-background border-t border-border-soft">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-12 text-sm font-semibold text-muted">
-          <div className="flex flex-col justify-between gap-8 sm:flex-row">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-foreground font-black">
-                <BrandMark className="h-6 w-6" />
-                HireProof
-              </div>
-              <p className="max-w-xs leading-relaxed">
-                Job-post verification with receipts. Built for the modern job seeker.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-12 sm:grid-cols-3">
-              <div className="space-y-4">
-                <h4 className="text-xs font-black uppercase tracking-widest text-foreground">Product</h4>
-                <ul className="space-y-2">
-                  <li><Link href="/audit" className="hover:text-safe">Audit</Link></li>
-                  <li><Link href="/explore" className="hover:text-safe">Explore</Link></li>
-                  <li><Link href="/pricing" className="hover:text-safe">Pricing</Link></li>
-                  <li><Link href="/developer" className="hover:text-safe">Developer Portal</Link></li>
-                </ul>
-              </div>
-              <div className="space-y-4">
-                <h4 className="text-xs font-black uppercase tracking-widest text-foreground">Resources</h4>
-                <ul className="space-y-2">
-                  <li><Link href="/docs" className="hover:text-safe">Documentation</Link></li>
-                  <li><Link href="/docs/security" className="hover:text-safe">Security</Link></li>
-                  <li><Link href="/docs/legal" className="hover:text-safe">Legal</Link></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col justify-between gap-4 border-t border-border-soft pt-8 sm:flex-row sm:items-center">
-            <p>© 2026 HireProof. All rights reserved.</p>
-            <Link href="/audit?demo=high-risk" className="hireproof-focus inline-flex items-center gap-2 rounded-lg text-foreground hover:text-safe transition-colors">
-              Try demo mode <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

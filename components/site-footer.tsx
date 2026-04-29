@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { BrandMark } from './brand-mark'
 import { Code2, Globe, MessageSquare, ShieldCheck } from 'lucide-react'
 
@@ -23,6 +26,12 @@ const footerLinks = {
 }
 
 export function SiteFooter() {
+  const [health, setHealth] = useState<{ status: string; storage: string; liveSearch: boolean; model: boolean } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/health').then((res) => res.json()).then(setHealth).catch(() => setHealth(null))
+  }, [])
+
   return (
     <footer className="border-t border-border-soft bg-background pt-16 pb-12 print:hidden">
       <div className="mx-auto max-w-6xl px-4 lg:px-8">
@@ -44,8 +53,8 @@ export function SiteFooter() {
               <a href="https://twitter.com/hireproof" target="_blank" rel="noreferrer" aria-label="HireProof social profile" className="text-muted hover:text-foreground transition-colors">
                 <ShieldCheck className="h-5 w-5" />
               </a>
-              <a href="https://discord.gg/hireproof" target="_blank" rel="noreferrer" aria-label="HireProof community chat" className="text-muted hover:text-foreground transition-colors">
-                <MessageSquare className="h-5 w-5" />
+              <a href="https://www.marksiazon.dev/" target="_blank" rel="noreferrer" aria-label="Mark Siazon Portfolio" className="text-muted hover:text-foreground transition-colors">
+                <Globe className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -98,15 +107,15 @@ export function SiteFooter() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-safe opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-safe"></span>
               </span>
-              All Systems Operational
+              {health?.status === 'ok' ? 'Core API Reachable' : 'Status Unknown'}
             </div>
             <div className="flex items-center gap-2 text-[10px] font-black text-muted uppercase tracking-widest">
               <Globe className="h-3 w-3" />
-              Vercel Edge
+              {health ? `${health.storage} · ${health.liveSearch && health.model ? 'live ready' : 'demo/local ready'}` : 'Checking'}
             </div>
           </div>
           <p className="text-[10px] font-black text-muted uppercase tracking-widest">
-            © 2026 HireProof. Built for the Hackathon.
+            © 2026 HireProof. Built for the <a href="https://community.vercel.com/hackathons/zero-to-agent" target="_blank" rel="noreferrer" className="text-foreground hover:text-safe underline underline-offset-4">Hackathon</a>.
           </p>
         </div>
       </div>

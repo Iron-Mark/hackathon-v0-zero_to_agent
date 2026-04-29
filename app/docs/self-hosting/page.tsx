@@ -83,8 +83,8 @@ export default function SelfHostingPage() {
           <p className="font-medium text-muted">1. Clone the repository and install dependencies:</p>
           <CodeBlock 
             language="bash"
-            code={`git clone https://github.com/your-repo/hireproof.git
-cd hireproof
+            code={`git clone https://github.com/Iron-Mark/hackathon-v0-zero_to_agent.git
+cd hackathon-v0-zero_to_agent
 npm install`}
           />
           

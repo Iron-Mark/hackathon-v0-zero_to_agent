@@ -1,32 +1,121 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { BrandMark } from '@/components/brand-mark'
 import { useLiveMode } from '@/hooks/useLiveMode'
-import { MoreHorizontal, ToggleRight, ToggleLeft } from 'lucide-react'
+import {
+  Activity,
+  BookOpen,
+  ChartNoAxesColumnIncreasing,
+  ChevronDown,
+  Code2,
+  Compass,
+  CreditCard,
+  History,
+  KeyRound,
+  Menu,
+  SearchCheck,
+  ToggleLeft,
+  ToggleRight,
+  type LucideIcon,
+} from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 
-const primaryLinks = [
-  { href: '/audit', label: 'Audit' },
-  { href: '/explore', label: 'Explore' },
-  { href: '/docs', label: 'Docs' },
+type NavLink = {
+  href: string
+  label: string
+  description?: string
+  icon: LucideIcon
+}
+
+const primaryLinks: NavLink[] = [
+  { href: '/audit', label: 'Audit', icon: SearchCheck },
+  { href: '/explore', label: 'Explore', icon: Compass },
+  { href: '/docs', label: 'Docs', icon: BookOpen },
 ]
 
-const secondaryLinks = [
-  { href: '/trends', label: 'Trends' },
-  { href: '/history', label: 'History' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/settings', label: 'API Portal' },
+const resourceGroups: { label: string; links: NavLink[] }[] = [
+  {
+    label: 'Evidence',
+    links: [
+      { href: '/trends', label: 'Trends', description: 'High-risk patterns', icon: ChartNoAxesColumnIncreasing },
+      { href: '/history', label: 'History', description: 'Saved investigations', icon: History },
+    ],
+  },
+  {
+    label: 'Platform',
+    links: [
+      { href: '/pricing', label: 'Pricing', description: 'Plans and limits', icon: CreditCard },
+      { href: '/developer', label: 'Developer', description: 'API guide and examples', icon: Code2 },
+      { href: '/settings', label: 'API Portal', description: 'Keys and webhooks', icon: KeyRound },
+    ],
+  },
 ]
 
 export function SiteHeader() {
   const { isLiveMode, isLoaded, toggleLiveMode } = useLiveMode()
   const pathname = usePathname()
-  const [isMoreOpen, setIsMoreOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const isActive = (href: string) => href === '/docs' ? pathname.startsWith('/docs') : pathname === href
+  const resourceLinks = resourceGroups.flatMap((group) => group.links)
+  const hasActiveResource = resourceLinks.some((link) => isActive(link.href))
+
+  useEffect(() => {
+    setIsMenuOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    if (!isMenuOpen) return
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isMenuOpen])
+
+  const renderMenuLink = (link: NavLink) => {
+    const Icon = link.icon
+
+    return (
+      <Link
+        key={link.href}
+        href={link.href}
+        role="menuitem"
+        className={`hireproof-focus flex min-h-[48px] items-center gap-3 rounded-xl px-3 py-2 transition-colors ${
+          isActive(link.href)
+            ? 'bg-foreground text-background'
+            : 'text-muted hover:bg-background hover:text-foreground'
+        }`}
+      >
+        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <span className="min-w-0">
+          <span className="block font-black leading-tight">{link.label}</span>
+          {link.description && (
+            <span className="block text-xs font-semibold leading-tight opacity-75">{link.description}</span>
+          )}
+        </span>
+      </Link>
+    )
+  }
 
   return (
     <header className="sticky top-0 z-20 border-b border-border-soft bg-background/92 backdrop-blur-md print:hidden">
@@ -38,56 +127,57 @@ export function SiteHeader() {
             <div className="hidden text-xs font-semibold text-muted sm:block">Job-post verification with receipts</div>
           </div>
         </Link>
-        <div className="flex min-w-0 items-center gap-2">
+        <div ref={menuRef} className="flex min-w-0 items-center gap-2">
           <nav aria-label="Primary navigation" className="hidden items-center gap-1 rounded-full border border-border-soft bg-surface/75 p-1 text-sm font-semibold shadow-sm md:flex">
-            {primaryLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={isActive(link.href) ? 'page' : undefined}
-                className={`hireproof-focus flex min-h-[44px] items-center rounded-full px-4 transition-colors ${
-                  isActive(link.href)
-                    ? 'bg-foreground text-background shadow-sm'
-                    : 'text-muted hover:bg-background hover:text-foreground'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {primaryLinks.map((link) => {
+              const Icon = link.icon
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={isActive(link.href) ? 'page' : undefined}
+                  className={`hireproof-focus flex min-h-[44px] items-center gap-2 rounded-full px-4 transition-colors ${
+                    isActive(link.href)
+                      ? 'bg-foreground text-background shadow-sm'
+                      : 'text-muted hover:bg-background hover:text-foreground'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  <span>{link.label}</span>
+                </Link>
+              )
+            })}
             <div className="relative">
               <button
                 type="button"
                 aria-haspopup="menu"
-                aria-expanded={isMoreOpen}
-                onClick={() => setIsMoreOpen((open) => !open)}
+                aria-expanded={isMenuOpen}
+                onClick={() => setIsMenuOpen((open) => !open)}
                 className={`hireproof-focus flex min-h-[44px] items-center gap-2 rounded-full px-3 transition-colors ${
-                  secondaryLinks.some((link) => isActive(link.href))
+                  hasActiveResource
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted hover:bg-background hover:text-foreground'
                 }`}
               >
-                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-                <span>More</span>
+                <Activity className="h-4 w-4" aria-hidden="true" />
+                <span>Resources</span>
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
               </button>
-              {isMoreOpen && (
+              {isMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-full mt-2 w-44 rounded-2xl border border-border-soft bg-surface p-2 text-sm font-semibold shadow-lg"
+                  className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-border-soft bg-surface p-3 text-sm font-semibold shadow-lg"
                 >
-                  {secondaryLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      role="menuitem"
-                      onClick={() => setIsMoreOpen(false)}
-                      className={`hireproof-focus flex min-h-[44px] items-center rounded-xl px-3 ${
-                        isActive(link.href)
-                          ? 'bg-foreground text-background'
-                          : 'text-muted hover:bg-background hover:text-foreground'
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
+                  {resourceGroups.map((group) => (
+                    <div key={group.label} className="mb-3 last:mb-0">
+                      <div className="px-3 pb-1 text-[10px] font-black uppercase tracking-normal text-muted">
+                        {group.label}
+                      </div>
+                      <div className="space-y-1">
+                        {group.links.map((link) => renderMenuLink(link))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -97,33 +187,36 @@ export function SiteHeader() {
             <div className="relative md:hidden">
               <button
                 type="button"
-                aria-label="Open navigation menu"
+                aria-label="Open site navigation"
                 aria-haspopup="menu"
-                aria-expanded={isMoreOpen}
-                onClick={() => setIsMoreOpen((open) => !open)}
+                aria-expanded={isMenuOpen}
+                onClick={() => setIsMenuOpen((open) => !open)}
                 className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-full text-muted hover:bg-background hover:text-foreground"
               >
-                <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
+                <Menu className="h-5 w-5" aria-hidden="true" />
               </button>
-              {isMoreOpen && (
+              {isMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-border-soft bg-surface p-2 text-sm font-semibold shadow-lg"
+                  className="absolute right-0 top-full mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-border-soft bg-surface p-3 text-sm font-semibold shadow-lg"
                 >
-                  {[...primaryLinks, ...secondaryLinks].map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      role="menuitem"
-                      onClick={() => setIsMoreOpen(false)}
-                      className={`hireproof-focus flex min-h-[44px] items-center rounded-xl px-3 ${
-                        isActive(link.href)
-                          ? 'bg-foreground text-background'
-                          : 'text-muted hover:bg-background hover:text-foreground'
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
+                  <div className="mb-3">
+                    <div className="px-3 pb-1 text-[10px] font-black uppercase tracking-normal text-muted">
+                      Start here
+                    </div>
+                    <div className="space-y-1">
+                      {primaryLinks.map((link) => renderMenuLink(link))}
+                    </div>
+                  </div>
+                  {resourceGroups.map((group) => (
+                    <div key={group.label} className="mb-3 last:mb-0">
+                      <div className="px-3 pb-1 text-[10px] font-black uppercase tracking-normal text-muted">
+                        {group.label}
+                      </div>
+                      <div className="space-y-1">
+                        {group.links.map((link) => renderMenuLink(link))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}

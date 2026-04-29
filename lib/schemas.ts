@@ -63,6 +63,10 @@ export const AuditReportSchema = z.object({
   nextSteps: z.array(z.string().max(500)).max(20),
   timestamp: z.string().max(50).optional(),
   mode: z.enum(['demo', 'live']).optional(),
+  ownerId: z.string().max(100).optional(),
+  apiKeyId: z.string().max(100).optional(),
+  source: z.enum(['web', 'api', 'mcp', 'demo']).optional(),
+  publiclyListed: z.boolean().optional(),
 })
 export type AuditReport = z.infer<typeof AuditReportSchema>
 

@@ -1,321 +1,171 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Key, Plus, Copy, Trash2, ShieldCheck, Terminal, BarChart3, Clock, Globe, Zap, ExternalLink, Code2, Database, Settings } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { Copy, Key, Plus, ShieldCheck, Trash2 } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { showToast } from '@/components/toast'
-import Link from 'next/link'
 
-interface ApiKey {
-  id: string
-  key: string
-  name: string
-  created: string
-  lastUsed: string
-}
+type User = { id: string; email: string; name: string }
+type ApiKey = { id: string; name: string; lastFour: string; createdAt: string; lastUsedAt: string | null }
+type Usage = { totalRequests: number; successfulRequests: number; failedRequests: number; recent: Array<{ id: string; endpoint: string; status: number; createdAt: string }> }
 
 export default function DeveloperPortal() {
+  const [user, setUser] = useState<User | null>(null)
   const [keys, setKeys] = useState<ApiKey[]>([])
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [externalKeys, setExternalKeys] = useState({
-    googleSearch: '',
-    gemini: ''
-  })
+  const [usage, setUsage] = useState<Usage | null>(null)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [newKey, setNewKey] = useState<string | null>(null)
 
-  // Load keys from localStorage on mount
+  async function load() {
+    const me = await fetch('/api/auth/me').then((res) => res.json())
+    setUser(me.user)
+    if (me.user) {
+      const [keyRes, usageRes] = await Promise.all([
+        fetch('/api/developer/keys').then((res) => res.json()),
+        fetch('/api/developer/usage').then((res) => res.json()),
+      ])
+      setKeys(keyRes.keys || [])
+      setUsage(usageRes)
+    }
+  }
+
   useEffect(() => {
-    const savedKeys = localStorage.getItem('hireproof_api_keys')
-    if (savedKeys) {
-      setKeys(JSON.parse(savedKeys))
-    } else {
-      // Default demo key
-      const demoKey = {
-        id: '1',
-        key: 'hp_live_9a2b3c4d5e6f7g8h9i0j',
-        name: 'Production Environment',
-        created: new Date().toISOString(),
-        lastUsed: new Date().toISOString()
-      }
-      setKeys([demoKey])
-      localStorage.setItem('hireproof_api_keys', JSON.stringify([demoKey]))
-    }
-
-    const savedExternal = localStorage.getItem('hireproof_external_keys')
-    if (savedExternal) {
-      setExternalKeys(JSON.parse(savedExternal))
-    }
+    void load()
   }, [])
 
-  const saveExternalKeys = () => {
-    localStorage.setItem('hireproof_external_keys', JSON.stringify(externalKeys))
-    showToast('Infrastructure settings saved!', 'success')
+  async function submitAuth() {
+    const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register'
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name }),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      showToast(json.error || 'Authentication failed.', 'info')
+      return
+    }
+    setEmail('')
+    setPassword('')
+    await load()
   }
 
-  const generateKey = () => {
-    setIsGenerating(true)
-    setTimeout(() => {
-      const newKey: ApiKey = {
-        id: Math.random().toString(36).substr(2, 9),
-        key: `hp_live_${Math.random().toString(36).substr(2, 20)}`,
-        name: `New Key ${keys.length + 1}`,
-        created: new Date().toISOString(),
-        lastUsed: 'Never'
-      }
-      const updatedKeys = [...keys, newKey]
-      setKeys(updatedKeys)
-      localStorage.setItem('hireproof_api_keys', JSON.stringify(updatedKeys))
-      setIsGenerating(false)
-      showToast('API Key generated successfully!', 'success')
-    }, 800)
+  async function createKey() {
+    const res = await fetch('/api/developer/keys', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Production API Key' }),
+    })
+    const json = await res.json()
+    if (!res.ok) return showToast(json.error || 'Could not create key.', 'info')
+    setNewKey(json.rawKey)
+    await load()
   }
 
-  const deleteKey = (id: string) => {
-    const updatedKeys = keys.filter(k => k.id !== id)
-    setKeys(updatedKeys)
-    localStorage.setItem('hireproof_api_keys', JSON.stringify(updatedKeys))
-    showToast('API Key revoked.', 'info')
+  async function revokeKey(id: string) {
+    await fetch(`/api/developer/keys/${id}`, { method: 'DELETE' })
+    await load()
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    showToast('Copied to clipboard!')
+  async function copy(value: string) {
+    await navigator.clipboard.writeText(value)
+    showToast('Copied to clipboard.', 'success')
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <main className="mx-auto max-w-md px-4 py-16">
+          <div className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm">
+            <h1 className="text-3xl font-black">Developer Portal</h1>
+            <p className="mt-2 text-sm font-semibold text-muted">Sign in to manage real HireProof API keys.</p>
+            <div className="mt-6 space-y-3">
+              {mode === 'register' && (
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="w-full rounded-xl border border-border bg-background p-3 text-sm font-semibold" />
+              )}
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full rounded-xl border border-border bg-background p-3 text-sm font-semibold" />
+              <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password" className="w-full rounded-xl border border-border bg-background p-3 text-sm font-semibold" />
+              <button onClick={submitAuth} className="hireproof-focus w-full rounded-xl bg-foreground px-4 py-3 text-sm font-black text-background hover:bg-safe">
+                {mode === 'login' ? 'Sign in' : 'Create account'}
+              </button>
+              <button onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="w-full text-sm font-bold text-muted hover:text-foreground">
+                {mode === 'login' ? 'Need an account?' : 'Already have an account?'}
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      
       <main className="mx-auto max-w-6xl px-4 py-12">
-        <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-safe/10 px-3 py-1 text-xs font-black uppercase tracking-widest text-safe">
-              <Terminal className="h-3 w-3" />
-              B2B Infrastructure
+              <ShieldCheck className="h-3 w-3" /> Authenticated
             </div>
             <h1 className="text-4xl font-black">Developer Portal</h1>
-            <p className="mt-2 text-lg font-medium text-muted">Manage your API keys and monitor your integration performance.</p>
+            <p className="mt-2 text-sm font-semibold text-muted">Signed in as {user.email}. Keys created here authenticate `/api/v1/audit` and `/api/mcp`.</p>
           </div>
-          <button 
-            onClick={generateKey}
-            disabled={isGenerating}
-            className="hireproof-focus flex items-center justify-center gap-2 rounded-lg bg-foreground px-6 py-3 font-black text-background hover:bg-safe disabled:opacity-50 transition-colors"
-          >
-            {isGenerating ? <Clock className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Generate New Key
+          <button onClick={createKey} className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 font-black text-background hover:bg-safe">
+            <Plus className="h-4 w-4" /> Create API key
           </button>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-8">
-            {/* API Keys List */}
-            <section className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm">
-              <div className="mb-6 flex items-center justify-between border-b border-border-soft pb-4">
-                <h2 className="flex items-center gap-2 text-xl font-black">
-                  <Key className="h-5 w-5 text-safe" />
-                  Your API Keys
-                </h2>
-                <span className="text-xs font-bold text-muted">{keys.length} Active Key{keys.length !== 1 && 's'}</span>
-              </div>
-              
-              <div className="space-y-4">
-                {keys.map((key) => (
-                  <div key={key.id} className="group relative rounded-xl border border-border-soft bg-background p-4 transition-all hover:border-safe/30 hover:shadow-md">
-                    <div className="mb-3 flex items-center justify-between">
-                      <div className="font-black">{key.name}</div>
-                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => copyToClipboard(key.key)} className="rounded-lg p-2 hover:bg-surface text-muted hover:text-safe" title="Copy Key">
-                          <Copy className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => deleteKey(key.id)} className="rounded-lg p-2 hover:bg-surface text-muted hover:text-risk-text" title="Revoke Key">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 rounded-lg bg-surface px-3 py-2 font-mono text-sm text-muted">
-                      <span className="shrink-0 text-safe">●</span>
-                      <span className="truncate">{key.key}</span>
-                    </div>
-                    <div className="mt-3 flex items-center gap-4 text-[11px] font-bold text-muted">
-                      <div className="flex items-center gap-1.5">
-                        <Plus className="h-3 w-3" /> Created {new Date(key.created).toLocaleDateString()}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Zap className="h-3 w-3" /> Last used: {key.lastUsed}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Quickstart / Documentation Snippet */}
-            <section className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm">
-              <h2 className="mb-6 flex items-center gap-2 text-xl font-black">
-                <Code2 className="h-5 w-5 text-evidence" />
-                Quickstart Guide
-              </h2>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="mb-2 text-sm font-black uppercase text-muted tracking-wide">1. Authenticate</h3>
-                  <p className="mb-3 text-sm font-medium">Include your API key in the request headers for all authenticated endpoints.</p>
-                  <div className="rounded-xl bg-black p-4 font-mono text-xs text-white/80">
-                    <span className="text-risk-text">Authorization:</span> Bearer hp_live_...
-                  </div>
-                </div>
-                <div>
-                  <h3 className="mb-2 text-sm font-black uppercase text-muted tracking-wide">2. Run an Audit</h3>
-                  <p className="mb-3 text-sm font-medium">Send a job description to the headless audit endpoint to receive a risk verdict.</p>
-                  <div className="rounded-xl bg-black p-4 font-mono text-xs text-white/80 overflow-x-auto whitespace-pre">
-                    <span className="text-safe">curl</span> -X POST https://api.hireproof.ai/v1/audit \<br/>
-                    &nbsp;&nbsp;-H <span className="text-caution">"Authorization: Bearer YOUR_KEY"</span> \<br/>
-                    &nbsp;&nbsp;-d <span className="text-evidence">"text=Remote Frontend Intern needed, $8000/week"</span>
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-border-soft text-center">
-                  <Link href="/docs/api-reference" className="inline-flex items-center gap-2 font-black text-safe hover:underline">
-                    View Full API Reference <ExternalLink className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            </section>
-
-            {/* Bring Your Own Key (BYOK) Section */}
-            <section className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm">
-              <div className="mb-6 border-b border-border-soft pb-4">
-                <h2 className="flex items-center gap-2 text-xl font-black">
-                  <Database className="h-5 w-5 text-evidence" />
-                  Custom Infrastructure (BYOK)
-                </h2>
-                <p className="mt-1 text-xs font-semibold text-muted">
-                  Use your own API keys to run audits. These are used if your free tier is exhausted or for high-volume local checks.
-                </p>
-              </div>
-              
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase text-muted tracking-wider flex items-center justify-between">
-                    Google Search API Key
-                    {externalKeys.googleSearch && <span className="text-safe lowercase">Configured</span>}
-                  </label>
-                  <input 
-                    type="password" 
-                    value={externalKeys.googleSearch}
-                    onChange={(e) => setExternalKeys({...externalKeys, googleSearch: e.target.value})}
-                    placeholder="AIzaSy..."
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono focus:border-safe focus:outline-none focus:ring-1 focus:ring-safe/20 transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase text-muted tracking-wider flex items-center justify-between">
-                    Gemini / LLM API Key
-                    {externalKeys.gemini && <span className="text-safe lowercase">Configured</span>}
-                  </label>
-                  <input 
-                    type="password" 
-                    value={externalKeys.gemini}
-                    onChange={(e) => setExternalKeys({...externalKeys, gemini: e.target.value})}
-                    placeholder="Enter your LLM Key"
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono focus:border-safe focus:outline-none focus:ring-1 focus:ring-safe/20 transition-all"
-                  />
-                </div>
-              </div>
-              
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3 rounded-xl bg-safe-bg/30 p-3 text-[11px] font-bold text-safe-text">
-                  <ShieldCheck className="h-4 w-4 shrink-0" />
-                  Keys are stored in your browser's LocalStorage and used for client-side processing.
-                </div>
-                <button 
-                  onClick={saveExternalKeys}
-                  className="hireproof-focus shrink-0 rounded-lg bg-foreground px-6 py-2.5 text-sm font-black text-background hover:bg-safe transition-colors"
-                >
-                  Save Settings
-                </button>
-              </div>
-            </section>
+        {newKey && (
+          <div className="mb-8 rounded-2xl border border-safe/30 bg-safe/5 p-5">
+            <p className="text-sm font-black text-safe">Copy this key now. It will not be shown again.</p>
+            <div className="mt-3 flex gap-2 rounded-xl bg-background p-3 font-mono text-sm">
+              <span className="min-w-0 flex-1 truncate">{newKey}</span>
+              <button onClick={() => copy(newKey)} className="text-safe"><Copy className="h-4 w-4" /></button>
+            </div>
           </div>
+        )}
+
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+          <section className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm">
+            <h2 className="mb-5 flex items-center gap-2 text-xl font-black"><Key className="h-5 w-5 text-safe" /> API Keys</h2>
+            <div className="space-y-3">
+              {keys.length === 0 ? (
+                <p className="rounded-xl border border-border-soft bg-background p-5 text-sm font-semibold text-muted">No keys yet.</p>
+              ) : keys.map((key) => (
+                <div key={key.id} className="flex items-center justify-between gap-4 rounded-xl border border-border-soft bg-background p-4">
+                  <div>
+                    <p className="font-black">{key.name}</p>
+                    <p className="text-xs font-semibold text-muted">•••• {key.lastFour} · created {new Date(key.createdAt).toLocaleDateString()} · last used {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleString() : 'never'}</p>
+                  </div>
+                  <button onClick={() => revokeKey(key.id)} className="rounded-lg p-2 text-muted hover:bg-risk-bg hover:text-risk-text" title="Revoke key">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
 
           <aside className="space-y-6">
-            {/* API Usage Analytics (Mock) */}
             <div className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm">
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-muted">
-                <BarChart3 className="h-4 w-4" />
-                Monthly Usage
-              </h3>
-              <div className="space-y-6">
-                <div>
-                  <div className="mb-1 text-2xl font-black tracking-tight">12,482</div>
-                  <div className="text-xs font-bold text-muted">API Requests</div>
-                </div>
-                <div className="flex h-24 items-end gap-1 px-1">
-                  {[40, 65, 30, 85, 45, 90, 75, 55, 60, 95].map((h, i) => (
-                    <div key={i} className="flex-1 bg-safe/20 rounded-t-sm group relative">
-                      <div 
-                        className="absolute bottom-0 w-full bg-safe transition-all group-hover:bg-safe-text" 
-                        style={{ height: `${h}%` }}
-                      ></div>
-                    </div>
-                  ))}
-                </div>
-                <div className="pt-4 border-t border-border-soft">
-                  <div className="flex justify-between text-xs font-bold mb-1">
-                    <span className="text-muted">Quota Usage</span>
-                    <span>84%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-background overflow-hidden">
-                    <div className="h-full bg-safe" style={{ width: '84%' }}></div>
-                  </div>
-                </div>
+              <h2 className="mb-4 text-sm font-black uppercase tracking-widest text-muted">Usage</h2>
+              <div className="text-3xl font-black">{usage?.totalRequests ?? 0}</div>
+              <p className="text-xs font-bold text-muted">Total authenticated requests</p>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm font-bold">
+                <div className="rounded-xl bg-safe/10 p-3 text-safe">{usage?.successfulRequests ?? 0} successful</div>
+                <div className="rounded-xl bg-risk-bg p-3 text-risk-text">{usage?.failedRequests ?? 0} failed</div>
               </div>
             </div>
-
-            {/* Integration Status */}
-            <div className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm">
-              <h3 className="mb-4 text-sm font-black uppercase tracking-wide text-muted">System Status</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold">API Gateway</span>
-                  <span className="flex items-center gap-1.5 text-xs font-black text-safe">
-                    <span className="h-2 w-2 rounded-full bg-safe animate-pulse"></span>
-                    Operational
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold">Audit Workers</span>
-                  <span className="flex items-center gap-1.5 text-xs font-black text-safe">
-                    <span className="h-2 w-2 rounded-full bg-safe animate-pulse"></span>
-                    Operational
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold">Storage Cluster</span>
-                  <span className="flex items-center gap-1.5 text-xs font-black text-safe">
-                    <span className="h-2 w-2 rounded-full bg-safe animate-pulse"></span>
-                    Operational
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-risk-bg/30 bg-risk-bg/10 p-5">
-              <h3 className="flex items-center gap-2 text-sm font-black text-risk-text">
-                <ShieldCheck className="h-4 w-4" />
-                Security Warning
-              </h3>
-              <p className="mt-2 text-[11px] font-bold leading-relaxed text-risk-text opacity-80">
-                Never share your secret API keys in client-side code. Always use a secure backend proxy to authenticate requests.
-              </p>
-            </div>
+            <Link href="/docs/api-reference" className="block rounded-2xl border border-border-soft bg-surface p-6 text-sm font-black hover:border-safe">
+              View API reference →
+            </Link>
           </aside>
         </div>
       </main>
-
-      <footer className="mt-20 bg-background border-t border-border-soft py-12">
-        <div className="mx-auto max-w-6xl px-4 text-center">
-          <p className="text-sm font-bold text-muted">© 2026 HireProof Infrastructure. Built for the safe internet.</p>
-        </div>
-      </footer>
     </div>
   )
 }

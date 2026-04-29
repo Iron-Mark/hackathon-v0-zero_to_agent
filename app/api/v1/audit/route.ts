@@ -23,16 +23,10 @@ import {
 import { isSerpApiConfigured, searchCompanyPresence, searchComparableJobs, searchLocalPresence, searchNewsReputation } from '@/lib/serpapi'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { saveReport } from '@/lib/db'
-import { timingSafeEqual, createHmac } from 'crypto'
+import { createHmac } from 'crypto'
+import { authenticateApiKey, recordUsage } from '@/lib/auth-store'
 
 export const runtime = 'nodejs'
-
-function secureCompare(a: string, b: string) {
-  const bufA = Buffer.from(a)
-  const bufB = Buffer.from(b)
-  if (bufA.length !== bufB.length) return false
-  return timingSafeEqual(bufA, bufB)
-}
 
 const openai = createOpenAI({
   apiKey: process.env.MODEL_PROVIDER_KEY || '',
@@ -201,9 +195,9 @@ function buildNextSteps(verdict: AuditReport['verdict'], company: string) {
 export async function POST(request: Request) {
   // 1. API Key Authentication
   const apiKey = request.headers.get('x-api-key')
-  const expectedKey = process.env.AGENT_API_KEY || 'hireproof_agent_demo_key'
+  const apiAuth = apiKey ? await authenticateApiKey(apiKey) : null
   
-  if (!apiKey || !secureCompare(apiKey, expectedKey)) {
+  if (!apiKey || !apiAuth) {
     return new Response(JSON.stringify({ error: 'Unauthorized. Invalid or missing x-api-key header.' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
   }
 
@@ -289,7 +283,7 @@ export async function POST(request: Request) {
                     execute: async (args: { company_name: string; role?: string }) => {
                       const res = await fetch(`${baseUrl}/api/mcp`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
                         body: JSON.stringify({ method: 'tools/call', name: 'search_company', arguments: args })
                       })
                       return res.json()
@@ -301,7 +295,7 @@ export async function POST(request: Request) {
                     execute: async (args: { company_name: string; keywords?: string[] }) => {
                       const res = await fetch(`${baseUrl}/api/mcp`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
                         body: JSON.stringify({ method: 'tools/call', name: 'news_check', arguments: args })
                       })
                       return res.json()
@@ -313,7 +307,7 @@ export async function POST(request: Request) {
                     execute: async (args: { role: string; location?: string; level?: string }) => {
                       const res = await fetch(`${baseUrl}/api/mcp`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
                         body: JSON.stringify({ method: 'tools/call', name: 'jobs_compare', arguments: args })
                       })
                       return res.json()
@@ -325,7 +319,7 @@ export async function POST(request: Request) {
                     execute: async (args: { company_name: string; location?: string }) => {
                       const res = await fetch(`${baseUrl}/api/mcp`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
                         body: JSON.stringify({ method: 'tools/call', name: 'local_presence', arguments: args })
                       })
                       return res.json()
@@ -386,6 +380,10 @@ export async function POST(request: Request) {
             nextSteps: buildNextSteps(verdict, extractedClaims.company),
             timestamp: new Date().toISOString(),
             mode: 'live',
+            ownerId: apiAuth.ownerId,
+            apiKeyId: apiAuth.apiKeyId,
+            source: 'api',
+            publiclyListed: true,
           }
 
           await saveReport(report)
@@ -396,11 +394,11 @@ export async function POST(request: Request) {
         const textLower = validated.text.toLowerCase()
         let fixture: AuditReport
         if (textLower.includes('80000') || textLower.includes('telegram')) {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.highRisk, timestamp: new Date().toISOString(), mode: 'demo' }
+          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.highRisk, timestamp: new Date().toISOString(), mode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
         } else if (textLower.includes('unclear') || textLower.includes('caution')) {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.caution, timestamp: new Date().toISOString(), mode: 'demo' }
+          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.caution, timestamp: new Date().toISOString(), mode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
         } else {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.safe, timestamp: new Date().toISOString(), mode: 'demo' }
+          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.safe, timestamp: new Date().toISOString(), mode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
         }
         await saveReport(fixture)
         return fixture
@@ -414,6 +412,7 @@ export async function POST(request: Request) {
       // Process asynchronously with retry
       Promise.resolve().then(async () => {
         const report = await performInvestigation()
+        await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit:webhook', status: report ? 202 : 500, reportId: report?.id })
         if (report) {
           const payload = JSON.stringify(report)
           // HMAC-SHA256 Signature to prove to the receiver that we sent this, preventing Webhook spoofing
@@ -451,7 +450,11 @@ export async function POST(request: Request) {
     }
 
     const report = await performInvestigation()
-    if (!report) throw new Error('Investigation failed')
+    if (!report) {
+      await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit', status: 500 })
+      throw new Error('Investigation failed')
+    }
+    await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit', status: 200, reportId: report.id })
     
     return new Response(JSON.stringify(report), { status: 200, headers: { 'Content-Type': 'application/json' } })
 

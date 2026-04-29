@@ -14,7 +14,7 @@ export default function VerifiedBadgePage() {
       <section className="space-y-4">
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Verified Business Badge</h1>
         <p className="text-xl font-medium leading-relaxed text-muted">
-          Rewarding the good guys. Display your commitment to job seeker safety by embedding our live verification seal.
+          Display a verification seal backed by a HireProof API key and the domain that serves the badge.
         </p>
       </section>
 
@@ -31,7 +31,7 @@ export default function VerifiedBadgePage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-black">How to Embed</h2>
         <p className="font-medium text-muted">
-          Legitimate companies with a <strong>HireProof Pro</strong> subscription can embed the seal using a single line of code. Our server validates your domain and signing key in real-time.
+          Legitimate companies can validate a badge by posting their API key and domain to <code className="rounded bg-surface px-1.5 py-0.5 text-sm">/api/verified-badge</code>. The sample badge below is a visual preview; production embeds should call the validation endpoint before showing the verified state.
         </p>
         
         <CodeBlock 
