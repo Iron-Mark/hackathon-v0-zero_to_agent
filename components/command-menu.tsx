@@ -2,14 +2,17 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Home, ShieldCheck, History, BookOpen, DollarSign, X, Terminal } from 'lucide-react'
+import { Search, Home, ShieldCheck, History, BookOpen, DollarSign, Terminal, Compass, TrendingUp, Code2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 const ACTIONS = [
   { id: 'audit', title: 'New Audit', icon: ShieldCheck, href: '/audit', shortcut: 'A' },
   { id: 'history', title: 'Investigation History', icon: History, href: '/history', shortcut: 'H' },
   { id: 'docs', title: 'Documentation', icon: BookOpen, href: '/docs', shortcut: 'D' },
-  { id: 'pricing', title: 'Pricing & Plans', icon: DollarSign, href: '/pricing', shortcut: 'P' },
+  { id: 'explore', title: 'Explore Reports', icon: Compass, href: '/explore', shortcut: 'E' },
+  { id: 'trends', title: 'Pattern Trends', icon: TrendingUp, href: '/trends', shortcut: 'T' },
+  { id: 'developer', title: 'Developer Portal', icon: Code2, href: '/developer', shortcut: 'K' },
+  { id: 'plans', title: 'Self-hosting / Plans', icon: DollarSign, href: '/pricing', shortcut: 'P' },
   { id: 'home', title: 'Go to Landing Page', icon: Home, href: '/', shortcut: 'L' },
 ]
 

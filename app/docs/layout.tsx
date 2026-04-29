@@ -16,8 +16,9 @@ const docsSidebar = [
       { label: 'Quickstart', href: '/docs/quickstart' },
       { label: 'Self-Hosting', href: '/docs/self-hosting' },
       { label: 'Verified Badge', href: '/docs/verified-badge' },
-      { label: 'Dead Internet Theory', href: '/docs/dead-internet' },
+      { label: 'AI Scam Patterns', href: '/docs/dead-internet' },
       { label: 'Architecture', href: '/docs/architecture' },
+      { label: 'Triple-Track Coverage', href: '/docs/triple-track-coverage' },
     ],
   },
   {

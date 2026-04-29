@@ -18,11 +18,21 @@ HireProof helps job seekers verify whether an opportunity looks legitimate, risk
 
 The result is a structured risk report with a clear Safe, Caution, or High-Risk verdict, a risk score, evidence cards, red flags, green flags, and safer alternatives. Instead of giving vague career advice, HireProof shows proof: what it checked, what it found, and what the user should do next.
 
-Built for the v0 + MCPs track, HireProof uses a Next.js app deployed on Vercel, a v0-built interface, AI SDK structured outputs, and runtime MCP tools that call SerpApi for live Search, News, Jobs, and Local evidence.
+HireProof can be presented across the hackathon tracks as one agent with multiple surfaces: a v0-built web app, runtime MCP tools for evidence gathering, a planned ChatSDK community agent, and an async workflow path for longer-running investigations.
 
 ## Tags
 
 AI agent, MCP, v0, Vercel, SerpApi, job safety, job scams, verification, trust and safety, career tools
+
+## Track Coverage
+
+HireProof can cover all three hackathon tracks as one job-verification agent:
+
+- **v0 + MCPs**: implemented web app plus runtime MCP evidence tools.
+- **ChatSDK Agents**: documented Slack/Discord expansion for job communities.
+- **Vercel Workflow / WDK**: documented async path for long-running checks, retries, webhooks, and report delivery.
+
+For submission, lead with the strongest implemented path and describe unfinished tracks as planned extensions unless their code is added before final demo.
 
 ## Cover Image Direction
 
@@ -89,7 +99,7 @@ Paste a job post, recruiter message, or suspicious listing, and it investigates 
 
 It returns a Safe, Caution, or High-Risk verdict with red flags, proof links, and safer alternatives.
 
-Built with v0, Vercel, MCP, AI SDK, and SerpApi.
+Built with v0, Vercel, MCP, AI SDK, and SerpApi, with ChatSDK and workflow expansion documented as the next delivery layers.
 
 ### Short Video Caption
 
@@ -105,7 +115,7 @@ Hey, I built HireProof for Zero to Agent. It checks suspicious job posts with li
 2. Share the 15-second clip first, then the full demo link.
 3. Lead with the pain: "Would this save someone from a sketchy job post?"
 4. Ask for votes only after showing the result.
-5. Reply quickly to technical questions about v0, MCP, SerpApi, and Vercel.
+5. Reply quickly to technical questions about v0, MCP, SerpApi, Vercel, ChatSDK, and workflow expansion.
 6. Keep the app no-auth and demo-ready during the full voting window.
 7. Use the same sample flow for every live walkthrough.
 

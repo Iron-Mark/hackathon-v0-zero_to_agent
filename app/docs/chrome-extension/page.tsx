@@ -60,7 +60,7 @@ export default function ChromeExtensionPage() {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <h4 className="font-black">Forensic Popup</h4>
+              <h4 className="font-black">Job Check Popup</h4>
               <p className="text-xs font-medium text-muted leading-relaxed">
                 Open the extension popup to see the live Risk Score and Verdict without switching tabs.
               </p>

@@ -30,7 +30,7 @@ export default function HistoryPage() {
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border-soft bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-widest text-muted shadow-sm">
               <History className="h-3.5 w-3.5" />
-              Local Forensic Archive
+              Local Report Archive
             </div>
             <h1 className="text-4xl font-black lg:text-6xl tracking-tight">Case History</h1>
             <p className="mt-4 max-w-xl text-lg font-medium text-muted leading-relaxed">
@@ -58,9 +58,9 @@ export default function HistoryPage() {
               <FileSearch className="h-10 w-10 opacity-20" />
             </div>
             <h2 className="text-3xl font-black mb-3">Archive is empty</h2>
-            <p className="text-muted text-lg font-medium mb-10 max-w-md mx-auto">You haven't conducted any forensic audits in this session yet.</p>
+            <p className="text-muted text-lg font-medium mb-10 max-w-md mx-auto">You haven't checked any job posts in this session yet.</p>
             <Link href="/audit" className="inline-flex rounded-2xl bg-foreground px-10 py-5 text-base font-black text-background hover:bg-safe transition-all shadow-xl hover:shadow-safe/20">
-              Launch Investigation Engine
+              Check a Job Post
             </Link>
           </div>
         ) : (
@@ -133,7 +133,7 @@ export default function HistoryPage() {
            <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
              <div>
                <h2 className="text-2xl font-black text-white mb-4">Export Full Archive</h2>
-               <p className="text-white/60 font-medium">Download all your investigation case files as a single forensic packet for offline review.</p>
+               <p className="text-white/60 font-medium">Download all your investigation case files as a single report packet for offline review.</p>
              </div>
              <div className="flex justify-end">
                <button 
@@ -141,7 +141,7 @@ export default function HistoryPage() {
                  className="hireproof-focus flex items-center gap-3 rounded-2xl bg-safe px-8 py-4 text-base font-black text-background hover:scale-105 transition-all shadow-xl hover:shadow-safe/20 disabled:opacity-50 disabled:pointer-events-none"
                >
                  <Download className="h-5 w-5" />
-                 Download Forensic Packet
+                 Download Report Packet
                </button>
              </div>
            </div>

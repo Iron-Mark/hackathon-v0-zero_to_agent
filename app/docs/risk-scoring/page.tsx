@@ -105,7 +105,7 @@ export default function RiskScoringPage() {
           <div className="space-y-2">
             <p className="text-sm font-black uppercase tracking-widest">Explainable AI</p>
             <p className="text-sm font-medium text-muted leading-relaxed">
-              Every point added or subtracted is linked to a specific piece of evidence in the Audit Report. This "Human-Readable Reasoning" is what makes HireProof more than just a blacklist—it is a forensic tool.
+              Every point added or subtracted is linked to visible report evidence. This explainable reasoning is what makes HireProof more useful than a simple blacklist.
             </p>
           </div>
         </div>

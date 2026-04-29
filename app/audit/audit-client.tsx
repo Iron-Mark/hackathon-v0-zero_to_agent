@@ -107,7 +107,7 @@ function AuditContent() {
         addReport(finalReport)
       }
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred during forensic analysis.')
+      setError(err.message || 'An unexpected error occurred during job verification.')
     } finally {
       setIsAuditing(false)
     }
@@ -134,9 +134,9 @@ function AuditContent() {
             <div className="mb-12 text-center">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-safe">
                 <Terminal className="h-4 w-4" />
-                Dossier Generation Portal
+                Job Verification Portal
               </div>
-              <h1 className="text-4xl font-black tracking-tight sm:text-6xl">Run Forensic <span className="text-safe">Audit.</span></h1>
+              <h1 className="text-4xl font-black tracking-tight sm:text-6xl">Check a Job <span className="text-safe">Post.</span></h1>
               <p className="mt-4 text-lg font-medium text-muted">
                 Paste the job details below. Our agents will cross-reference signals in real-time.
               </p>

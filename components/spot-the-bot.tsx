@@ -17,7 +17,7 @@ const quizItems = [
     options: {
       A: {
         text: '"Seeking a highly motivated Frontend Developer to join our dynamic team. Competitive salary and remote work options available. Apply now!"',
-        explanation: '✅ Busted! This is a classic "Generic Optimization" pattern used by bot farms to flood job boards.',
+        explanation: 'Correct. This is a generic pattern often seen in mass-posted job scams.',
         points: [
           'Vague company description.',
           'High-velocity call to action.',
@@ -75,7 +75,7 @@ const quizItems = [
     options: {
       A: {
         text: '"Urgent hiring for Virtual Assistants! High pay. Apply via this WhatsApp link: [Link]. We need your name, age, and ID photo to start."',
-        explanation: '✅ Busted! Direct redirection to WhatsApp/Telegram is a major forensic red flag.',
+        explanation: 'Correct. Direct redirection to WhatsApp or Telegram is a major recruitment-scam red flag.',
         points: [
           'Off-platform communication.',
           'Request for PII (ID photo) early.',
@@ -133,7 +133,7 @@ export function SpotTheBot() {
                     <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
                       score >= 3 ? 'text-safe' : score >= 1 ? 'text-evidence' : 'text-muted'
                     }`}>
-                      {score >= 3 ? 'Forensic Lead' : score >= 1 ? 'Special Agent' : 'Rookie'}
+                      {score >= 3 ? 'Lead Reviewer' : score >= 1 ? 'Reviewer' : 'Rookie'}
                     </span>
                   </div>
                 </div>
@@ -240,18 +240,18 @@ export function SpotTheBot() {
                     {selection === currentItem.correct && (
                       <div className="flex items-center gap-2 rounded-full bg-safe/10 px-4 py-1 text-xs font-black uppercase tracking-widest text-safe border border-safe/20 animate-pulse">
                         <Zap className="h-4 w-4" />
-                        Forensic Precision Match
+                        Red Flag Match
                       </div>
                     )}
                   </div>
                   
-                  {/* Forensic Evidence Breakdown */}
+                  {/* Evidence Breakdown */}
                   <div className="mb-10 rounded-2xl border border-border-soft bg-surface p-8 relative overflow-hidden group">
                     <div className="bot-scan-line opacity-10" />
                     <div className="relative z-10">
                       <div className="flex items-center gap-3 mb-4">
                         <Cpu className="h-5 w-5 text-evidence" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted">Forensic Signal Extraction: {currentItem.evidence.marker}</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted">Signal reviewed: {currentItem.evidence.marker}</span>
                       </div>
                       <p className="text-lg font-medium leading-relaxed text-foreground italic">
                         "{currentItem.evidence.explanation}"
@@ -312,13 +312,13 @@ export function SpotTheBot() {
             </div>
             <h3 className="text-5xl font-black tracking-tighter">Training Complete</h3>
             <div className="mt-6 flex items-center justify-center gap-4">
-              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-muted">Final Forensic Rank:</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-muted">Final Training Rank:</span>
               <span className="text-2xl font-black text-safe uppercase tracking-widest">
                 {score === 3 ? 'Master Investigator' : score >= 1 ? 'Field Agent' : 'Rookie'}
               </span>
             </div>
             <p className="mx-auto mt-8 max-w-md text-xl font-medium text-muted leading-relaxed">
-              You've identified <span className="text-foreground font-black underline decoration-safe underline-offset-8 decoration-4">{score} out of 3</span> automated recruitment vectors. Your neural weights for bot-detection are optimized.
+              You've identified <span className="text-foreground font-black underline decoration-safe underline-offset-8 decoration-4">{score} out of 3</span> suspicious recruitment patterns.
             </p>
             
             {/* Investigator Badge Preview */}
@@ -329,8 +329,8 @@ export function SpotTheBot() {
                   <div className="mx-auto w-40 h-40 rounded-full bg-surface border-[6px] border-safe flex items-center justify-center mb-8 shadow-[0_0_60px_rgba(16,185,129,0.3)] group-hover:scale-110 transition-transform duration-500">
                     <ShieldCheck className="h-20 w-20 text-safe" />
                   </div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.8em] text-muted opacity-50">HireProof Certified Forensic Analyst</div>
-                  <div className="text-3xl font-black text-foreground mt-2 uppercase tracking-tighter">Level {score} Intelligence Lead</div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.8em] text-muted opacity-50">HireProof Red Flag Training</div>
+                  <div className="text-3xl font-black text-foreground mt-2 uppercase tracking-tighter">Level {score} Reviewer</div>
                </div>
             </div>
 
@@ -344,7 +344,7 @@ export function SpotTheBot() {
                 }}
                 className="hireproof-focus h-16 rounded-[1.5rem] border-2 border-border px-12 text-lg font-black hover:bg-surface transition-all w-full sm:w-auto"
               >
-                Reset Synapses
+                Try Again
               </button>
               <Link
                 href="/audit"

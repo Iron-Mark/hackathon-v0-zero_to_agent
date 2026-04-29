@@ -9,12 +9,12 @@ import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: {
-    default: 'HireProof | The Human Filter for Job Scams',
+    default: 'HireProof | Verify Job Posts Before Applying',
     template: '%s | HireProof'
   },
-  description: 'The last line of defense against automated recruitment scams. Filter out the "Dead Internet" and verify job posts with live evidence.',
+  description: 'Paste a job post or recruiter message. HireProof checks the claims with live evidence and returns a Safe, Caution, or High-Risk verdict before you apply.',
   metadataBase: new URL('https://hireproof.vercel.app'),
-  keywords: ['job search', 'scam detector', 'hireproof', 'job verification', 'dead internet theory', 'bot detection', 'recruitment fraud'],
+  keywords: ['job search', 'scam detector', 'hireproof', 'job verification', 'recruitment scam', 'recruitment fraud'],
   authors: [{ name: 'HireProof Team' }],
   manifest: '/manifest.json',
   appleWebApp: {
@@ -90,9 +90,9 @@ export default function RootLayout({
                   '@context': 'https://schema.org',
                   '@type': 'SoftwareApplication',
                   name: 'HireProof',
-                  applicationCategory: 'SecurityApplication',
+                  applicationCategory: 'BusinessApplication',
                   operatingSystem: 'Web, Chrome',
-                  description: 'AI-powered job post verification and scam detection platform.',
+                  description: 'AI-powered job post verification and recruitment scam detection.',
                   offers: {
                     '@type': 'Offer',
                     price: '0',

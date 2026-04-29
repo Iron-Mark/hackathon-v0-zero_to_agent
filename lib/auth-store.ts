@@ -47,6 +47,8 @@ export interface AuthenticatedApiKey {
 
 const dataDir = path.join(process.cwd(), 'data')
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7
+const MISSING_USER_DUMMY_PASSWORD_HASH =
+  'scrypt:hireproof_dummy_salt_2026:ec273b0a4be18a6e793b8d42789329e674ea569631e1bd642b7a199b6c93090ddffa2e0d9d42b9574d75376771b0b9755d7cdfa2e3a2cfbf4673ade268a57402'
 
 let globalRedis: Redis | null = null
 let writeLock: Promise<void> = Promise.resolve()
@@ -144,7 +146,7 @@ export async function authenticateUser(email: string, password: string) {
   
   if (!user) {
     // Constant time dummy verification to prevent timing attacks on email discovery
-    await verifyPassword(password, '$2b$10$dummyhashplaceholder') 
+    await verifyPassword(password, MISSING_USER_DUMMY_PASSWORD_HASH)
     return null
   }
   

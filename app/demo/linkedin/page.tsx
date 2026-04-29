@@ -213,7 +213,7 @@ export default function ExtensionDemo() {
                                 <ShieldAlert className="h-7 w-7" />
                              </div>
                              <h4 className="text-2xl font-black text-risk-text tracking-tight uppercase">High Risk Detected</h4>
-                             <p className="mt-2 text-xs font-black uppercase tracking-widest text-risk-text/60">Forensic Confidence: 98.4%</p>
+                             <p className="mt-2 text-xs font-black uppercase tracking-widest text-risk-text/60">Evidence Confidence: High</p>
                           </div>
 
                           <div className="space-y-3">
@@ -246,7 +246,7 @@ export default function ExtensionDemo() {
                                 <span className="text-[10px] font-black uppercase tracking-widest text-safe">Protective Action</span>
                              </div>
                              <p className="text-xs font-medium text-white/70 leading-relaxed">
-                               This job has been automatically flagged in our global network. Avoid sharing any PII (ID photos, home address).
+                               This job has been flagged by HireProof checks. Avoid sharing any PII (ID photos, home address).
                              </p>
                           </div>
 
@@ -339,5 +339,3 @@ export default function ExtensionDemo() {
     </div>
   )
 }
-
-

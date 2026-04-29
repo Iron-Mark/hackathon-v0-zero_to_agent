@@ -59,7 +59,7 @@ export function ThemeScanner() {
             exit={{ opacity: 0 }}
             className="absolute bottom-0 left-0 right-0 h-10 border-x-4 border-b-4 border-safe/20 m-4 flex items-center justify-center"
           >
-            <div className="text-[10px] font-black uppercase tracking-[0.4em] text-safe">Forensic Environment Synced</div>
+            <div className="text-[10px] font-black uppercase tracking-[0.4em] text-safe">Verification Environment Synced</div>
           </motion.div>
         </div>
       )}

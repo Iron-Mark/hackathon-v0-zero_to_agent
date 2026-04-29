@@ -4,7 +4,7 @@ import { Activity, AlertTriangle, ShieldCheck, Workflow, Webhook, Send, MessageS
 
 export const metadata: Metadata = {
   title: 'n8n & Automations | HireProof Docs',
-  description: 'Use HireProof as a security middleware in n8n, Make.com, and LangChain to protect automated job application agents.',
+  description: 'Use HireProof in n8n, Make.com, and LangChain to verify job posts before automated application agents act.',
 }
 
 export default function AutomationsPage() {
@@ -14,7 +14,7 @@ export default function AutomationsPage() {
       <section className="space-y-4">
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Automations & Agents</h1>
         <p className="text-xl font-medium leading-relaxed text-muted">
-          Integrate HireProof as a security middleware in <strong className="text-foreground">n8n</strong>, <strong className="text-foreground">Make.com</strong>, and <strong className="text-foreground">LangChain</strong> to protect your automated job application agents from phishing scams.
+          Integrate HireProof into <strong className="text-foreground">n8n</strong>, <strong className="text-foreground">Make.com</strong>, and <strong className="text-foreground">LangChain</strong> so automated job application agents verify suspicious posts before acting.
         </p>
       </section>
 
@@ -25,15 +25,15 @@ export default function AutomationsPage() {
           <h2 className="text-2xl font-black">The Risk of Automated Job Hunting</h2>
         </div>
         <p className="font-medium text-muted leading-relaxed">
-          AI agents that mass-apply to jobs on your behalf are incredibly powerful, but they lack common sense. Without a security filter, an AI agent will gleefully submit your resume, phone number, and home address to a fake job post, exposing you to identity theft.
+          AI agents that apply to jobs on your behalf can move faster than a human review process. Without a job-safety check, an agent may submit your resume, phone number, and address to a fake post.
         </p>
         <div className="hireproof-card relative overflow-hidden rounded-3xl border border-border-soft p-8">
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-safe/5 blur-3xl" />
           
           <div className="relative z-10 mb-8">
-            <h3 className="mb-2 text-lg font-black tracking-tight text-foreground">The Solution: Security Middleware</h3>
+            <h3 className="mb-2 text-lg font-black tracking-tight text-foreground">The Solution: Job Verification Checkpoint</h3>
             <p className="font-medium text-muted leading-relaxed max-w-2xl">
-              By piping the job description through HireProof's headless API <em>before</em> your agent generates a cover letter, you can halt the pipeline if the job is flagged as a scam.
+              By sending the job description through HireProof's headless API <em>before</em> your agent generates a cover letter, you can halt the pipeline when the post is flagged as high-risk.
             </p>
           </div>
 

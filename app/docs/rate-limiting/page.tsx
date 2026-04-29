@@ -39,7 +39,7 @@ export default function RateLimitingPage() {
             </div>
             <div className="text-2xl font-black mb-1">20 req/min</div>
             <p className="text-xs font-medium text-muted leading-relaxed">
-              Keyed by API Key. Designed for automated pipelines, HR agents, and security middleware.
+              Keyed by API Key. Designed for automated pipelines, HR tools, and job-verification workflows.
             </p>
           </div>
         </div>

@@ -12,7 +12,7 @@ export default function SecurityPage() {
       <section className="space-y-4">
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Security Whitepaper</h1>
         <p className="text-xl font-medium leading-relaxed text-muted">
-          As a security middleware provider, HireProof maintains the highest standards of architectural integrity. This document outlines our threat model and defensive posture.
+          HireProof handles recruiter messages, job posts, and optional webhook callbacks. This document outlines the safeguards around that job-verification flow.
         </p>
       </section>
 

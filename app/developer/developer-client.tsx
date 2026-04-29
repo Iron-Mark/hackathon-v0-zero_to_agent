@@ -198,7 +198,7 @@ export function DeveloperClient() {
               </div>
               <h1 className="text-3xl font-black tracking-tight">Developer Access</h1>
               <p className="mt-2 text-sm font-medium text-muted leading-relaxed">
-                Enter the terminal to manage your HireProof infrastructure and API keys.
+                Manage your HireProof API keys, webhooks, and job-verification settings.
               </p>
             </div>
 
@@ -206,7 +206,7 @@ export function DeveloperClient() {
               {mode === 'register' && (
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted">Full Name</label>
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Forensic Investigator" className="w-full rounded-xl border border-border-soft bg-background p-4 text-sm font-semibold outline-none focus:border-safe" />
+                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Job Safety Reviewer" className="w-full rounded-xl border border-border-soft bg-background p-4 text-sm font-semibold outline-none focus:border-safe" />
                 </div>
               )}
               <div className="space-y-1">
@@ -244,7 +244,7 @@ export function DeveloperClient() {
             </div>
           </div>
           <p className="mt-8 text-[10px] font-black uppercase tracking-widest text-muted/50">
-            Secure Forensic Access · Encrypted at Rest
+            Secure API Access · Encrypted at Rest
           </p>
         </main>
       </div>
@@ -550,13 +550,13 @@ export function DeveloperClient() {
           </aside>
         </div>
 
-        {/* Forensic System Logs */}
+        {/* System Logs */}
         <section className="mt-12 rounded-3xl border border-border-soft dark:border-white/10 bg-surface/50 dark:bg-black p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] pointer-events-none" />
           <div className="mb-6 flex items-center justify-between relative z-10">
             <div className="flex items-center gap-3">
               <div className="h-2 w-2 rounded-full bg-safe animate-pulse" />
-              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground/90 dark:text-white/90">Forensic System Logs</h2>
+              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground/90 dark:text-white/90">System Logs</h2>
             </div>
             <div className="text-[10px] font-mono text-muted dark:text-white/40">SECURE CHANNEL ACTIVE</div>
           </div>

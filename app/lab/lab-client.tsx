@@ -1,208 +1,455 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Terminal, 
-  Cpu, 
-  Search, 
-  Activity, 
-  ShieldCheck, 
-  AlertTriangle, 
-  Zap, 
-  Database, 
-  Globe, 
-  Code2, 
-  Sparkles,
+import Link from 'next/link'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
+import {
+  Activity,
+  AlertTriangle,
   ArrowRight,
-  RefreshCcw,
+  Clock,
+  Cpu,
   Fingerprint,
-  Layers
+  Layers,
+  RefreshCcw,
+  ShieldCheck,
+  Terminal,
+  Zap,
 } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
-import { BrandMark } from '@/components/brand-mark'
 import { showToast } from '@/components/toast'
+import type { AuditReport, AuditRequest } from '@/lib/schemas'
+
+type ScanMode = 'demo' | 'live'
+type LabStepId = 'intake' | 'claims' | 'evidence' | 'risk' | 'report'
+type LabStepStatus = 'pending' | 'active' | 'complete' | 'error'
 
 type LabStep = {
-  id: string
+  id: LabStepId
   label: string
-  status: 'pending' | 'active' | 'complete' | 'error'
+  status: LabStepStatus
   msg: string
+}
+
+type StreamEvent =
+  | { type: 'log'; message: string }
+  | { type: 'result'; data: AuditReport }
+  | { type: 'error'; message: string }
+
+const INITIAL_STEPS: LabStep[] = [
+  { id: 'intake', label: 'Intake', status: 'pending', msg: 'Awaiting job post details...' },
+  { id: 'claims', label: 'Claim extraction', status: 'pending', msg: 'Role, pay, company, and contact claims will appear here.' },
+  { id: 'evidence', label: 'Evidence gathering', status: 'pending', msg: 'Official web, news, comparable jobs, and local signals will stream in.' },
+  { id: 'risk', label: 'Risk scoring', status: 'pending', msg: 'Signals will be scored after evidence is collected.' },
+  { id: 'report', label: 'Report synthesis', status: 'pending', msg: 'The final AuditReport will render when the stream completes.' },
+]
+
+const STEP_ORDER: LabStepId[] = ['intake', 'claims', 'evidence', 'risk', 'report']
+
+function formatElapsed(ms: number) {
+  if (ms < 1000) return `${ms}ms`
+  return `${(ms / 1000).toFixed(1)}s`
+}
+
+function titleCase(value: string) {
+  return value
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function stepForLog(message: string): LabStepId {
+  const normalized = message.toLowerCase()
+
+  if (normalized.includes('extract') || normalized.includes('role') || normalized.includes('pay') || normalized.includes('contact')) {
+    return 'claims'
+  }
+
+  if (
+    normalized.includes('orchestrat') ||
+    normalized.includes('checking') ||
+    normalized.includes('scanning') ||
+    normalized.includes('benchmark') ||
+    normalized.includes('verifying') ||
+    normalized.includes('research') ||
+    normalized.includes('footprint') ||
+    normalized.includes('news') ||
+    normalized.includes('comparable') ||
+    normalized.includes('local')
+  ) {
+    return 'evidence'
+  }
+
+  if (normalized.includes('risk') || normalized.includes('score')) {
+    return 'risk'
+  }
+
+  if (normalized.includes('compil') || normalized.includes('finaliz') || normalized.includes('report') || normalized.includes('historical')) {
+    return 'report'
+  }
+
+  return 'intake'
 }
 
 export function LabClient() {
   const [input, setInput] = useState('')
+  const [mode, setMode] = useState<ScanMode>('demo')
   const [isProcessing, setIsProcessing] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [activeStep, setActiveStep] = useState(0)
-  const [steps, setSteps] = useState<LabStep[]>([
-    { id: '1', label: 'Signal Acquisition', status: 'pending', msg: 'Awaiting raw input buffer...' },
-    { id: '2', label: 'Entity Dissection', status: 'pending', msg: 'Isolating roles, pay, and contact paths...' },
-    { id: '3', label: 'Footprint Verification', status: 'pending', msg: 'Cross-referencing global job networks...' },
-    { id: '4', label: 'Linguistic Fingerprinting', status: 'pending', msg: 'Analyzing LLM probability weights...' },
-    { id: '5', label: 'Forensic Synthesis', status: 'pending', msg: 'Compiling final evidence dossier...' },
-  ])
+  const [steps, setSteps] = useState<LabStep[]>(INITIAL_STEPS)
   const [logs, setLogs] = useState<string[]>([])
+  const [report, setReport] = useState<AuditReport | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [eventCount, setEventCount] = useState(0)
+  const [startedAt, setStartedAt] = useState<number | null>(null)
+  const [elapsedMs, setElapsedMs] = useState(0)
+  const abortRef = useRef<AbortController | null>(null)
   const logEndRef = useRef<HTMLDivElement>(null)
 
+  const progress = useMemo(() => {
+    if (report) return 100
+    const completed = steps.filter((step) => step.status === 'complete').length
+    const active = steps.findIndex((step) => step.status === 'active')
+    const activeProgress = active >= 0 ? 0.5 : 0
+    return Math.min(95, Math.round(((completed + activeProgress) / steps.length) * 100))
+  }, [report, steps])
+
+  const activeStep = steps.find((step) => step.status === 'active')
+
   const addLog = (msg: string) => {
-    setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`].slice(-50))
+    setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`].slice(-80))
+  }
+
+  const setStepActive = (stepId: LabStepId, msg: string) => {
+    const activeIndex = STEP_ORDER.indexOf(stepId)
+
+    setSteps((prev) =>
+      prev.map((step) => {
+        const stepIndex = STEP_ORDER.indexOf(step.id)
+        return {
+          ...step,
+          status: stepIndex < activeIndex ? 'complete' : step.id === stepId ? 'active' : 'pending',
+          msg: step.id === stepId ? msg : step.msg,
+        }
+      }),
+    )
+  }
+
+  const completeAllSteps = () => {
+    setSteps((prev) => prev.map((step) => ({ ...step, status: 'complete' })))
+  }
+
+  const markActiveStepError = (msg: string) => {
+    setSteps((prev) =>
+      prev.map((step) => ({
+        ...step,
+        status: step.status === 'active' ? 'error' : step.status,
+        msg: step.status === 'active' ? msg : step.msg,
+      })),
+    )
   }
 
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [logs])
 
-  const runInvestigation = async () => {
-    if (!input) return showToast('Input buffer empty. Please provide forensic data.', 'info')
-    
-    setIsProcessing(true)
-    setProgress(0)
-    setActiveStep(0)
-    setLogs([])
-    setSteps(s => s.map(step => ({ ...step, status: 'pending', msg: step.id === '1' ? 'Awaiting raw input buffer...' : step.msg })))
+  useEffect(() => {
+    if (!isProcessing || !startedAt) return
 
-    const processSteps = [
-      { msg: 'Input detected. Normalizing character encoding...', log: 'UTF-8 normalization complete. Signal strength: HIGH.' },
-      { msg: 'Extracting linguistic markers...', log: 'Pattern match found: "Generic Optimization" vector detected.' },
-      { msg: 'Connecting to SerpApi node...', log: 'Global search initiated. Node [US-EAST-1] active.' },
-      { msg: 'Analyzing domain reputation...', log: 'Domain age: 4 days. Probability of throwaway infra: 94.2%.' },
-      { msg: 'Generating final forensic report...', log: 'Synthesis complete. Evidence locked.' },
-    ]
+    const timer = window.setInterval(() => {
+      setElapsedMs(Date.now() - startedAt)
+    }, 250)
 
-    for (let i = 0; i < processSteps.length; i++) {
-      setActiveStep(i)
-      setSteps(prev => prev.map((s, idx) => ({
-        ...s,
-        status: idx === i ? 'active' : idx < i ? 'complete' : 'pending',
-        msg: idx === i ? processSteps[i].msg : s.msg
-      })))
-      addLog(processSteps[i].log)
-      
-      for (let p = 0; p < 20; p++) {
-        setProgress(prev => prev + 1)
-        await new Promise(r => setTimeout(r, 50))
-      }
+    return () => window.clearInterval(timer)
+  }, [isProcessing, startedAt])
+
+  useEffect(() => {
+    return () => abortRef.current?.abort()
+  }, [])
+
+  const consumeStreamEvent = (parsed: StreamEvent) => {
+    setEventCount((count) => count + 1)
+
+    if (parsed.type === 'log') {
+      addLog(parsed.message)
+      setStepActive(stepForLog(parsed.message), parsed.message)
+      return
     }
 
-    setIsProcessing(false)
-    showToast('Investigation complete. Dossier ready.', 'success')
+    if (parsed.type === 'result') {
+      setReport(parsed.data)
+      completeAllSteps()
+      addLog(`Report ready: ${titleCase(parsed.data.verdict)} (${parsed.data.riskScore}/100).`)
+      showToast('Investigation complete. AuditReport ready.', 'success')
+      return
+    }
+
+    if (parsed.type === 'error') {
+      setError(parsed.message)
+      markActiveStepError(parsed.message)
+      addLog(`Error: ${parsed.message}`)
+    }
   }
+
+  const runInvestigation = async () => {
+    const trimmed = input.trim()
+    if (!trimmed) {
+      showToast('Paste job post details before running the lab.', 'info')
+      return
+    }
+
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+    const start = Date.now()
+
+    setIsProcessing(true)
+    setStartedAt(start)
+    setElapsedMs(0)
+    setSteps(INITIAL_STEPS)
+    setLogs([])
+    setReport(null)
+    setError(null)
+    setEventCount(0)
+    setStepActive('intake', 'Submitting job post to the audit stream...')
+    addLog(`Starting ${mode} audit stream.`)
+
+    try {
+      const request: AuditRequest = { text: trimmed, mode }
+      const response = await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+        signal: controller.signal,
+      })
+
+      if (!response.ok) {
+        let message = `Audit stream failed with HTTP ${response.status}.`
+        try {
+          const payload = (await response.json()) as { error?: string; message?: string }
+          message = payload.error ?? payload.message ?? message
+        } catch {
+          // Keep the status-based message when the response is not JSON.
+        }
+        throw new Error(message)
+      }
+
+      if (!response.body) throw new Error('Audit stream did not return a readable body.')
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          buffer += decoder.decode(value, { stream: !done })
+          const chunks = buffer.split('\n\n')
+          buffer = chunks.pop() ?? ''
+
+          for (const chunk of chunks) {
+            const dataLine = chunk
+              .split('\n')
+              .find((line) => line.startsWith('data:'))
+
+            if (!dataLine) continue
+            const parsed = JSON.parse(dataLine.slice(5).trim()) as StreamEvent
+            consumeStreamEvent(parsed)
+          }
+
+          if (done) break
+        }
+      } finally {
+        reader.releaseLock()
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        addLog('Scan cancelled.')
+        setError('Scan cancelled.')
+      } else {
+        const message = err instanceof Error ? err.message : 'Audit stream failed.'
+        setError(message)
+        markActiveStepError(message)
+        addLog(`Error: ${message}`)
+        showToast(message, 'error')
+      }
+    } finally {
+      setIsProcessing(false)
+      setElapsedMs(Date.now() - start)
+      abortRef.current = null
+    }
+  }
+
+  const cancelScan = () => {
+    abortRef.current?.abort()
+  }
+
+  const resetScan = () => {
+    abortRef.current?.abort()
+    setIsProcessing(false)
+    setSteps(INITIAL_STEPS)
+    setLogs([])
+    setReport(null)
+    setError(null)
+    setEventCount(0)
+    setStartedAt(null)
+    setElapsedMs(0)
+  }
+
+  const verdictTone =
+    report?.verdict === 'high-risk'
+      ? 'border-risk-text/30 bg-risk-bg/10 text-risk-text'
+      : report?.verdict === 'caution'
+        ? 'border-caution/30 bg-caution/10 text-caution'
+        : 'border-safe/30 bg-safe/10 text-safe'
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-safe/30 hireproof-grid">
       <SiteHeader />
-      
+
       <main className="mx-auto max-w-[1600px] px-6 py-12 md:px-12 lg:px-20 xl:px-32">
-        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-safe/10 text-safe border border-safe/20 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-safe/20 bg-safe/10 text-safe shadow-[0_0_20px_rgba(16,185,129,0.2)]">
                 <Cpu className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-3xl font-black tracking-tight lg:text-5xl">Forensic Laboratory</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="h-2 w-2 rounded-full bg-safe animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-safe">Agentic Engine v9.4 (Active)</span>
+                <h1 className="text-3xl font-black tracking-tight lg:text-5xl">Verification Lab</h1>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${isProcessing ? 'animate-pulse bg-safe' : 'bg-muted'}`} />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-safe">Audit Pipeline</span>
                 </div>
               </div>
             </div>
-            <p className="max-w-xl text-lg font-medium text-muted-foreground leading-relaxed">
-              Step inside the "Glass Box". Monitor the autonomous agent as it dissects recruitment data and isolates malicious automation markers in real-time.
+            <p className="max-w-xl text-lg font-medium leading-relaxed text-muted-foreground">
+              Run the same audit stream used by HireProof and watch the investigation logs resolve into a structured report.
             </p>
           </div>
-          
-          <div className="flex gap-4">
+
+          <div className="grid grid-cols-3 gap-4">
             <div className="rounded-2xl border border-border-soft bg-surface p-4 text-center backdrop-blur-md">
               <div className="text-2xl font-black tabular-nums">{progress}%</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-muted">Engine Load</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-muted">Progress</div>
             </div>
             <div className="rounded-2xl border border-border-soft bg-surface p-4 text-center backdrop-blur-md">
-              <div className="text-2xl font-black tabular-nums">0.4ms</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-muted">Latency</div>
+              <div className="text-2xl font-black tabular-nums">{formatElapsed(elapsedMs)}</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-muted">Elapsed</div>
+            </div>
+            <div className="rounded-2xl border border-border-soft bg-surface p-4 text-center backdrop-blur-md">
+              <div className="text-2xl font-black tabular-nums">{eventCount}</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-muted">Events</div>
             </div>
           </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_420px]">
-          {/* Main Lab Interface */}
           <div className="space-y-8">
-            {/* Input Terminal */}
-            <section className="hireproof-card rounded-[2.5rem] p-10 relative overflow-hidden group">
+            <section className="hireproof-card relative overflow-hidden rounded-[2.5rem] p-10">
               <div className="bot-scan-line opacity-5" />
-              
-              <div className="mb-8 flex items-center justify-between">
+
+              <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <div className="flex items-center gap-3">
                   <Fingerprint className="h-5 w-5 text-safe" />
-                  <h2 className="text-xl font-black">Data Acquisition Buffer</h2>
+                  <h2 className="text-xl font-black">Job Post Input</h2>
                 </div>
-                <div className="text-[10px] font-mono text-muted uppercase tracking-widest">Secure Channel // 256-BIT AES</div>
+                <div className="flex rounded-2xl border border-border-soft bg-background/60 p-1">
+                  {(['demo', 'live'] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setMode(option)}
+                      disabled={isProcessing}
+                      className={`rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest transition ${
+                        mode === option ? 'bg-foreground text-background' : 'text-muted hover:text-foreground'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="relative">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Paste job description, email content, or raw HTML signal here..."
-                  className="h-48 w-full rounded-3xl border border-border-soft bg-background/40 p-8 font-mono text-sm leading-relaxed text-foreground outline-none focus:border-safe/50 focus:ring-1 focus:ring-safe/20 transition-all placeholder:text-muted/30"
+                  placeholder="Paste a job description, recruiter message, email, or listing details..."
+                  className="h-52 w-full rounded-3xl border border-border-soft bg-background/40 p-8 pb-24 font-mono text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted/40 focus:border-safe/50 focus:ring-1 focus:ring-safe/20"
                 />
-                <div className="absolute bottom-6 right-6">
-                  <button 
+                <div className="absolute bottom-6 right-6 flex gap-3">
+                  {isProcessing ? (
+                    <button
+                      type="button"
+                      onClick={cancelScan}
+                      className="flex h-14 items-center gap-3 rounded-2xl border border-risk-text/20 bg-risk-bg/10 px-6 text-sm font-black text-risk-text transition-all hover:border-risk-text/40"
+                    >
+                      <AlertTriangle className="h-5 w-5" />
+                      CANCEL
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
                     onClick={runInvestigation}
                     disabled={isProcessing}
-                    className={`flex h-14 items-center gap-3 rounded-2xl bg-foreground px-8 text-sm font-black text-background transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale hover:bg-safe hover:text-background ${
+                    className={`flex h-14 items-center gap-3 rounded-2xl bg-foreground px-8 text-sm font-black text-background transition-all hover:bg-safe hover:text-background active:scale-95 disabled:opacity-50 ${
                       isProcessing ? 'shadow-[0_0_40px_rgba(16,185,129,0.4)]' : ''
                     }`}
                   >
                     {isProcessing ? <RefreshCcw className="h-5 w-5 animate-spin" /> : <Zap className="h-5 w-5" />}
-                    {isProcessing ? 'INVESTIGATING...' : 'RUN FORENSIC SCAN'}
+                    {isProcessing ? 'STREAMING...' : 'RUN AUDIT'}
                   </button>
                 </div>
               </div>
             </section>
 
-            {/* Agentic Reasoner Engine */}
-            <section className="hireproof-card rounded-[2.5rem] p-10 relative overflow-hidden">
-               <div className="mb-10 flex items-center justify-between">
+            <section className="hireproof-card relative overflow-hidden rounded-[2.5rem] p-10">
+              <div className="mb-10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Layers className="h-5 w-5 text-evidence" />
-                  <h2 className="text-xl font-black">Agentic Thought Engine</h2>
+                  <h2 className="text-xl font-black">Verification Pipeline</h2>
                 </div>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-1.5 w-1.5 rounded-full bg-safe/50 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
-                  ))}
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">
+                  {activeStep ? activeStep.label : report ? 'Complete' : 'Ready'}
                 </div>
               </div>
 
               <div className="grid gap-6">
                 {steps.map((step, i) => (
-                  <motion.div 
+                  <motion.div
                     key={step.id}
-                    animate={{ 
-                      opacity: step.status === 'pending' ? 0.3 : 1,
-                      x: step.status === 'active' ? 10 : 0
+                    animate={{
+                      opacity: step.status === 'pending' ? 0.42 : 1,
+                      x: step.status === 'active' ? 10 : 0,
                     }}
                     className={`relative flex items-center gap-6 rounded-3xl border p-6 transition-all ${
-                      step.status === 'active' 
-                        ? 'border-safe bg-safe/5 shadow-[0_0_30px_rgba(16,185,129,0.1)]' 
-                        : 'border-border-soft bg-surface/50'
+                      step.status === 'error'
+                        ? 'border-risk-text/40 bg-risk-bg/10'
+                        : step.status === 'active'
+                          ? 'border-safe bg-safe/5 shadow-[0_0_30px_rgba(16,185,129,0.1)]'
+                          : 'border-border-soft bg-surface/50'
                     }`}
                   >
-                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-black ${
-                      step.status === 'complete' ? 'bg-safe text-background' : 
-                      step.status === 'active' ? 'bg-safe animate-pulse text-background' : 
-                      'bg-muted/10 text-muted'
-                    }`}>
-                      {step.status === 'complete' ? <ShieldCheck className="h-6 w-6" /> : i + 1}
+                    <div
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-black ${
+                        step.status === 'complete'
+                          ? 'bg-safe text-background'
+                          : step.status === 'active'
+                            ? 'animate-pulse bg-safe text-background'
+                            : step.status === 'error'
+                              ? 'bg-risk-bg text-risk-text'
+                              : 'bg-muted/10 text-muted'
+                      }`}
+                    >
+                      {step.status === 'complete' ? <ShieldCheck className="h-6 w-6" /> : step.status === 'error' ? <AlertTriangle className="h-6 w-6" /> : i + 1}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-black text-sm uppercase tracking-widest">{step.label}</h3>
-                        <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
-                          step.status === 'active' ? 'text-safe' : 'text-muted/40'
-                        }`}>
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center justify-between gap-3">
+                        <h3 className="text-sm font-black uppercase tracking-widest">{step.label}</h3>
+                        <span
+                          className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+                            step.status === 'active' ? 'text-safe' : step.status === 'error' ? 'text-risk-text' : 'text-muted/50'
+                          }`}
+                        >
                           {step.status}
                         </span>
                       </div>
@@ -210,32 +457,87 @@ export function LabClient() {
                         {step.msg}
                       </p>
                     </div>
-                    {step.status === 'active' && (
-                      <div className="absolute right-6 flex items-center gap-2">
-                         <div className="h-1 w-24 overflow-hidden rounded-full bg-border-soft">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: '100%' }}
-                              transition={{ duration: 1.5, repeat: Infinity }}
-                              className="h-full bg-safe shadow-[0_0_10px_#10b981]"
-                            />
-                         </div>
+                    {step.status === 'active' ? (
+                      <div className="hidden items-center gap-2 md:flex">
+                        <div className="h-1 w-24 overflow-hidden rounded-full bg-border-soft">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: '100%' }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                            className="h-full bg-safe shadow-[0_0_10px_#10b981]"
+                          />
+                        </div>
                       </div>
-                    )}
+                    ) : null}
                   </motion.div>
                 ))}
               </div>
             </section>
+
+            {report ? (
+              <section className="hireproof-card rounded-[2.5rem] p-10">
+                <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                  <div>
+                    <div className={`mb-3 inline-flex rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] ${verdictTone}`}>
+                      {titleCase(report.verdict)}
+                    </div>
+                    <h2 className="text-2xl font-black">{report.extractedClaims.company}</h2>
+                    <p className="mt-1 text-sm font-medium text-muted-foreground">
+                      {report.extractedClaims.role} · {report.extractedClaims.location}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-4xl font-black tabular-nums">{report.riskScore}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted">Risk Score</div>
+                  </div>
+                </div>
+
+                <p className="mb-6 text-sm font-medium leading-relaxed text-muted-foreground">{report.summary}</p>
+
+                <div className="mb-8 grid gap-3 md:grid-cols-3">
+                  <div className="rounded-2xl border border-border-soft bg-surface p-4">
+                    <div className="text-xl font-black">{report.evidence.length}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted">Evidence Items</div>
+                  </div>
+                  <div className="rounded-2xl border border-border-soft bg-surface p-4">
+                    <div className="text-xl font-black">{report.redFlags.length}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted">Red Flags</div>
+                  </div>
+                  <div className="rounded-2xl border border-border-soft bg-surface p-4">
+                    <div className="text-xl font-black">{titleCase(report.confidence)}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted">Confidence</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {report.id ? (
+                    <Link
+                      href={`/audit/${report.id}`}
+                      className="inline-flex h-12 items-center gap-3 rounded-2xl bg-foreground px-6 text-sm font-black text-background transition hover:bg-safe"
+                    >
+                      OPEN REPORT
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={resetScan}
+                    className="inline-flex h-12 items-center gap-3 rounded-2xl border border-border-soft px-6 text-sm font-black transition hover:border-safe/40"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    RESET
+                  </button>
+                </div>
+              </section>
+            ) : null}
           </div>
 
-          {/* Sidebar Telemetry */}
           <aside className="space-y-8">
-            {/* Live Console Output */}
-            <section className="rounded-[2.5rem] border border-border-soft bg-foreground p-8 shadow-2xl h-[420px] flex flex-col dark:bg-black">
+            <section className="flex h-[420px] flex-col rounded-[2.5rem] border border-border-soft bg-foreground p-8 shadow-2xl dark:bg-black">
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Terminal className="h-4 w-4 text-background/40 dark:text-white/40" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-background/40 dark:text-white/40">Raw Telemetry</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-background/40 dark:text-white/40">Audit Stream</span>
                 </div>
                 <div className="flex gap-1.5">
                   <div className="h-2 w-2 rounded-full bg-risk-bg" />
@@ -243,20 +545,20 @@ export function LabClient() {
                   <div className="h-2 w-2 rounded-full bg-safe" />
                 </div>
               </div>
-              
-              <div className="flex-1 overflow-y-auto space-y-3 font-mono text-[10px] scrollbar-hide">
+
+              <div className="scrollbar-hide flex-1 space-y-3 overflow-y-auto font-mono text-[10px]">
                 {logs.length === 0 ? (
-                  <div className="text-background/10 dark:text-white/10 italic py-20 text-center">Awaiting signal acquisition...</div>
+                  <div className="py-20 text-center italic text-background/15 dark:text-white/15">Awaiting audit events...</div>
                 ) : (
                   logs.map((log, i) => (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, x: -5 }}
                       animate={{ opacity: 1, x: 0 }}
-                      key={i} 
-                      className="flex gap-3 text-background/60 dark:text-white/60 leading-relaxed border-l border-background/5 dark:border-white/5 pl-3"
+                      key={`${log}-${i}`}
+                      className="flex gap-3 border-l border-background/5 pl-3 leading-relaxed text-background/60 dark:border-white/5 dark:text-white/60"
                     >
-                      <span className="text-background/20 dark:text-white/20 shrink-0">[{i}]</span>
-                      <span className={log.includes('complete') || log.includes('HIGH') ? 'text-safe' : ''}>{log}</span>
+                      <span className="shrink-0 text-background/20 dark:text-white/20">[{i}]</span>
+                      <span className={log.includes('Report ready') ? 'text-safe' : log.includes('Error') ? 'text-risk-text' : ''}>{log}</span>
                     </motion.div>
                   ))
                 )}
@@ -264,56 +566,57 @@ export function LabClient() {
               </div>
             </section>
 
-            {/* Neural Probability Ticker */}
             <section className="hireproof-card rounded-[2.5rem] p-8">
               <div className="mb-8 flex items-center gap-3">
                 <Activity className="h-4 w-4 text-evidence" />
-                <h3 className="text-sm font-black uppercase tracking-[0.2em]">Neural Weights</h3>
+                <h3 className="text-sm font-black uppercase tracking-[0.2em]">Audit Telemetry</h3>
               </div>
-              
-              <div className="space-y-6">
+
+              <div className="space-y-4">
                 {[
-                  { label: 'Automation Probability', value: isProcessing ? Math.floor(progress * 0.9) : 0, color: 'text-risk-text' },
-                  { label: 'Human Fingerprint', value: isProcessing ? 100 - progress : 100, color: 'text-safe' },
-                  { label: 'Context Consistency', value: isProcessing ? Math.floor(Math.random() * 40 + 60) : 100, color: 'text-caution' },
+                  { label: 'Mode', value: titleCase(mode) },
+                  { label: 'Events', value: eventCount.toString() },
+                  { label: 'Evidence', value: report ? report.evidence.length.toString() : '-' },
+                  { label: 'Red flags', value: report ? report.redFlags.length.toString() : '-' },
+                  { label: 'Elapsed', value: formatElapsed(elapsedMs) },
                 ].map((stat) => (
-                  <div key={stat.label} className="space-y-2">
-                    <div className="flex items-end justify-between text-[10px] font-black uppercase tracking-widest">
-                      <span className="text-muted">{stat.label}</span>
-                      <span className={stat.color}>{stat.value}%</span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-muted/10">
-                      <motion.div 
-                        animate={{ width: `${stat.value}%` }}
-                        transition={{ duration: 0.5 }}
-                        className={`h-full rounded-full bg-current ${stat.color} shadow-[0_0_10px_currentColor]`}
-                      />
-                    </div>
+                  <div key={stat.label} className="flex items-center justify-between rounded-2xl border border-border-soft bg-surface p-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted">{stat.label}</span>
+                    <span className="text-sm font-black">{stat.value}</span>
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* Quick Actions */}
+            {error ? (
+              <section className="rounded-[2rem] border border-risk-text/25 bg-risk-bg/10 p-6 text-risk-text">
+                <div className="mb-2 flex items-center gap-2 text-sm font-black">
+                  <AlertTriangle className="h-4 w-4" />
+                  Stream Error
+                </div>
+                <p className="text-sm font-medium">{error}</p>
+              </section>
+            ) : null}
+
             <section className="grid gap-4">
-               <button className="flex items-center justify-between rounded-3xl border border-border-soft bg-surface p-6 text-sm font-black transition-all hover:bg-background hover:border-safe/30 group">
-                  <div className="flex items-center gap-4">
-                    <div className="rounded-xl bg-safe/10 p-2 text-safe">
-                      <Database className="h-4 w-4" />
-                    </div>
-                    Sync to History
+              <Link className="group flex items-center justify-between rounded-3xl border border-border-soft bg-surface p-6 text-sm font-black transition-all hover:border-safe/30 hover:bg-background" href="/history">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-xl bg-safe/10 p-2 text-safe">
+                    <Clock className="h-4 w-4" />
                   </div>
-                  <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-               </button>
-               <button className="flex items-center justify-between rounded-3xl border border-border-soft bg-surface p-6 text-sm font-black transition-all hover:bg-background hover:border-evidence/30 group">
-                  <div className="flex items-center gap-4">
-                    <div className="rounded-xl bg-evidence/10 p-2 text-evidence">
-                      <Globe className="h-4 w-4" />
-                    </div>
-                    Global Threat Map
+                  Audit History
+                </div>
+                <ArrowRight className="h-4 w-4 -translate-x-2 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+              </Link>
+              <Link className="group flex items-center justify-between rounded-3xl border border-border-soft bg-surface p-6 text-sm font-black transition-all hover:border-evidence/30 hover:bg-background" href="/trends">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-xl bg-evidence/10 p-2 text-evidence">
+                    <Activity className="h-4 w-4" />
                   </div>
-                  <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-               </button>
+                  Pattern Trends
+                </div>
+                <ArrowRight className="h-4 w-4 -translate-x-2 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+              </Link>
             </section>
           </aside>
         </div>

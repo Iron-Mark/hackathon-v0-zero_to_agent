@@ -27,13 +27,13 @@ const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const footerLinks = {
   product: [
-    { label: 'Audit Engine', href: '/audit', description: 'Run real-time AI investigations' },
+    { label: 'Audit Engine', href: '/audit', description: 'Verify a suspicious job post' },
     { label: 'Exploration', href: '/explore', description: 'Discover recent audit patterns' },
-    { label: 'Pricing', href: '/pricing', description: 'Flexible plans for every scale' },
-    { label: 'API Portal', href: '/settings', description: 'Manage your keys and infrastructure' },
+    { label: 'Self-hosting / Plans', href: '/pricing', description: 'BYOK and hosting options' },
+    { label: 'Developer Portal', href: '/developer', description: 'Manage keys for job checks' },
   ],
   resources: [
-    { label: 'Documentation', href: '/docs', description: 'Comprehensive platform guides' },
+    { label: 'Documentation', href: '/docs', description: 'Guides for using HireProof' },
     { label: 'API Reference', href: '/docs/api-reference', description: 'Detailed endpoint specifications' },
     { label: 'SDK Quickstart', href: '/docs/sdk-quickstart', description: 'Get running in minutes' },
     { label: 'Agent Skills', href: '/docs/skills', description: 'Extend agent capabilities' },
@@ -42,7 +42,7 @@ const footerLinks = {
     { label: 'Terms of Service', href: '/docs/legal#terms-of-service', description: 'Our usage agreement' },
     { label: 'Privacy Policy', href: '/docs/legal#privacy-policy', description: 'How we handle data' },
     { label: 'Disclaimer', href: '/docs/legal', description: 'AI accuracy and limitations' },
-    { label: 'Security Whitepaper', href: '/docs/security', description: 'Our defense architecture' },
+    { label: 'Security Whitepaper', href: '/docs/security', description: 'Data and API safeguards' },
     { label: 'Rate Limiting', href: '/docs/rate-limiting', description: 'Fair use policies' },
   ]
 }
@@ -101,7 +101,7 @@ export function SiteFooter() {
               <span className="text-xl font-black">HireProof</span>
             </Link>
             <p className="text-sm font-medium text-muted leading-relaxed mb-6">
-              The human-centric filter for the "Dead Internet." We verify job posts with autonomous agentic forensics.
+              Verify suspicious job posts and recruiter messages with live evidence before you apply.
             </p>
             <div className="flex gap-4">
               <Tooltip content="Source Code">
@@ -171,7 +171,7 @@ export function SiteFooter() {
 
         <div className="mt-16 pt-8 border-t border-border-soft flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <Tooltip content="Live connection to the HireProof core intelligence engine">
+            <Tooltip content="Live connection to the HireProof verification engine">
               <div className="flex items-center gap-2 rounded-full border border-safe/20 bg-safe/5 px-3 py-1 text-[10px] font-black text-safe uppercase tracking-widest cursor-default">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-safe opacity-75"></span>

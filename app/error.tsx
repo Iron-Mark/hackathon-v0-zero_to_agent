@@ -54,7 +54,7 @@ export default function ErrorPage({
                 <Cpu className="h-3 w-3" />
                 System Failure
               </div>
-              <h1 className="text-4xl font-black tracking-tighter text-foreground">Forensic Engine Halted</h1>
+              <h1 className="text-4xl font-black tracking-tighter text-foreground">Verification Engine Halted</h1>
             </div>
             <p className="text-lg font-medium leading-relaxed text-muted max-w-xs mx-auto">
               An unexpected anomaly was detected in the data stream. The current investigation has been suspended for safety.

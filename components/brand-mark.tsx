@@ -7,7 +7,7 @@ export function BrandMark({ className = 'h-9 w-9' }: { className?: string }) {
         viewBox="0 0 64 64"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        aria-label="HireProof Forensic Logo"
+        aria-label="HireProof logo"
         role="img"
       >
         <rect width="64" height="64" rx="16" fill="#167C5C" />

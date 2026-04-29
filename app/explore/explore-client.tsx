@@ -21,7 +21,7 @@ export function ExploreClient() {
         if (query) params.set('q', query)
         if (verdict !== 'all') params.set('verdict', verdict)
         
-        const res = await fetch(`/api/reports?${params.toString()}`)
+        const res = await fetch(`/api/intelligence/reports?${params.toString()}`)
         const data = await res.json()
         setReports(data.reports || [])
       } catch (e) {
@@ -51,18 +51,18 @@ export function ExploreClient() {
         <header className="mb-12">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-evidence/30 bg-evidence/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-evidence">
             <Compass className="h-4 w-4" />
-            Global Threat Explorer
+            Job Scam Pattern Explorer
           </div>
           <h1 className="text-4xl font-black tracking-tight sm:text-6xl">Audit <span className="text-safe">Database.</span></h1>
           <p className="mt-4 max-w-2xl text-lg font-medium text-muted">
-            Explore recent forensic reports from our global investigator network. Stay ahead of evolving automation patterns.
+            Explore recent HireProof job-post checks. Review the red flags, evidence, and verdict patterns behind suspicious opportunities.
           </p>
         </header>
 
         {/* Stats Grid */}
         <div className="mb-12 grid gap-4 sm:grid-cols-3">
           {[
-            { label: 'Signals Analyzed', value: stats.total, icon: Search, color: 'text-foreground' },
+            { label: 'Reports Reviewed', value: stats.total, icon: Search, color: 'text-foreground' },
             { label: 'Scams Identified', value: stats.highRisk, icon: ShieldAlert, color: 'text-risk-text' },
             { label: 'Verified Safe', value: stats.safe, icon: Sparkles, color: 'text-safe' },
           ].map((stat) => (
@@ -114,7 +114,7 @@ export function ExploreClient() {
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-surface">
                   <Search className="h-8 w-8 text-muted opacity-20" />
                 </div>
-                <h3 className="text-xl font-black">No signals found</h3>
+                <h3 className="text-xl font-black">No reports found</h3>
                 <p className="text-muted">Try adjusting your filters or search query.</p>
               </div>
             ) : (

@@ -49,7 +49,7 @@ export default function NotFoundPage() {
               <h1 className="text-5xl font-black tracking-tighter text-foreground glitch-hover">Evidence Missing</h1>
             </div>
             <p className="text-lg font-medium leading-relaxed text-muted max-w-xs mx-auto">
-              Our agents scanned the network but couldn't locate the requested intelligence. The resource may have been purged or moved.
+              HireProof could not locate the requested report. The resource may have been removed or moved.
             </p>
           </div>
 
@@ -72,7 +72,7 @@ export default function NotFoundPage() {
           
           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted/50 pt-4">
             <ShieldAlert className="h-3 w-3" />
-            HireProof Forensic Network Active
+            HireProof Verification Active
           </div>
         </motion.div>
       </div>

@@ -148,15 +148,15 @@ export function HomeClient() {
                 "name": "How does HireProof detect job scams?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "HireProof uses an agentic forensic engine to cross-reference job posts against company web presence, LinkedIn profiles, domain registration data, and linguistic markers of AI-driven phishing."
+                  "text": "HireProof extracts the job post claims, checks company web presence, reviews reputation signals, compares similar roles, and returns an evidence-backed risk verdict."
                 }
               },
               {
                 "@type": "Question",
-                "name": "What is the Dead Internet Theory in recruitment?",
+                "name": "Can HireProof check AI-generated recruiter scams?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "The Dead Internet Theory in recruitment refers to the proliferation of automated, AI-generated job posts and recruiter profiles designed to harvest personal data or facilitate phishing scams."
+                  "text": "Yes. HireProof looks for suspicious recruitment patterns such as unrealistic pay, vague company details, off-platform contact, and missing hiring evidence."
                 }
               },
               {
@@ -164,7 +164,7 @@ export function HomeClient() {
                 "name": "Is HireProof free to use?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes, the HireProof forensic audit tool is free for individual job seekers to verify opportunities and protect their data."
+                  "text": "Yes, the HireProof demo is free for individual job seekers to verify suspicious opportunities before applying."
                 }
               }
             ]
@@ -174,7 +174,7 @@ export function HomeClient() {
       
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-6 pb-20 lg:pt-10">
-        {/* Forensic Radar Background */}
+        {/* Evidence radar background */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-30">
           <motion.div
             animate={{ rotate: 360 }}
@@ -194,15 +194,15 @@ export function HomeClient() {
 
             <motion.div variants={fadeUp} custom={1} className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-safe shadow-[0_0_20px_rgba(16,185,129,0.2)]">
               <Sparkles className="h-4 w-4" />
-              World's First Agentic Recruitment Forensic Engine
+              Proof-backed job verification agent
             </motion.div>
 
             <motion.h1 variants={fadeUp} custom={2} className="text-5xl font-black leading-[1.05] tracking-tighter sm:text-6xl lg:text-7xl xl:text-8xl glitch-hover">
-              The Human Filter for the <span className="text-safe">Dead Internet.</span>
+              Paste a job post. Filter the <span className="text-safe">Dead Internet</span> before you apply.
             </motion.h1>
 
             <motion.div variants={fadeUp} custom={3} className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-muted sm:text-xl">
-              <p>Verify your next opportunity with <span className="text-foreground font-black underline decoration-safe underline-offset-8">Receipt-Grade Forensic Evidence.</span></p>
+              <p>Paste a job post or recruiter message. HireProof checks the claims and returns a verdict with <span className="text-foreground font-black underline decoration-safe underline-offset-8">evidence you can review.</span></p>
               <div className="mt-6 rounded-2xl border border-border-soft bg-surface/80 dark:bg-black p-5 font-mono text-xs shadow-2xl relative overflow-hidden group backdrop-blur-md border-l-4 border-l-safe">
                 <div className="flex items-center gap-2 mb-3 opacity-80">
                   <div className="h-2 w-2 rounded-full bg-risk-text" />
@@ -210,19 +210,19 @@ export function HomeClient() {
                   <div className="h-2 w-2 rounded-full bg-safe" />
                 </div>
                 <TypewriterEffect />
-                <div className="absolute top-2 right-4 text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-safe transition-colors">Forensic Scan Mode</div>
+                <div className="absolute top-2 right-4 text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-safe transition-colors">Job Check Mode</div>
               </div>
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-12 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
               <Link href="/audit" className="hireproof-focus group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-foreground px-10 py-5 text-lg font-black text-background transition-all hover:bg-safe sm:w-auto shadow-xl">
-                Start Forensic Audit
+                Check a Job Post
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <div className="flex items-center gap-4 text-xs font-black uppercase tracking-[0.2em] text-muted">
-                <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-safe animate-pulse" /> 14.2k Daily Audits</span>
+                <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-safe animate-pulse" /> Demo + live modes</span>
                 <span className="h-4 w-px bg-border" />
-                <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-safe" /> 99.8% Precision</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-safe" /> Evidence-backed verdicts</span>
               </div>
             </motion.div>
           </motion.div>
@@ -276,7 +276,7 @@ export function HomeClient() {
                     <h3 className={`text-xl font-black ${current.colorClass}`}>
                       {current.title}
                     </h3>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Forensic confidence index</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Evidence confidence index</p>
                   </div>
                   <div className={`text-3xl font-black tabular-nums ${current.colorClass}`}>
                     {current.score}%
@@ -324,7 +324,7 @@ export function HomeClient() {
         </div>
       </section>
 
-      {/* Global Telemetry / World Map Section */}
+      {/* Audit Pattern Section */}
       <section className="relative py-24 overflow-hidden bg-[#080a0d]">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px]" />
@@ -334,15 +334,15 @@ export function HomeClient() {
             <div>
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-evidence/30 bg-evidence/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-evidence">
                 <Globe className="h-4 w-4" />
-                Live Global Telemetry
+                Recent Audit Patterns
               </div>
               <h2 className="text-4xl font-black leading-none tracking-tight sm:text-6xl lg:text-7xl">
-                The Network that <span className="text-safe">Never Sleeps.</span>
+                See the patterns behind <span className="text-safe">job scams.</span>
               </h2>
             </div>
             <div className="max-w-md">
               <p className="text-lg font-medium text-white/40 leading-relaxed uppercase tracking-tighter">
-                Our agentic nodes monitor job boards and recruiter patterns globally, building a real-time defense against the next wave of AI-driven scams.
+                HireProof reports expose repeated risk patterns like off-platform contact, unrealistic pay, weak company footprint, and missing hiring evidence.
               </p>
             </div>
           </div>
@@ -353,9 +353,9 @@ export function HomeClient() {
             </div>
             <div className="space-y-6">
               {[
-                { label: 'Total Audits', value: '142,309', change: '+12.4%', color: 'text-safe' },
-                { label: 'Scams Blocked', value: '2,842', change: '+5.2%', color: 'text-risk-text' },
-                { label: 'Active Nodes', value: '142', change: 'Operational', color: 'text-evidence' },
+                { label: 'Demo Scenarios', value: '3', change: 'Safe to high-risk', color: 'text-safe' },
+                { label: 'Verdict States', value: '3', change: 'Safe / Caution / High-risk', color: 'text-risk-text' },
+                { label: 'Evidence Sources', value: '4', change: 'MCP tools', color: 'text-evidence' },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-3xl border border-white/5 bg-white/5 p-8 backdrop-blur-md">
                   <div className="text-[10px] font-black uppercase tracking-widest text-white/30">{stat.label}</div>
@@ -366,7 +366,7 @@ export function HomeClient() {
                 </div>
               ))}
               <div className="rounded-3xl border border-safe/20 bg-safe/5 p-8 text-center">
-                <p className="text-sm font-black text-safe uppercase tracking-widest">Protective Buffer: ACTIVE</p>
+                <p className="text-sm font-black text-safe uppercase tracking-widest">Job Verification: ACTIVE</p>
               </div>
             </div>
           </div>
@@ -379,11 +379,11 @@ export function HomeClient() {
           <div className="mb-12 sm:mb-20 text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-4 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-widest text-safe">
               <ZapIcon className="h-4 w-4" />
-              Investigator Academy
+              Red Flag Training
             </div>
-            <h2 className="text-4xl font-black tracking-tight sm:text-6xl">Sharpen Your <span className="text-safe">Senses.</span></h2>
+            <h2 className="text-4xl font-black tracking-tight sm:text-6xl">Spot the <span className="text-safe">red flags.</span></h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg sm:text-xl font-medium text-muted">
-              Can you tell a human from a bot? Take our interactive training module to recognize the linguistic markers of AI-driven phishing.
+              Practice identifying suspicious job posts before you share personal details or apply.
             </p>
           </div>
           <SpotTheBot />
@@ -399,10 +399,10 @@ export function HomeClient() {
           <div className="flex flex-col md:flex-row items-end justify-between gap-12 mb-12 sm:mb-20">
             <div className="max-w-3xl">
               <h2 className="text-4xl font-black leading-[0.95] tracking-tighter sm:text-7xl lg:text-8xl">
-                The People vs. <br/> <span className="opacity-40 italic">The Dead Internet.</span>
+                Safer job search, <br/> <span className="opacity-40 italic">shared evidence.</span>
               </h2>
               <p className="mt-8 text-xl font-black uppercase tracking-tight opacity-70">
-                Join thousands of investigators building the last line of defense.
+                Share suspicious listings, compare evidence, and help people avoid risky opportunities.
               </p>
             </div>
             <div className="flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-safe text-background shadow-2xl shadow-safe/20">
@@ -419,7 +419,7 @@ export function HomeClient() {
                 icon: ShieldAlert
               },
               { 
-                quote: "The forensic report is incredible. I showed it to my university's career center and they're now recommending it to all students.",
+                quote: "The evidence report is clear. I showed it to my university's career center and they're now recommending it to students.",
                 author: "Markus D.",
                 role: "Recent Graduate",
                 icon: Award
@@ -453,7 +453,7 @@ export function HomeClient() {
               <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
                 <div className="text-left">
                   <h3 className="text-2xl font-black mb-2">Global Investigator Leaderboard</h3>
-                  <p className="text-sm font-medium opacity-60 uppercase tracking-widest">Top forensic analysts this week</p>
+                  <p className="text-sm font-medium opacity-60 uppercase tracking-widest">Top community reviewers this week</p>
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-safe text-background shadow-lg shadow-safe/20">
                   <TrendingUp className="h-6 w-6" />
@@ -461,22 +461,22 @@ export function HomeClient() {
               </div>
               <div className="grid gap-4">
                 {[
-                  { name: 'Alex Forensic', score: 142, rank: 'Master', color: 'text-safe' },
-                  { name: 'Sarah Security', score: 128, rank: 'Master', color: 'text-safe' },
+                  { name: 'Alex Review', score: 142, rank: 'Master', color: 'text-safe' },
+                  { name: 'Sarah Signal', score: 128, rank: 'Master', color: 'text-safe' },
                   { name: 'Marcus Audit', score: 95, rank: 'Senior', color: 'text-evidence' },
-                  { name: 'Elena Protect', score: 82, rank: 'Senior', color: 'text-evidence' },
+                  { name: 'Elena Verify', score: 82, rank: 'Senior', color: 'text-evidence' },
                 ].map((user, i) => (
                   <div key={user.name} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-4">
                       <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center font-black text-xs border border-white/10">{i + 1}</div>
                       <div>
                         <div className="text-sm font-black">{user.name}</div>
-                        <div className={`text-[10px] font-black uppercase tracking-widest ${user.color}`}>{user.rank} Analyst</div>
+                        <div className={`text-[10px] font-black uppercase tracking-widest ${user.color}`}>{user.rank} Reviewer</div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-black">{user.score} Audits</div>
-                      <div className={`text-[10px] font-medium opacity-40`}>Veracity: 99.8%</div>
+                      <div className={`text-[10px] font-medium opacity-40`}>Evidence reviewed</div>
                     </div>
                   </div>
                 ))}
@@ -486,7 +486,7 @@ export function HomeClient() {
 
           <div className="mt-20 flex flex-col sm:flex-row items-center justify-center gap-8">
             <Link href="/audit" className="w-full sm:w-auto rounded-2xl bg-foreground px-12 py-5 text-lg font-black text-background hover:bg-safe transition-all shadow-xl hover:shadow-safe/20">
-              Join the Network
+                Check a Listing
             </Link>
             <div className="flex items-center gap-4">
               <div className="flex -space-x-4">
@@ -494,7 +494,7 @@ export function HomeClient() {
                   <div key={i} className="h-12 w-12 rounded-full border-4 border-foreground bg-white/10" />
                 ))}
               </div>
-              <div className="text-sm font-black uppercase tracking-widest opacity-60">+12k Analysts Active</div>
+              <div className="text-sm font-black uppercase tracking-widest opacity-60">Community-ready workflow</div>
             </div>
           </div>
         </div>

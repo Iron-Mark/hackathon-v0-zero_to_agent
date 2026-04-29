@@ -12,7 +12,7 @@ export default function StreamingPage() {
       <section className="space-y-4">
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Real-Time Streaming</h1>
         <p className="text-xl font-medium leading-relaxed text-muted">
-          Watch the AI agent think and gather evidence in real-time. HireProof utilizes Server-Sent Events (SSE) to provide an interactive, "live" forensic experience.
+          Watch the AI agent gather evidence in real time. HireProof uses Server-Sent Events (SSE) to show each job-verification step as it happens.
         </p>
       </section>
 

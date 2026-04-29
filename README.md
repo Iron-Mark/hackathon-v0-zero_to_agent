@@ -7,6 +7,16 @@ Author: [Mark Siazon](https://www.marksiazon.dev/)
 
 HireProof is a proof-backed AI agent that investigates suspicious job posts with live evidence. It extracts claims, checks company web presence, reviews news and reputation signals, compares similar roles, verifies local business footprint, and returns a structured verdict: **Safe**, **Caution**, or **High-Risk** — with receipts.
 
+## Hackathon Track Coverage
+
+HireProof is one job-verification agent with multiple surfaces:
+
+- **v0 + MCPs** — implemented as the primary web app and runtime MCP investigation tools.
+- **ChatSDK Agents** — planned Slack/Discord delivery layer for job communities.
+- **Vercel Workflow / WDK** — planned durable async path for longer investigations, retries, webhooks, and report generation.
+
+See [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md) for the honest track map and demo framing.
+
 ## Features
 
 ### Core Investigation Engine
@@ -26,7 +36,7 @@ HireProof is a proof-backed AI agent that investigates suspicious job posts with
 - **Interactive Radar Chart** — 5-axis risk breakdown (Company, Reputation, Salary, Local, Contact)
 
 ### Agent-to-Agent (A2A) & Integrations
-- **Security Middleware for AI Pipelines** — Plug HireProof into **n8n**, **Make.com**, or **LangChain** workflows. Prevent your automated job-hunting agents from accidentally submitting resumes and PII to phishing scams.
+- **Job-Safety Checkpoint for AI Pipelines** — Plug HireProof into **n8n**, **Make.com**, or **LangChain** workflows so automated job-hunting agents can verify a post before submitting resumes or personal data.
 - **Headless REST API** (`/api/v1/audit`) — Authenticated JSON endpoint for external AI agents.
 - **TypeScript SDK** — Programmatic Node.js library (`hireproof-sdk`) for deep integrations.
 - **MCP Server** (`/api/mcp`) — Model Context Protocol for direct tool access.
@@ -37,7 +47,7 @@ HireProof is a proof-backed AI agent that investigates suspicious job posts with
 
 ## 🚀 Self-Hosting & Portability
 
-HireProof is built for extreme portability. Whether you want to use our managed cloud or host it on your own hardware, the experience is identical.
+HireProof is built to be portable. Whether you use the hosted demo or run it yourself, the core job-verification flow stays the same.
 
 - **Vercel Native**: One-click deployment to Vercel with Edge Function support.
 - **BYOK (Bring Your Own Key)**: Use your own OpenAI and SerpApi keys to bypass our managed limits.
@@ -50,10 +60,10 @@ HireProof is built for extreme portability. Whether you want to use our managed 
 - **Shareable Permalinks** — Every audit is persisted and accessible via `/audit/[id]`
 - **Copy Link Button** — One-click permalink sharing
 
-### Enterprise Infrastructure & Security
+### Infrastructure & Security
 - **Hybrid Database Architecture** — Uses Upstash Redis for permanent, globally distributed storage of shareable links, gracefully degrading to local ephemeral `fs` if keys are missing (zero-cost Hackathon mode).
 - **L7 DDoS Immunity** — Edge-distributed rate limiter via Upstash prevents "Denial of Wallet" attacks against LLM billing APIs.
-- **Deep Security Hardening** — SSRF webhook protection, Prototype Pollution guards, strict CSP headers, and dynamic SEO no-index tags for data privacy.
+- **Security Hardening** — SSRF webhook protection, Prototype Pollution guards, strict CSP headers, and dynamic SEO no-index tags for data privacy.
 
 ### UI Polish
 - **Dark Mode** — System-aware theme toggle with `next-themes`

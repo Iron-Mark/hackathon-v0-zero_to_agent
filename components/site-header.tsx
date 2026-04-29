@@ -33,8 +33,7 @@ type NavLink = {
 
 const primaryLinks: NavLink[] = [
   { href: '/audit', label: 'Audit', icon: SearchCheck },
-  { href: '/lab', label: 'Laboratory', icon: Cpu },
-  { href: '/explore', label: 'Explore', icon: Compass },
+  { href: '/history', label: 'History', icon: History },
   { href: '/docs', label: 'Docs', icon: BookOpen },
 ]
 
@@ -42,15 +41,23 @@ const resourceGroups: { label: string; links: NavLink[] }[] = [
   {
     label: 'Evidence',
     links: [
-      { href: '/trends', label: 'Trends', description: 'High-risk patterns', icon: ChartNoAxesColumnIncreasing },
-      { href: '/history', label: 'History', description: 'Saved investigations', icon: History },
+      { href: '/explore', label: 'Explore', description: 'Recent audit reports', icon: Compass },
+      { href: '/trends', label: 'Trends', description: 'Saved-report patterns', icon: ChartNoAxesColumnIncreasing },
     ],
   },
   {
-    label: 'Platform',
+    label: 'For builders',
     links: [
-      { href: '/pricing', label: 'Pricing', description: 'Plans and limits', icon: CreditCard },
-      { href: '/developer', label: 'Developer Portal', description: 'API keys and infrastructure', icon: Code2 },
+      { href: '/developer', label: 'Developer Portal', description: 'API keys and webhooks', icon: Code2 },
+      { href: '/docs/api-reference', label: 'API Docs', description: 'Headless audit API', icon: KeyRound },
+      { href: '/docs/sdk', label: 'SDK', description: 'Typed integration client', icon: BookOpen },
+    ],
+  },
+  {
+    label: 'Advanced',
+    links: [
+      { href: '/lab', label: 'Agent Lab', description: 'Agent reasoning demo', icon: Cpu },
+      { href: '/pricing', label: 'Self-hosting / Plans', description: 'BYOK and hosting options', icon: CreditCard },
     ],
   },
 ]
