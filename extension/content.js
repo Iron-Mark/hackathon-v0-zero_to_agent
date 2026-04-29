@@ -1,5 +1,54 @@
-// HireProof Content Script - LinkedIn/Indeed Injection
-console.log('HireProof: Guardian active on this page.');
+let drawer = null;
+
+function createDrawer() {
+  if (drawer) return drawer;
+
+  drawer = document.createElement('div');
+  drawer.className = 'hireproof-drawer';
+  drawer.innerHTML = `
+    <div className="hireproof-drawer-header">
+      <div className="hireproof-drawer-title">HireProof Investigation</div>
+      <button className="hireproof-close-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div className="hireproof-loading-state" style="display: none;">
+      <div className="hireproof-spinner"></div>
+      <p style="margin-top: 12px; font-size: 12px; font-weight: 700; color: #475569;">Analyzing Listing...</p>
+    </div>
+    <iframe className="hireproof-iframe"></iframe>
+  `;
+
+  document.body.appendChild(drawer);
+
+  const closeBtn = drawer.querySelector('.hireproof-close-btn');
+  closeBtn.onclick = () => {
+    drawer.classList.remove('open');
+  };
+
+  return drawer;
+}
+
+function openInvestigation(text) {
+  const d = createDrawer();
+  const iframe = d.querySelector('.hireproof-iframe');
+  const loader = d.querySelector('.hireproof-loading-state');
+  
+  // Update: use the current Vercel URL
+  const baseUrl = 'https://hireproof-sigma.vercel.app/audit';
+  const url = `${baseUrl}?text=${encodeURIComponent(text)}&embed=true`;
+  
+  loader.style.display = 'flex';
+  iframe.src = url;
+  
+  iframe.onload = () => {
+    loader.style.display = 'none';
+  };
+
+  d.classList.add('open');
+}
 
 function injectButtons() {
   // LinkedIn Search Results
@@ -21,13 +70,10 @@ function injectButtons() {
       e.preventDefault();
       e.stopPropagation();
       
-      // Extract text from the card
       const text = card.innerText.replace('Scan', '').trim();
-      const url = `https://hireproof-sigma.vercel.app/audit?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank');
+      openInvestigation(text);
     };
 
-    // Find a place to inject (LinkedIn usually has a header or footer in the card)
     const anchor = card.querySelector('.job-card-list__title, .artdeco-entity-lockup__title');
     if (anchor) {
       anchor.parentElement.appendChild(btn);
@@ -46,8 +92,7 @@ function injectButtons() {
     btn.onclick = (e) => {
       e.preventDefault();
       const text = card.innerText.trim();
-      const url = `https://hireproof-sigma.vercel.app/audit?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank');
+      openInvestigation(text);
     };
 
     const title = card.querySelector('.jcs-JobTitle');

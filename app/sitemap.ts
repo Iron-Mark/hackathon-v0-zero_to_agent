@@ -2,31 +2,19 @@ import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://hireproof.vercel.app'
-  
-  // Define main pages
+  const lastModified = new Date()
+
   const routes = [
     '',
     '/audit',
-    '/history',
-    '/docs',
-    '/docs/quickstart',
-    '/docs/architecture',
-    '/docs/api-reference',
-    '/docs/chrome-extension',
-    '/docs/headless-api',
-    '/docs/investigation-engine',
-    '/docs/mcp',
-    '/docs/omni-modal',
-    '/docs/rate-limiting',
-    '/docs/risk-scoring',
-    '/docs/sdk',
-    '/docs/sdk-quickstart',
-    '/docs/streaming',
-    '/docs/webhooks',
+    '/explore',
+    '/lab',
+    '/developer',
+    '/trends',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
+    lastModified,
+    changeFrequency: 'daily' as const,
     priority: route === '' ? 1 : 0.8,
   }))
 

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { motion } from 'framer-motion'
 import { FileText, Link2, Loader2, MapPin, Image as ImageIcon, X } from 'lucide-react'
 import VoiceInputButton from '@/components/voice-input-button'
 
@@ -12,6 +13,20 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
   const [url, setUrl] = useState('')
   const [location, setLocation] = useState('Philippines')
   const [image, setImage] = useState<string | null>(null)
+  const [isListening, setIsListening] = useState(false)
+  
+  const Waveform = () => (
+    <div className="flex items-center gap-1 h-4">
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+        <motion.div
+          key={i}
+          animate={{ height: [4, Math.random() * 16 + 4, 4] }}
+          transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }}
+          className="w-1 bg-safe rounded-full"
+        />
+      ))}
+    </div>
+  )
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -42,10 +57,14 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (text.trim() || image) {
+    // Input Sanitization: Trim and strip potential malicious tags
+    const cleanText = text.trim().replace(/<script.*?>.*?<\/script>/gi, '')
+    const cleanUrl = url.trim().replace(/<script.*?>.*?<\/script>/gi, '')
+    
+    if (cleanText || image) {
       onInvestigate({ 
-        text: text.trim() || 'Please extract job details from the uploaded image.', 
-        url, 
+        text: cleanText || 'Please extract job details from the uploaded image.', 
+        url: cleanUrl, 
         location,
         image: image || undefined
       })
@@ -61,9 +80,20 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
             Job post or message
           </label>
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {isListening ? (
+                <>
+                  <Waveform />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-safe animate-pulse">Listening...</span>
+                </>
+              ) : (
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted">Voice Dictation</span>
+              )}
+            </div>
             <VoiceInputButton 
               onTranscript={(transcript) => setText(prev => prev + (prev ? ' ' : '') + transcript)}
               disabled={loading}
+              onListeningChange={setIsListening}
             />
             <button 
               type="button" 

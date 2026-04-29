@@ -4,6 +4,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { ToastProvider } from '@/components/toast'
 import { CommandMenu } from '@/components/command-menu'
 import { SiteFooter } from '@/components/site-footer'
+import { ThemeScanner } from '@/components/theme-scanner'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: {
@@ -62,6 +64,8 @@ export const metadata: Metadata = {
     title: 'HireProof - Job Verification',
     description: 'Know if it\'s legit before you apply.',
     images: ['/og-image.png'],
+    site: '@hireproof',
+    creator: '@hireproof',
   },
 }
 
@@ -75,8 +79,10 @@ export default function RootLayout({
       <body className="antialiased bg-background text-foreground" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <ToastProvider>
+            <ThemeScanner />
             <CommandMenu />
-            <script
+            <Script
+              id="json-ld"
               type="application/ld+json"
               dangerouslySetInnerHTML={{
                 __html: JSON.stringify({
@@ -91,6 +97,36 @@ export default function RootLayout({
                     price: '0',
                     priceCurrency: 'USD',
                   },
+                }),
+              }}
+            />
+            <Script
+              id="breadcrumb-json-ld"
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://hireproof.vercel.app"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 2,
+                      "name": "Audit",
+                      "item": "https://hireproof.vercel.app/audit"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 3,
+                      "name": "Intelligence",
+                      "item": "https://hireproof.vercel.app/explore"
+                    }
+                  ]
                 }),
               }}
             />

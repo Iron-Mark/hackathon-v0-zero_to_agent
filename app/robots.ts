@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/audit/[id]'],
+      disallow: ['/api/', '/admin/'],
     },
     sitemap: 'https://hireproof.vercel.app/sitemap.xml',
   }

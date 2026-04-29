@@ -1,51 +1,59 @@
-import { useState, useEffect } from 'react'
-import { AuditReport } from '@/lib/schemas'
+import { useState, useEffect, useCallback } from 'react'
+import { z } from 'zod'
+import { AuditReport, AuditReportSchema } from '@/lib/schemas'
+import { SafeStorage } from '@/lib/safe-storage'
 
 const STORAGE_KEY = 'hireproof_audit_history'
-const MAX_HISTORY = 50 // Limit local history to prevent QuotaExceededError and slow UI
+const MAX_HISTORY = 50 
+const HistorySchema = z.array(AuditReportSchema)
 
 export function useAuditHistory() {
   const [history, setHistory] = useState<AuditReport[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
 
   // Load from localStorage on mount (client-side only)
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        setHistory(Array.isArray(parsed) ? parsed : [])
-      }
-    } catch (e) {
-      console.error('Failed to load audit history:', e)
+  const loadHistory = useCallback(() => {
+    const stored = SafeStorage.get(STORAGE_KEY, HistorySchema)
+    if (stored) {
+      setHistory(stored)
     }
     setIsLoaded(true)
   }, [])
 
-  const addReport = (report: AuditReport) => {
-    try {
-      const newReport = {
-        ...report,
-        id: report.id || `report_${Date.now()}`,
-        timestamp: report.timestamp || new Date().toISOString(),
+  useEffect(() => {
+    loadHistory()
+
+    // Cross-tab synchronization
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        loadHistory()
       }
-      const updated = [newReport, ...history].slice(0, MAX_HISTORY)
-      setHistory(updated)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      return newReport
-    } catch (e) {
-      console.error('Failed to save audit report:', e)
-      return null
     }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [loadHistory])
+
+  const addReport = (report: AuditReport) => {
+    const newReport = {
+      ...report,
+      id: report.id || `report_${Date.now()}`,
+      timestamp: report.timestamp || new Date().toISOString(),
+    }
+    
+    // Use functional update to ensure we have the latest history in case of race conditions
+    setHistory(prev => {
+      const updated = [newReport, ...prev].slice(0, MAX_HISTORY)
+      SafeStorage.set(STORAGE_KEY, updated)
+      return updated
+    })
+    
+    return newReport
   }
 
   const clearHistory = () => {
-    try {
-      setHistory([])
-      localStorage.removeItem(STORAGE_KEY)
-    } catch (e) {
-      console.error('Failed to clear audit history:', e)
-    }
+    setHistory([])
+    SafeStorage.remove(STORAGE_KEY)
   }
 
   const getReport = (id: string) => {

@@ -141,7 +141,14 @@ export async function authenticateUser(email: string, password: string) {
   const normalizedEmail = email.trim().toLowerCase()
   const users = await readJson<Record<string, UserAccount>>('users', {})
   const user = Object.values(users).find((item) => item.email === normalizedEmail)
-  if (!user || !(await verifyPassword(password, user.passwordHash))) return null
+  
+  if (!user) {
+    // Constant time dummy verification to prevent timing attacks on email discovery
+    await verifyPassword(password, '$2b$10$dummyhashplaceholder') 
+    return null
+  }
+  
+  if (!(await verifyPassword(password, user.passwordHash))) return null
   return publicUser(user)
 }
 
@@ -156,8 +163,17 @@ export function makeSessionToken(userId: string) {
 }
 
 export async function getUserFromSessionToken(token?: string) {
-  const parsed = verifySessionToken(token || '', sessionSecret())
+  if (!token || typeof token !== 'string') return null
+  const parsed = verifySessionToken(token, sessionSecret())
   if (!parsed?.userId) return null
+  
+  // Hardened: Check if session has expired or is malformed
+  const now = Math.floor(Date.now() / 1000)
+  if (parsed.exp && now > parsed.exp) {
+    console.warn(`[Auth] Session expired for user: ${parsed.userId}`)
+    return null
+  }
+  
   return getUserById(parsed.userId)
 }
 
