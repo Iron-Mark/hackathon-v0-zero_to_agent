@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { getUserFromSessionToken } from '@/lib/auth-store'
+import { getUserFromSessionToken, listApiKeys } from '@/lib/auth-store'
+import { buildHireProofWebhookHeaders } from '@/lib/webhook-signing.mjs'
 
 export async function POST(request: Request) {
   // 1. Authenticate (optional strict check, but good practice for developer portals)
@@ -74,6 +75,17 @@ export async function POST(request: Request) {
         summary: 'This is a test webhook payload sent from the HireProof Developer Sandbox.',
       }
     }
+    const payload = JSON.stringify(mockPayload)
+    const [firstKey] = await listApiKeys(user.id)
+    const signingSecret = firstKey
+      ? `sandbox:${user.id}:${firstKey.id}:${firstKey.lastFour}`
+      : `sandbox:${user.id}`
+    const signedHeaders = buildHireProofWebhookHeaders(
+      payload,
+      signingSecret,
+      'audit.completed',
+      'HireProof-Webhook-Sandbox/1.0',
+    )
 
     // 3. Dispatch the webhook
     const controller = new AbortController()
@@ -81,12 +93,8 @@ export async function POST(request: Request) {
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'HireProof-Webhook-Sandbox/1.0',
-        'X-HireProof-Event': 'audit.completed',
-      },
-      body: JSON.stringify(mockPayload),
+      headers: signedHeaders,
+      body: payload,
       signal: controller.signal,
     })
 
@@ -99,7 +107,18 @@ export async function POST(request: Request) {
       )
     }
 
-    return NextResponse.json({ success: true, status: response.status })
+    return NextResponse.json({
+      success: true,
+      status: response.status,
+      preview: {
+        headers: signedHeaders,
+        body: mockPayload,
+        signing: {
+          scheme: 'HMAC-SHA256',
+          parity: '/api/v1/audit webhook_url delivery',
+        },
+      },
+    })
 
   } catch (error: any) {
     if (error.name === 'AbortError') {

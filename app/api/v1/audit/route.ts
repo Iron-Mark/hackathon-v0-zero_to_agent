@@ -22,9 +22,9 @@ import {
 import { isSerpApiConfigured, searchCompanyPresence, searchComparableJobs, searchLocalPresence, searchNewsReputation } from '@/lib/serpapi'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { saveReport } from '@/lib/db'
-import { createHmac } from 'crypto'
 import { authenticateApiKey, recordUsage } from '@/lib/auth-store'
 import { getHireProofModel, hasHireProofModelProvider } from '@/lib/ai-model'
+import { buildHireProofWebhookHeaders } from '@/lib/webhook-signing.mjs'
 
 export const runtime = 'nodejs'
 
@@ -411,18 +411,13 @@ export async function POST(request: Request) {
         await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit:webhook', status: report ? 202 : 500, reportId: report?.id })
         if (report) {
           const payload = JSON.stringify(report)
-          // HMAC-SHA256 Signature to prove to the receiver that we sent this, preventing Webhook spoofing
-          const signature = createHmac('sha256', apiKey).update(payload).digest('hex')
 
           const maxRetries = 3
           for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
               const res = await fetch(validated.webhook_url as string, {
                 method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'X-HireProof-Signature': `sha256=${signature}`
-                },
+                headers: buildHireProofWebhookHeaders(payload, apiKey),
                 body: payload,
                 signal: AbortSignal.timeout(10_000),
               })

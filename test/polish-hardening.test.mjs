@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import { buildLegalAbuseReportMailto, buildTrendsJsonExport } from '../lib/report-actions.mjs'
 import { pruneRecordsByTimestamp } from '../lib/local-data-retention.mjs'
+import { buildHireProofWebhookHeaders } from '../lib/webhook-signing.mjs'
 
 test('legal abuse mailto uses lowercase extracted claim keys', () => {
   const href = buildLegalAbuseReportMailto({
@@ -85,4 +86,26 @@ test('local JSON retention prunes old and excess records deterministically', () 
     pruneRecordsByTimestamp(records, { now, maxAgeDays: 30, maxRecords: 1, timestampKey: 'createdAt' }),
     [{ id: 'fresh', createdAt: '2026-04-29T00:00:00.000Z' }],
   )
+})
+
+test('developer BYOK panel is honest about local verification only', async () => {
+  const source = await fs.readFile(new URL('../app/developer/developer-client.tsx', import.meta.url), 'utf8')
+  const remaining = await fs.readFile(new URL('../docs/remaining-work.md', import.meta.url), 'utf8')
+
+  assert.match(source, /Local Verification Only/)
+  assert.match(source, /does not power hosted server audits/)
+  assert.match(remaining, /relabelled as local verification only/)
+})
+
+test('sandbox webhooks use the same signed headers as production webhooks', async () => {
+  const route = await fs.readFile(new URL('../app/api/developer/webhook-test/route.ts', import.meta.url), 'utf8')
+  const v1Route = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+  const payload = JSON.stringify({ event: 'audit.completed', id: 'evt_test' })
+  const headers = buildHireProofWebhookHeaders(payload, 'hp_test_secret', 'audit.completed', 'HireProof-Webhook-Sandbox/1.0')
+
+  assert.equal(headers['X-HireProof-Signature'], 'sha256=75d23b6c1988cc6496d6adb60ab0be71d696ade9b4d788c7ba186b301204f081')
+  assert.equal(headers['X-HireProof-Event'], 'audit.completed')
+  assert.equal(headers['User-Agent'], 'HireProof-Webhook-Sandbox/1.0')
+  assert.match(route, /buildHireProofWebhookHeaders/)
+  assert.match(v1Route, /buildHireProofWebhookHeaders/)
 })

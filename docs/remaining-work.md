@@ -15,17 +15,16 @@ The runtime wiring pass is now in place. The remaining items below are the real 
 
 ## P1 - Product Wiring Still Incomplete
 
-- **BYOK settings are verified but not used by server-side live audits**
-  - Current UI: developer portal stores OpenAI/SerpApi keys in `localStorage` and can verify them through `/api/developer/verify-infrastructure`.
-  - Current server: `/api/audit`, `/api/v1/audit`, and MCP tools still read provider keys from server env vars.
-  - Fix: either persist per-user infrastructure keys securely server-side or relabel the current BYOK panel as local verification only.
-  - Acceptance: a user-provided key can actually power that user account's live audits, or the UI stops implying that it does.
+- **BYOK settings are verified locally but do not power hosted audits**
+  - Closed by relabelled as local verification only in the developer panel.
+  - Current UI stores OpenAI/SerpApi keys in `localStorage` and verifies connectivity through `/api/developer/verify-infrastructure`.
+  - Current server audits intentionally use server environment keys.
+  - Acceptance: the UI no longer implies browser-provided keys power hosted server audits.
 
-- **Webhook sandbox sends mock payloads**
-  - Current route: `app/api/developer/webhook-test/route.ts` sends a test payload only.
-  - Missing: signature parity with production audit webhooks and a real event preview based on the user's latest audit.
-  - Fix: sign sandbox payloads with the same scheme as `/api/v1/audit` webhook delivery and show the exact headers/body in the UI.
-  - Acceptance: webhook receivers can validate sandbox and production webhook signatures the same way.
+- **Webhook sandbox sends production-parity signed payloads**
+  - Closed by sharing the same `buildHireProofWebhookHeaders` HMAC helper between `/api/v1/audit` and `/api/developer/webhook-test`.
+  - Sandbox response includes exact headers/body preview.
+  - Acceptance: receivers can validate sandbox and production signatures with the same header shape.
 
 The April 30 E2E pass closed items 3-4 from the previous list:
 

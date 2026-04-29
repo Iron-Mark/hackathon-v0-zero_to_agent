@@ -50,7 +50,7 @@ export function DeveloperClient() {
   const [isAddingDomain, setIsAddingDomain] = useState(false)
   const [verifyingDomain, setVerifyingDomain] = useState<string | null>(null)
   
-  // Infrastructure Keys (BYOK)
+  // Infrastructure keys for local verification checks.
   const [openaiKey, setOpenaiKey] = useState('')
   const [serpapiKey, setSerpapiKey] = useState('')
   const [isVerifyingOpenAI, setIsVerifyingOpenAI] = useState(false)
@@ -87,7 +87,7 @@ export function DeveloperClient() {
   const saveInfrastructure = () => {
     localStorage.setItem('MODEL_PROVIDER_KEY', openaiKey)
     localStorage.setItem('SERPAPI_API_KEY', serpapiKey)
-    showToast('Infrastructure keys saved locally.', 'success')
+    showToast('Infrastructure keys saved for local verification only.', 'success')
   }
 
   async function submitAuth() {
@@ -148,8 +148,11 @@ export function DeveloperClient() {
         showToast(json.error || 'Failed to send webhook.', 'info')
         addLog(`Webhook delivery failed: ${json.error || 'Unknown error'}`, 'error')
       } else {
-        showToast('Webhook payload delivered successfully!', 'success')
-        addLog('Webhook payload delivered and ACK received.', 'success')
+        showToast('Webhook payload delivered with signed headers.', 'success')
+        addLog('Webhook payload delivered with production-parity signature headers.', 'success')
+        if (json.preview?.headers?.['X-HireProof-Signature']) {
+          addLog(`Sandbox signature: ${json.preview.headers['X-HireProof-Signature']}`, 'info')
+        }
       }
     } catch (e) {
       showToast('Network error while testing webhook.', 'info')
@@ -401,16 +404,19 @@ export function DeveloperClient() {
               </div>
             </section>
 
-            {/* Infrastructure BYOK */}
+            {/* Infrastructure local verification */}
             <section className="rounded-3xl border border-border-soft bg-surface shadow-sm overflow-hidden">
               <div className="border-b border-border-soft bg-background/50 px-8 py-6">
                 <div className="flex items-center gap-3">
                   <Cpu className="h-5 w-5 text-safe" />
-                  <h2 className="text-xl font-black">Inference Infrastructure (BYOK)</h2>
+                  <h2 className="text-xl font-black">Inference Infrastructure (Local Verification Only)</h2>
                 </div>
-                <p className="mt-1 text-[10px] font-black text-muted uppercase tracking-widest">Local-First Model Credentials</p>
+                <p className="mt-1 text-[10px] font-black text-muted uppercase tracking-widest">Local key checks; hosted audits use server environment keys</p>
               </div>
               <div className="p-8 space-y-6">
+                <div className="rounded-2xl border border-caution/30 bg-caution/10 p-4 text-xs font-bold leading-relaxed text-caution">
+                  These keys stay in this browser for connection checks and do not power hosted server audits. Live server audits use the environment keys reported by /api/health.
+                </div>
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -452,10 +458,10 @@ export function DeveloperClient() {
                   </div>
                 </div>
                 <button onClick={saveInfrastructure} className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-4 text-sm font-black text-background transition-all hover:bg-safe">
-                  Update Local Infrastructure
+                  Save Local Verification Keys
                 </button>
                 <p className="text-center text-[10px] font-black text-muted uppercase tracking-tighter opacity-50">
-                  STORED STRICTLY IN LOCALSTORAGE · NEVER SENT TO OUR SERVERS
+                  STORED STRICTLY IN LOCALSTORAGE · does not power hosted server audits
                 </p>
               </div>
             </section>
