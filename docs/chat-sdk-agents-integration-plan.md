@@ -1,5 +1,15 @@
 # ChatSDK Agents Integration Plan
 
+## Current Status
+
+Implemented as a credential-gated integration path.
+
+- `chat`, `@chat-adapter/slack`, `@chat-adapter/state-redis`, `@ai-sdk/gateway`, and `workflow` are installed.
+- `/api/webhooks/slack` routes Slack events through `Chat.webhooks.slack`.
+- `lib/hireproof-bot.ts` registers ChatSDK mention and subscribed-message handlers.
+- `lib/ai-model.ts` prefers AI Gateway when `AI_GATEWAY_API_KEY` is present and falls back to the existing OpenAI-compatible key.
+- Live proof still requires Slack credentials, Redis state, and deployed webhook testing.
+
 ## Decision
 
 Integrate ChatSDK as an additional HireProof surface, not as a replacement for the current app.
@@ -23,12 +33,12 @@ HireProof already satisfies part of that:
 - It has real agent behavior through claims extraction, MCP-style tools, deterministic scoring, and report output.
 - It has agent-facing APIs: `/api/v1/audit` and `/api/mcp`.
 
-Missing pieces:
+Implemented pieces:
 
-- ChatSDK core package and adapter wiring.
+- ChatSDK core package and Slack adapter wiring.
 - AI Gateway model routing.
-- At least one real chat adapter route.
-- Chat-native response formatting.
+- One real chat adapter route: `/api/webhooks/slack`.
+- Chat-native response formatting through `formatChatVerdict`.
 - Submission copy that clearly explains the ChatSDK architecture.
 
 ## Product Angle

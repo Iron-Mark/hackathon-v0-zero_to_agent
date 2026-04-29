@@ -17,8 +17,12 @@ npm install`} />
 
       <section className="mb-10">
         <h2 className="mb-4 text-2xl font-black">2. Configure Environment</h2>
-        <CodeBlock title=".env.local" code={`# Required for live AI-powered investigations
-MODEL_PROVIDER_KEY=your_openai_api_key
+        <CodeBlock title=".env.local" code={`# Preferred for live AI-powered investigations
+AI_GATEWAY_API_KEY=your_vercel_ai_gateway_key
+HIREPROOF_MODEL=openai/gpt-4o-mini
+
+# Fallback if you are not using AI Gateway
+MODEL_PROVIDER_KEY=your_openai_compatible_api_key
 SERPAPI_API_KEY=your_serpapi_key
 APP_BASE_URL=http://localhost:3002
 

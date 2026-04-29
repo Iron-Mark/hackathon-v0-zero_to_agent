@@ -74,10 +74,63 @@ test('chat and workflow status endpoints expose honest track readiness', async (
   const chatRoute = await fs.readFile(new URL('../app/api/chat/hireproof/route.ts', import.meta.url), 'utf8')
   const workflowRoute = await fs.readFile(new URL('../app/api/workflows/audit/route.ts', import.meta.url), 'utf8')
 
-  assert.match(chatRoute, /ChatSDK-ready/)
-  assert.match(chatRoute, /not a platform webhook adapter/)
-  assert.match(workflowRoute, /WDK-ready/)
-  assert.match(workflowRoute, /durable workflow/)
+  assert.match(chatRoute, /ChatSDK Agents/)
+  assert.match(chatRoute, /\/api\/webhooks\/slack/)
+  assert.match(workflowRoute, /Vercel Workflow/)
+  assert.match(workflowRoute, /startAuditWorkflow/)
+})
+
+test('slack webhook is wired through ChatSDK instead of a local-only simulator', async () => {
+  const bot = await fs.readFile(new URL('../lib/hireproof-bot.ts', import.meta.url), 'utf8')
+  const webhook = await fs.readFile(new URL('../app/api/webhooks/slack/route.ts', import.meta.url), 'utf8')
+
+  assert.match(bot, /from 'chat'/)
+  assert.match(bot, /from '@chat-adapter\/slack'/)
+  assert.match(bot, /from '@chat-adapter\/state-redis'/)
+  assert.match(bot, /new Chat/)
+  assert.match(bot, /createSlackAdapter/)
+  assert.match(bot, /createRedisState/)
+  assert.match(bot, /onNewMention/)
+  assert.match(bot, /onSubscribedMessage/)
+  assert.match(bot, /formatChatVerdict/)
+  assert.match(webhook, /handleSlackWebhook/)
+  assert.match(webhook, /waitUntil/)
+})
+
+test('ai gateway is the primary model provider when configured', async () => {
+  const model = await fs.readFile(new URL('../lib/ai-model.ts', import.meta.url), 'utf8')
+  const auditRoute = await fs.readFile(new URL('../app/api/audit/route.ts', import.meta.url), 'utf8')
+  const v1AuditRoute = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+  const healthRoute = await fs.readFile(new URL('../app/api/health/route.ts', import.meta.url), 'utf8')
+
+  assert.match(model, /from '@ai-sdk\/gateway'/)
+  assert.match(model, /gateway\(/)
+  assert.match(model, /createOpenAI/)
+  assert.match(model, /HIREPROOF_MODEL/)
+  assert.match(model, /hasHireProofModelProvider/)
+  assert.match(model, /getModelProviderStatus/)
+  assert.match(auditRoute, /getHireProofModel/)
+  assert.match(auditRoute, /hasHireProofModelProvider/)
+  assert.doesNotMatch(auditRoute, /createOpenAI/)
+  assert.match(v1AuditRoute, /getHireProofModel/)
+  assert.match(v1AuditRoute, /hasHireProofModelProvider/)
+  assert.doesNotMatch(v1AuditRoute, /createOpenAI/)
+  assert.match(healthRoute, /getModelProviderStatus/)
+  assert.match(healthRoute, /hasHireProofModelProvider/)
+})
+
+test('workflow route uses the WDK package and next plugin is enabled', async () => {
+  const workflow = await fs.readFile(new URL('../lib/workflows/audit-workflow.ts', import.meta.url), 'utf8')
+  const route = await fs.readFile(new URL('../app/api/workflows/audit/route.ts', import.meta.url), 'utf8')
+  const nextConfig = await fs.readFile(new URL('../next.config.js', import.meta.url), 'utf8')
+
+  assert.match(workflow, /from 'workflow'/)
+  assert.match(workflow, /'use workflow'/)
+  assert.match(workflow, /sleep\(/)
+  assert.match(route, /from 'workflow\/api'/)
+  assert.match(route, /start\(/)
+  assert.match(route, /WORKFLOW_SECRET/)
+  assert.match(nextConfig, /withWorkflow/)
 })
 
 test('lab client streams real audit events instead of simulated telemetry', async () => {

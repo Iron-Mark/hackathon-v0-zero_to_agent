@@ -12,8 +12,8 @@ HireProof is a proof-backed AI agent that investigates suspicious job posts with
 HireProof is one job-verification agent with multiple surfaces:
 
 - **v0 + MCPs** — implemented as the primary web app and runtime MCP investigation tools.
-- **ChatSDK Agents** — planned Slack/Discord delivery layer for job communities.
-- **Vercel Workflow / WDK** — planned durable async path for longer investigations, retries, webhooks, and report generation.
+- **ChatSDK Agents** — implemented Slack webhook route and ChatSDK bot wrapper; live proof requires Slack + Redis credentials.
+- **Vercel Workflow / WDK** — implemented WDK workflow entrypoint and start route; live durable proof requires deployed Workflow credentials.
 
 See [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md) for the honest track map and demo framing.
 
@@ -76,7 +76,7 @@ HireProof is built to be portable. Whether you use the hosted demo or run it you
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript 6 |
 | Styling | Tailwind CSS 4 + Custom Design Tokens |
-| AI SDK | Vercel AI SDK 6 (`ai`, `@ai-sdk/openai`) |
+| AI SDK | Vercel AI SDK 6 (`ai`, `@ai-sdk/gateway`, `@ai-sdk/openai` fallback) |
 | Animation | Framer Motion 12 |
 | Charts | Recharts |
 | PDF | jsPDF |
@@ -104,7 +104,9 @@ Open [http://localhost:3002](http://localhost:3002) and navigate to `/audit`.
 
 | Variable | Required | Description |
 |---|---|---|
-| `MODEL_PROVIDER_KEY` | For live mode | OpenAI-compatible API key |
+| `AI_GATEWAY_API_KEY` | Preferred for AI model calls | Vercel AI Gateway key |
+| `HIREPROOF_MODEL` | Optional | AI Gateway model path, defaults to `openai/gpt-4o-mini` |
+| `MODEL_PROVIDER_KEY` | Fallback for live mode | OpenAI-compatible API key |
 | `SERPAPI_API_KEY` | For live mode | SerpApi key for web evidence |
 | `APP_BASE_URL` | For agent loop | Base URL for internal MCP calls |
 | `AGENT_API_KEY` | Optional | API key for headless agent access |

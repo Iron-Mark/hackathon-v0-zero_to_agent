@@ -16,15 +16,15 @@ const tracks = [
   },
   {
     title: 'ChatSDK Agents',
-    status: 'Ready path',
+    status: 'Credential gated',
     icon: MessageSquare,
-    body: 'The local chat-compatible endpoint formats HireProof verdicts for Slack or Discord style replies. A real ChatSDK adapter can be wired on top of the same response shape.',
+    body: 'The Slack webhook route is wired through ChatSDK with a real bot wrapper, Redis state adapter, mention handlers, verdict replies, and report links. Live proof requires Slack and Redis credentials.',
   },
   {
     title: 'Vercel Workflow / WDK',
-    status: 'Ready path',
+    status: 'Credential gated',
     icon: Workflow,
-    body: 'The async workflow-compatible endpoint starts from the same audit request shape and points callers toward durable background checks, retries, webhook delivery, and report links.',
+    body: 'The workflow package is installed, the Next plugin is enabled, and the audit route starts a WDK workflow when credentials are configured. Without credentials, it returns an honest setup-required state.',
   },
 ]
 
@@ -67,15 +67,15 @@ export default function TripleTrackCoveragePage() {
         <ol className="list-inside list-decimal space-y-2 text-sm font-semibold leading-6 text-muted">
           <li>Start with the working `/audit` flow and show a Safe, Caution, or High-Risk report.</li>
           <li>Show that MCP tools power the evidence checks behind the web app.</li>
-          <li>Use `/api/chat/hireproof` to show a chat-native verdict shape for ChatSDK adapters.</li>
-          <li>Use `/api/workflows/audit` to show the async workflow handoff shape for durable investigations.</li>
+          <li>Use `/api/chat/hireproof` to show a chat-native verdict shape, then show `/api/webhooks/slack` as the real ChatSDK webhook.</li>
+          <li>Use `/api/workflows/audit` to show the WDK workflow handoff and credential status for durable investigations.</li>
         </ol>
       </section>
 
       <section className="rounded-2xl border border-caution/30 bg-caution/5 p-6">
         <h2 className="text-2xl font-black">Honest Submission Boundary</h2>
         <p className="mt-3 text-sm font-medium leading-6 text-muted">
-          Submit under the strongest implemented track unless the chat or workflow adapter is completed before final demo. ChatSDK and WDK should be described as ready integration paths until platform packages and external setup are fully wired.
+          Submit under the strongest working demo path. ChatSDK and WDK are implemented in code, but should be described as credential-gated until Slack events and deployed Workflow runs are captured live.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/docs/mcp" className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2 text-sm font-black text-background hover:bg-safe">

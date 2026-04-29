@@ -18,7 +18,7 @@ HireProof helps job seekers verify whether an opportunity looks legitimate, risk
 
 The result is a structured risk report with a clear Safe, Caution, or High-Risk verdict, a risk score, evidence cards, red flags, green flags, and safer alternatives. Instead of giving vague career advice, HireProof shows proof: what it checked, what it found, and what the user should do next.
 
-HireProof can be presented across the hackathon tracks as one agent with multiple surfaces: a v0-built web app, runtime MCP tools for evidence gathering, a planned ChatSDK community agent, and an async workflow path for longer-running investigations.
+HireProof can be presented across the hackathon tracks as one agent with multiple surfaces: a v0-built web app, runtime MCP tools for evidence gathering, a ChatSDK Slack integration path for job communities, and a WDK workflow path for longer-running investigations.
 
 ## Tags
 
@@ -29,10 +29,10 @@ AI agent, MCP, v0, Vercel, SerpApi, job safety, job scams, verification, trust a
 HireProof can cover all three hackathon tracks as one job-verification agent:
 
 - **v0 + MCPs**: implemented web app plus runtime MCP evidence tools.
-- **ChatSDK Agents**: documented Slack/Discord expansion for job communities.
-- **Vercel Workflow / WDK**: documented async path for long-running checks, retries, webhooks, and report delivery.
+- **ChatSDK Agents**: implemented Slack webhook route and ChatSDK bot wrapper; live proof requires Slack + Redis credentials.
+- **Vercel Workflow / WDK**: implemented workflow entrypoint and WDK start route; live durable proof requires deployed Workflow credentials.
 
-For submission, lead with the strongest implemented path and describe unfinished tracks as planned extensions unless their code is added before final demo.
+For submission, lead with the strongest working web flow, then show ChatSDK and WDK as implemented integration paths. Do not call them fully live until real Slack webhook and Vercel Workflow runs are captured.
 
 ## Cover Image Direction
 

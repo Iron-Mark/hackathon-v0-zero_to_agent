@@ -97,8 +97,12 @@ npm install`}
           <p className="font-medium text-muted">3. Add your own API keys for the BYOK model:</p>
           <CodeBlock 
             language="env"
-            code={`# Required for Live Mode
-MODEL_PROVIDER_KEY=your_openai_or_groq_key
+            code={`# Preferred for Live Mode
+AI_GATEWAY_API_KEY=your_vercel_ai_gateway_key
+HIREPROOF_MODEL=openai/gpt-4o-mini
+
+# Fallback if you are not using AI Gateway
+MODEL_PROVIDER_KEY=your_openai_compatible_key
 SERPAPI_API_KEY=your_serpapi_key
 
 # Optional: For global persistence

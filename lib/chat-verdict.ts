@@ -37,6 +37,6 @@ export function formatChatVerdict(report: AuditReport, baseUrl?: string): ChatVe
   return {
     text: lines.join('\n'),
     reportUrl,
-    status: 'ChatSDK-ready: local chat verdict format, not a platform webhook adapter.',
+    status: 'ChatSDK Agents verdict formatted.',
   }
 }

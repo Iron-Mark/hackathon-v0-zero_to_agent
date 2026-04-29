@@ -16,6 +16,7 @@ For the most up-to-date technical documentation, visit the **[Live Documentation
 - `final-presentation-plan.md`: The original blueprint for the HireProof MVP.
 - `triple-track-coverage.md`: Honest track map for v0 + MCPs, ChatSDK Agents, and Vercel Workflow / WDK.
 - `chat-sdk-agents-integration-plan.md`: Draft plan for future multi-platform chat expansion.
+- `next-step-plan.md`: Current ordered plan for stabilizing, finishing, verifying, and syncing the app.
 - `remaining-work.md`: Current punch list for runtime wiring, product gaps, and hardening work.
 - `submission-package.md`: Original submission copy and demo checklists.
 

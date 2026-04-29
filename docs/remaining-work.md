@@ -9,6 +9,9 @@ The runtime wiring pass is now in place. The remaining items below are the real 
 - `explore` now reads from the intelligence reports path used by the API.
 - `trends` now maps the stored report shape into the UI sections it renders.
 - Missing-user auth now uses a valid dummy `scrypt` hash path.
+- `/lab` now streams real `/api/audit` SSE events instead of timed fake telemetry.
+- ChatSDK package wiring exists for Slack mentions and subscribed messages.
+- WDK package wiring exists for `startAuditWorkflow` through `/api/workflows/audit`.
 
 ## P1 - Product Wiring Still Incomplete
 
@@ -30,19 +33,11 @@ The runtime wiring pass is now in place. The remaining items below are the real 
   - Fix: add account-level allowed domains and a small script endpoint, or keep the docs framed as API validation only.
   - Acceptance: a third-party career page can embed the badge and receive a true/false verified state tied to its domain.
 
-- **Forensic Lab is still a simulation**
-  - Current UI: `app/lab/lab-client.tsx` runs timed local steps with hardcoded telemetry.
-  - Current issue: it claims SerpApi nodes, domain age checks, linguistic fingerprinting, latency, and "Agentic Engine v9.4" without those values coming from the audit pipeline.
-  - Fix: wire Lab to the existing `/api/audit` SSE stream. Use real `log`, `result`, and `error` events to drive terminal output, step state, and the final report panel.
-  - Implementation plan:
-    - Replace fake `processSteps` with `fetch('/api/audit')`.
-    - Add `Live scan` and `Demo scan` controls.
-    - Map real logs to these visible steps: Intake, Claim extraction, Evidence gathering, Risk scoring, Report synthesis.
-    - Measure elapsed time client-side instead of hardcoding latency.
-    - Render the returned `AuditReport` summary: verdict, risk score, company, role, location, evidence count, and red-flag count.
-    - Link to `/audit/{result.id}` when the report has an ID.
-    - Remove or explicitly label any remaining simulated forensic copy.
-  - Acceptance: `/lab` no longer performs a purely timed fake scan, demo mode is clearly labeled, and live mode only shows claims backed by actual audit events/results.
+- **Live ChatSDK and WDK proof still needs credentials**
+  - Current code: Slack webhook and WDK route are implemented and locally verified at the route/build level.
+  - Missing: real Slack app credentials, Redis state URL, Vercel Workflow deployment credentials, and captured platform events.
+  - Fix: configure `SLACK_BOT_TOKEN`, `SLACK_SIGNING_SECRET`, `REDIS_URL`, `WORKFLOW_SECRET`, `AI_GATEWAY_API_KEY`, and `HIREPROOF_MODEL` in the target Vercel project.
+  - Acceptance: a real Slack mention creates a HireProof reply with a report link, and `/api/workflows/audit` returns a real WDK run ID from a deployed environment.
 
 ## P2 - Polish, Docs, and Hardening
 
@@ -75,6 +70,7 @@ Before closing this punch list, run:
 
 ```powershell
 node --test test/auth-core.test.mjs
+node --test test/runtime-wiring.test.mjs
 npm run lint
 npm run build
 ```

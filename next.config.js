@@ -1,3 +1,5 @@
+const { withWorkflow } = require('workflow/next')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Prevent information disclosure about the tech stack
@@ -42,4 +44,8 @@ const nextConfig = {
   output: 'standalone',
 }
 
-module.exports = nextConfig
+module.exports = withWorkflow(nextConfig, {
+  workflows: {
+    lazyDiscovery: true,
+  },
+})

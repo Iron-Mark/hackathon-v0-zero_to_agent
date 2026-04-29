@@ -1,7 +1,6 @@
 import { generateObject, generateText, tool, stepCountIs } from 'ai'
 import dns from 'node:dns'
 import { promisify } from 'node:util'
-import { createOpenAI } from '@ai-sdk/openai'
 import { z } from 'zod'
 import {
   AuditRequestSchema,
@@ -25,12 +24,9 @@ import { checkRateLimit } from '@/lib/rate-limit'
 import { saveReport } from '@/lib/db'
 import { createHmac } from 'crypto'
 import { authenticateApiKey, recordUsage } from '@/lib/auth-store'
+import { getHireProofModel, hasHireProofModelProvider } from '@/lib/ai-model'
 
 export const runtime = 'nodejs'
-
-const openai = createOpenAI({
-  apiKey: process.env.MODEL_PROVIDER_KEY || '',
-})
 
 function extractFirstMatch(text: string, patterns: RegExp[], fallback = 'Unknown') {
   for (const pattern of patterns) {
@@ -55,7 +51,7 @@ function extractCompanyFromUrl(url?: string) {
 async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
   const text = input.text
 
-  if (!process.env.MODEL_PROVIDER_KEY) {
+  if (!hasHireProofModelProvider()) {
     const companyFromUrl = extractCompanyFromUrl(input.url || undefined)
     const company = companyFromUrl || extractFirstMatch(text, [
       /(?:company|employer)\s*[:\-]\s*([A-Za-z0-9&.,' -]{2,70})/i,
@@ -110,7 +106,7 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
 
   try {
     const { object } = await generateObject({
-      model: openai('gpt-4o-mini'),
+      model: getHireProofModel(),
       schema: z.object({
         company: z.string().describe("The name of the company hiring for the role. Return 'Unknown / Not Verifiable' if missing."),
         role: z.string().describe("The job title. Return 'Unspecified role' if missing."),
@@ -269,12 +265,12 @@ export async function POST(request: Request) {
           const hasCompany = !extractedClaims.company.toLowerCase().includes('unknown')
           let evidence: EvidenceItem[] = []
 
-          if (hasCompany && isSerpApiConfigured() && process.env.MODEL_PROVIDER_KEY) {
+          if (hasCompany && isSerpApiConfigured() && hasHireProofModelProvider()) {
             try {
               const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3000'
               
               const result = await generateText({
-                model: openai('gpt-4o-mini'),
+                model: getHireProofModel(),
                 stopWhen: stepCountIs(5),
                 tools: {
                   search_company: tool({

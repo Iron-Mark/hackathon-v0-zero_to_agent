@@ -1,5 +1,4 @@
 import { generateObject, generateText, tool, stepCountIs } from 'ai'
-import { createOpenAI } from '@ai-sdk/openai'
 import { z } from 'zod'
 import {
   AuditRequestSchema,
@@ -27,12 +26,9 @@ import {
 } from '@/lib/serpapi'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { saveReport } from '@/lib/db'
+import { getHireProofModel, getModelProviderStatus, hasHireProofModelProvider } from '@/lib/ai-model'
 
 export const runtime = 'nodejs'
-
-const openai = createOpenAI({
-  apiKey: process.env.MODEL_PROVIDER_KEY || '',
-})
 
 function extractFirstMatch(text: string, patterns: RegExp[], fallback = 'Unknown') {
   for (const pattern of patterns) {
@@ -57,7 +53,7 @@ function extractCompanyFromUrl(url?: string) {
 async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
   const text = input.text
 
-  if (!process.env.MODEL_PROVIDER_KEY) {
+  if (!hasHireProofModelProvider()) {
     const companyFromUrl = extractCompanyFromUrl(input.url || undefined)
     const company = companyFromUrl || extractFirstMatch(text, [
       /(?:company|employer)\s*[:\-]\s*([A-Za-z0-9&.,' -]{2,70})/i,
@@ -112,7 +108,7 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
 
   try {
     const { object } = await generateObject({
-      model: openai('gpt-4o-mini'),
+      model: getHireProofModel(),
       schema: z.object({
         company: z.string().describe("The name of the company hiring for the role. Return 'Unknown / Not Verifiable' if missing."),
         role: z.string().describe("The job title. Return 'Unspecified role' if missing."),
@@ -272,7 +268,7 @@ export async function POST(request: Request) {
         const hasCompany = !extractedClaims.company.toLowerCase().includes('unknown')
         let evidence: EvidenceItem[] = []
 
-        if (hasCompany && isSerpApiConfigured() && process.env.MODEL_PROVIDER_KEY) {
+        if (hasCompany && isSerpApiConfigured() && hasHireProofModelProvider()) {
           try {
             const host = request.headers.get('host') || 'localhost:3000'
             const protocol = host.includes('localhost') ? 'http' : 'https'
@@ -281,7 +277,7 @@ export async function POST(request: Request) {
             sendEvent('log', { message: `Orchestrating agent to investigate ${extractedClaims.company}...` })
             
             const result = await generateText({
-              model: openai('gpt-4o-mini'),
+              model: getHireProofModel(),
               stopWhen: stepCountIs(5),
               experimental_onToolCallStart: async ({ toolCall }: any) => {
                 const name = toolCall.toolName
@@ -509,6 +505,7 @@ export async function POST(request: Request) {
 
 export async function GET() {
   const serpapi = isSerpApiConfigured()
+  const modelProvider = getModelProviderStatus()
 
   return new Response(
     JSON.stringify({
@@ -516,8 +513,9 @@ export async function GET() {
       mode: serpapi ? 'live' : 'demo',
       apiKeys: {
         serpapi,
-        ai_provider: !!process.env.MODEL_PROVIDER_KEY,
+        ai_provider: hasHireProofModelProvider(),
       },
+      modelProvider,
     }),
     { status: 200, headers: { 'Content-Type': 'application/json' } }
   )

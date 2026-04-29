@@ -1,16 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState, useRef } from 'react'
-import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap, Bot, Terminal, Cpu, RefreshCcw, Share2, Award, Zap as ZapIcon, Target, Users } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap, Bot, Terminal, Cpu, Zap as ZapIcon } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { SpotTheBot } from '@/components/spot-the-bot'
 import { BrandMark } from '@/components/brand-mark'
 import { ImpactTicker } from '@/components/impact-ticker'
-import { WorldMap } from '@/components/world-map'
-import { DEMO_FIXTURES } from '@/lib/fixtures'
 
 const flags = [
   'PHP 80,000/week for an internship',
@@ -72,11 +70,10 @@ function TypewriterEffect() {
   }, [text, isDeleting, phraseIndex])
 
   return (
-    <div className="font-mono text-sm sm:text-base">
-      <span className="text-safe mr-2">$</span>
-      <span>{text}</span>
-      <span className="ml-1 inline-block h-4 w-2 animate-pulse bg-safe align-middle" />
-    </div>
+    <span className="text-safe">
+      {text}
+      <span className="animate-pulse">|</span>
+    </span>
   )
 }
 
@@ -112,6 +109,16 @@ const demoData = {
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: heroEase } }
+}
+
+const staggerContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+}
+
+const cardReveal = {
+  hidden: { opacity: 0, y: 16, scale: 0.97 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 260, damping: 20 } },
 }
 
 export function HomeClient() {
@@ -192,38 +199,59 @@ export function HomeClient() {
               <BrandMark className="h-12 w-12 shrink-0 shadow-lg" />
             </motion.div>
 
-            <motion.div variants={fadeUp} custom={1} className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-safe shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-              <Sparkles className="h-4 w-4" />
-              Proof-backed job verification agent
+            <motion.div variants={fadeUp} custom={1} className="mb-5 inline-flex items-center gap-2 rounded-full border border-risk-bg bg-risk-bg px-3 py-1 text-sm font-bold text-risk-text">
+              <ShieldAlert className="h-4 w-4" />
+              Built for suspicious job posts
             </motion.div>
 
-            <motion.h1 variants={fadeUp} custom={2} className="text-5xl font-black leading-[1.05] tracking-tighter sm:text-6xl lg:text-7xl xl:text-8xl glitch-hover">
-              Paste a job post. Filter the <span className="text-safe">Dead Internet</span> before you apply.
+            <motion.h1 variants={fadeUp} custom={2} className="text-4xl font-black leading-tight text-balance sm:text-5xl lg:text-6xl">
+              Know if a job post is legit before you apply.
             </motion.h1>
 
-            <motion.div variants={fadeUp} custom={3} className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-muted sm:text-xl">
-              <p>Paste a job post or recruiter message. HireProof checks the claims and returns a verdict with <span className="text-foreground font-black underline decoration-safe underline-offset-8">evidence you can review.</span></p>
-              <div className="mt-6 rounded-2xl border border-border-soft bg-surface/80 dark:bg-black p-5 font-mono text-xs shadow-2xl relative overflow-hidden group backdrop-blur-md border-l-4 border-l-safe">
-                <div className="flex items-center gap-2 mb-3 opacity-80">
+            <motion.div variants={fadeUp} custom={3} className="mt-5 max-w-xl text-lg font-medium leading-8 text-muted">
+              <p>Paste a recruiter message, job listing, or apply URL.</p>
+              <div className="mt-3 rounded-xl border border-border-soft bg-surface/80 dark:bg-black p-4 font-mono text-xs shadow-2xl relative overflow-hidden group backdrop-blur-md">
+                <div className="absolute top-0 left-0 h-full w-1 bg-safe/50" />
+                <div className="flex items-center gap-2 mb-2 opacity-80">
                   <div className="h-2 w-2 rounded-full bg-risk-text" />
                   <div className="h-2 w-2 rounded-full bg-caution" />
                   <div className="h-2 w-2 rounded-full bg-safe" />
+                  <span className="ml-2 text-[8px] uppercase tracking-widest text-muted dark:text-white/70">hireproof-terminal v1.0.4</span>
                 </div>
-                <TypewriterEffect />
-                <div className="absolute top-2 right-4 text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-safe transition-colors">Job Check Mode</div>
+                <div className="text-foreground dark:text-white/90">
+                  <span className="text-safe mr-2">investigator@hireproof:~$</span>
+                  <TypewriterEffect />
+                </div>
               </div>
             </motion.div>
 
-            <motion.div variants={fadeUp} custom={4} className="mt-12 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-              <Link href="/audit" className="hireproof-focus group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-foreground px-10 py-5 text-lg font-black text-background transition-all hover:bg-safe sm:w-auto shadow-xl">
-                Check a Job Post
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link href="/audit" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-5 py-2.5 font-bold text-background shadow-lg transition-colors hover:bg-safe">
+                Start investigation <ArrowRight className="h-4 w-4" />
               </Link>
-              <div className="flex items-center gap-4 text-xs font-black uppercase tracking-[0.2em] text-muted">
-                <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-safe animate-pulse" /> Demo + live modes</span>
-                <span className="h-4 w-px bg-border" />
-                <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-safe" /> Evidence-backed verdicts</span>
-              </div>
+              <Link href="/audit?demo=high-risk" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
+                Quick demo
+              </Link>
+            </motion.div>
+
+            <motion.div variants={staggerContainer} initial="hidden" animate="show" className="mt-6 grid gap-2 sm:grid-cols-3">
+              {pitchDemos.map((demo) => {
+                const Icon = demo.icon
+                return (
+                  <motion.div key={demo.href} variants={cardReveal}>
+                    <Link
+                      href={demo.href}
+                      className={`hireproof-focus block rounded-xl border p-3 text-left shadow-sm transition hover:shadow-md ${demo.className}`}
+                    >
+                      <div className="mb-2 flex items-center gap-2 text-sm font-black">
+                        <Icon className="h-4 w-4" />
+                        {demo.label}
+                      </div>
+                      <p className="text-xs font-semibold leading-5">{demo.description}</p>
+                    </Link>
+                  </motion.div>
+                )
+              })}
             </motion.div>
           </motion.div>
 
@@ -324,51 +352,174 @@ export function HomeClient() {
         </div>
       </section>
 
-      {/* Audit Pattern Section */}
-      <section className="relative py-24 overflow-hidden bg-[#080a0d]">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px]" />
-        </div>
-        <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20 xl:px-32 relative z-10">
-          <div className="mb-16 grid gap-12 lg:grid-cols-2 lg:items-end">
-            <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-evidence/30 bg-evidence/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-evidence">
-                <Globe className="h-4 w-4" />
-                Recent Audit Patterns
-              </div>
-              <h2 className="text-4xl font-black leading-none tracking-tight sm:text-6xl lg:text-7xl">
-                See the patterns behind <span className="text-safe">job scams.</span>
-              </h2>
+      {/* Example input */}
+      <section className="border-b border-border-soft bg-surface">
+        <div className="mx-auto grid max-w-[1600px] gap-8 px-6 md:px-12 lg:px-20 xl:px-32 py-14 lg:grid-cols-[360px_1fr]">
+          <div>
+            <div className="mb-3 inline-flex rounded-full bg-evidence-bg px-3 py-1 text-xs font-black uppercase tracking-normal text-evidence">
+              Example input
             </div>
-            <div className="max-w-md">
-              <p className="text-lg font-medium text-white/40 leading-relaxed uppercase tracking-tighter">
-                HireProof reports expose repeated risk patterns like off-platform contact, unrealistic pay, weak company footprint, and missing hiring evidence.
-              </p>
-            </div>
+            <h2 className="text-2xl font-black">Suspicious opportunity</h2>
           </div>
+          <div className="rounded-2xl border border-border bg-background p-6">
+            <div className="grid gap-3 text-sm sm:grid-cols-2">
+              <p><strong>Position:</strong> Remote Frontend Intern</p>
+              <p><strong>Salary:</strong> PHP 80,000 per week</p>
+              <p><strong>Location:</strong> Remote</p>
+              <p><strong>Contact:</strong> Message us on Telegram</p>
+              <p className="sm:col-span-2"><strong>Requirements:</strong> Basic HTML/CSS knowledge, no interview needed</p>
+            </div>
+            <Link href="/audit?demo=high-risk" className="hireproof-focus mt-5 inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-background transition-colors hover:bg-safe">
+              Run quick demo <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
 
-          <div className="grid gap-12 lg:grid-cols-[1fr_380px]">
-            <div className="rounded-[3rem] border border-white/5 bg-white/5 p-4 shadow-2xl backdrop-blur-md">
-              <WorldMap />
+      {/* How it works */}
+      <section className="border-b border-border-soft">
+        <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20 xl:px-32 py-14">
+          <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-black uppercase tracking-normal text-safe">Workflow</p>
+              <h2 className="text-2xl font-black">How it works</h2>
             </div>
-            <div className="space-y-6">
-              {[
-                { label: 'Demo Scenarios', value: '3', change: 'Safe to high-risk', color: 'text-safe' },
-                { label: 'Verdict States', value: '3', change: 'Safe / Caution / High-risk', color: 'text-risk-text' },
-                { label: 'Evidence Sources', value: '4', change: 'MCP tools', color: 'text-evidence' },
-              ].map((stat) => (
-                <div key={stat.label} className="rounded-3xl border border-white/5 bg-white/5 p-8 backdrop-blur-md">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-white/30">{stat.label}</div>
-                  <div className="mt-2 flex items-end justify-between">
-                    <div className="text-4xl font-black tabular-nums">{stat.value}</div>
-                    <div className={`text-xs font-black ${stat.color}`}>{stat.change}</div>
+            <p className="max-w-xl text-sm font-semibold leading-6 text-muted">
+              The interface is intentionally report-first: every verdict should feel backed by visible evidence.
+            </p>
+          </div>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-60px' }}
+            className="grid gap-4 md:grid-cols-3"
+          >
+            {steps.map((step, index) => {
+              const Icon = step.icon
+              return (
+                <motion.div key={step.title} variants={cardReveal} className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+                  <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-safe-bg text-safe">
+                    <Icon className="h-5 w-5" />
                   </div>
-                </div>
-              ))}
-              <div className="rounded-3xl border border-safe/20 bg-safe/5 p-8 text-center">
-                <p className="text-sm font-black text-safe uppercase tracking-widest">Job Verification: ACTIVE</p>
+                  <div className="mb-2 text-xs font-black uppercase tracking-normal text-muted">Step {index + 1}</div>
+                  <h3 className="font-black">{step.title}</h3>
+                  <p className="mt-2 text-sm font-medium leading-6 text-muted">{step.description}</p>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Evidence signals */}
+      <section className="border-b border-border-soft bg-surface">
+        <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20 xl:px-32 py-14">
+          <div className="mb-8 flex items-center gap-3">
+            <Sparkles className="h-5 w-5 text-evidence" />
+            <h2 className="text-2xl font-black">Evidence signals</h2>
+          </div>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-60px' }}
+            className="grid gap-5 md:grid-cols-2"
+          >
+            {evidenceSignals.map((signal) => {
+              const Icon = signal.icon
+              return (
+                <motion.div key={signal.title} variants={cardReveal} className="group relative flex gap-4 overflow-hidden rounded-2xl border border-border-soft bg-background p-5 transition-all hover:border-evidence/50 hover:shadow-lg">
+                  <div className="absolute inset-0 bg-gradient-to-r from-evidence/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-evidence-bg text-evidence shadow-inner transition-transform group-hover:scale-110">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-black">{signal.title}</h3>
+                      <div className="h-1 w-1 rounded-full bg-evidence opacity-0 group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-1 text-sm font-medium leading-6 text-muted">{signal.description}</p>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Dead Internet Theory Section */}
+      <section className="relative overflow-hidden border-b border-border-soft bg-background py-24 text-foreground">
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-10 text-foreground">
+          <div className="absolute inset-0 bg-[radial-gradient(currentColor_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+        </div>
+        
+        <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20 xl:px-32 relative z-10">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-risk-bg bg-risk-bg/50 px-3 py-1 text-xs font-black uppercase tracking-widest text-risk-text">
+                <Bot className="h-4 w-4" />
+                The Dead Internet is Real
               </div>
-            </div>
+              <h2 className="text-4xl font-black leading-tight sm:text-5xl">
+                Job posts can be real, fake, or <span className="text-risk-text">AI-shaped bait.</span>
+              </h2>
+              <p className="mt-6 text-lg font-medium leading-relaxed text-muted">
+                The job market is becoming a target for automated phishing. HireProof helps candidates slow down, inspect the evidence, and avoid sharing personal details with suspicious recruiters.
+              </p>
+              
+              <div className="mt-10 grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-risk-bg text-risk-text">
+                    <Cpu className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-bold text-foreground">Pattern checks</h3>
+                  <p className="text-sm text-muted">Flag unrealistic compensation, vague company claims, and contact paths that move you off trusted platforms.</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-safe-bg text-safe">
+                    <Terminal className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-bold text-foreground">Evidence-first reports</h3>
+                  <p className="text-sm text-muted">Show why a verdict was returned so the user can decide before applying.</p>
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, type: 'spring' }}
+              className="relative rounded-2xl border border-border-soft bg-surface/80 p-8 shadow-xl backdrop-blur-sm"
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-2 font-mono text-xs text-muted">
+                  <span className="h-2 w-2 rounded-full bg-risk-text animate-pulse" />
+                  SCANNING JOB POST...
+                </div>
+                <div className="text-xs font-black text-risk-text">DETECTION ACTIVE</div>
+              </div>
+              
+              <div className="space-y-4 font-mono">
+                {flags.map((flag) => (
+                  <div key={flag} className="rounded border border-border bg-background p-3 text-xs leading-relaxed text-foreground">
+                    <span className="text-risk-text">MATCH:</span> {flag}<br />
+                    <span className="text-muted">// Status: needs investigation</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-8 relative overflow-hidden rounded-xl border border-risk-bg bg-risk-bg/50 p-4 text-center">
+                <div className="text-2xl font-black uppercase text-risk-text">Suspicious Pattern Found</div>
+                <div className="mt-1 text-[10px] uppercase tracking-widest text-risk-text/80">Run evidence checks before applying</div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -390,113 +541,44 @@ export function HomeClient() {
         </div>
       </section>
 
-      {/* Community / Collective Defense Section */}
-      <section className="bg-foreground py-20 sm:py-32 text-background relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-20 opacity-5">
-          <Users className="h-[200px] w-[200px] sm:h-[400px] sm:w-[400px]" />
+      {/* Final CTA */}
+      <section className="relative overflow-hidden bg-foreground py-24 text-background">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]" />
         </div>
-        <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20 xl:px-32 relative z-10">
-          <div className="flex flex-col md:flex-row items-end justify-between gap-12 mb-12 sm:mb-20">
-            <div className="max-w-3xl">
-              <h2 className="text-4xl font-black leading-[0.95] tracking-tighter sm:text-7xl lg:text-8xl">
-                Safer job search, <br/> <span className="opacity-40 italic">shared evidence.</span>
-              </h2>
-              <p className="mt-8 text-xl font-black uppercase tracking-tight opacity-70">
-                Share suspicious listings, compare evidence, and help people avoid risky opportunities.
-              </p>
-            </div>
-            <div className="flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-safe text-background shadow-2xl shadow-safe/20">
-              <Share2 className="h-10 w-10" />
-            </div>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              { 
-                quote: "HireProof saved me from a 'too-good-to-be-true' offer that looked 100% real. The Telegram red-flag was something I would have missed.",
-                author: "Sarah J.",
-                role: "Product Designer",
-                icon: ShieldAlert
-              },
-              { 
-                quote: "The evidence report is clear. I showed it to my university's career center and they're now recommending it to students.",
-                author: "Markus D.",
-                role: "Recent Graduate",
-                icon: Award
-              },
-              { 
-                quote: "As a recruiter, the Verified Badge has been a game-changer. My response rates are up 40% because candidates know I'm real.",
-                author: "Elena R.",
-                role: "Senior Tech Recruiter",
-                icon: Target
-              }
-            ].map((item, i) => (
-              <div key={i} className="rounded-[2.5rem] border border-white/10 bg-white/5 p-10 backdrop-blur-md">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-                  <item.icon className="h-6 w-6" />
-                </div>
-                <p className="text-lg font-bold leading-relaxed mb-8 italic">"{item.quote}"</p>
-                <div className="flex items-center gap-4 border-t border-white/10 pt-6">
-                  <div className="h-10 w-10 rounded-full bg-white/10" />
-                  <div>
-                    <div className="font-black text-sm">{item.author}</div>
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-40">{item.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Global Leaderboard */}
-          <div className="mx-auto mt-20 max-w-5xl">
-            <div className="rounded-[2.5rem] border border-white/10 bg-white/5 p-10 backdrop-blur-md">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
-                <div className="text-left">
-                  <h3 className="text-2xl font-black mb-2">Global Investigator Leaderboard</h3>
-                  <p className="text-sm font-medium opacity-60 uppercase tracking-widest">Top community reviewers this week</p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-safe text-background shadow-lg shadow-safe/20">
-                  <TrendingUp className="h-6 w-6" />
-                </div>
-              </div>
-              <div className="grid gap-4">
-                {[
-                  { name: 'Alex Review', score: 142, rank: 'Master', color: 'text-safe' },
-                  { name: 'Sarah Signal', score: 128, rank: 'Master', color: 'text-safe' },
-                  { name: 'Marcus Audit', score: 95, rank: 'Senior', color: 'text-evidence' },
-                  { name: 'Elena Verify', score: 82, rank: 'Senior', color: 'text-evidence' },
-                ].map((user, i) => (
-                  <div key={user.name} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center font-black text-xs border border-white/10">{i + 1}</div>
-                      <div>
-                        <div className="text-sm font-black">{user.name}</div>
-                        <div className={`text-[10px] font-black uppercase tracking-widest ${user.color}`}>{user.rank} Reviewer</div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-black">{user.score} Audits</div>
-                      <div className={`text-[10px] font-medium opacity-40`}>Evidence reviewed</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-20 flex flex-col sm:flex-row items-center justify-center gap-8">
-            <Link href="/audit" className="w-full sm:w-auto rounded-2xl bg-foreground px-12 py-5 text-lg font-black text-background hover:bg-safe transition-all shadow-xl hover:shadow-safe/20">
-                Check a Listing
+        <div className="mx-auto max-w-4xl px-6 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="mb-8 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-safe text-background shadow-[0_0_50px_-12px_rgba(16,185,129,0.5)]"
+          >
+            <ShieldAlert className="h-10 w-10" />
+          </motion.div>
+          <h2 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl">
+            Check the post before you apply.
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-relaxed opacity-80 md:text-xl">
+            Paste the listing, recruiter message, or application URL. HireProof turns suspicious claims into an evidence-backed verdict.
+          </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/audit"
+              className="hireproof-focus inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-safe px-8 py-4 text-lg font-black text-background transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:w-auto"
+            >
+              Start investigation
+              <ArrowRight className="h-5 w-5" />
             </Link>
-            <div className="flex items-center gap-4">
-              <div className="flex -space-x-4">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="h-12 w-12 rounded-full border-4 border-foreground bg-white/10" />
-                ))}
-              </div>
-              <div className="text-sm font-black uppercase tracking-widest opacity-60">Community-ready workflow</div>
-            </div>
+            <Link
+              href="/audit?demo=high-risk"
+              className="hireproof-focus inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/5 px-8 py-4 text-lg font-black text-white transition-all hover:bg-white/10 sm:w-auto"
+            >
+              Quick demo
+            </Link>
           </div>
+          <p className="mt-8 text-xs font-black uppercase tracking-[0.3em] opacity-40">
+            Evidence-backed · Candidate-first · Free demo
+          </p>
         </div>
       </section>
 

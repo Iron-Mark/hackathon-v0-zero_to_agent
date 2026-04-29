@@ -1,21 +1,13 @@
 import { NextResponse } from 'next/server'
-import { DEMO_FIXTURES } from '@/lib/fixtures'
-import { formatChatVerdict } from '@/lib/chat-verdict'
-import { saveReport } from '@/lib/db'
-import type { AuditReport } from '@/lib/schemas'
+import { createChatReply, getSlackCredentialStatus } from '@/lib/hireproof-bot'
 
 export const runtime = 'nodejs'
 
-function pickFixture(text: string) {
-  const lower = text.toLowerCase()
-  if (lower.includes('telegram') || lower.includes('80000') || lower.includes('80,000')) return DEMO_FIXTURES.highRisk
-  if (lower.includes('unclear') || lower.includes('maybe') || lower.includes('caution')) return DEMO_FIXTURES.caution
-  return DEMO_FIXTURES.safe
-}
-
 export async function GET() {
   return NextResponse.json({
-    status: 'ChatSDK-ready: local chat verdict format, not a platform webhook adapter.',
+    status: 'ChatSDK Agents local test endpoint with Slack webhook wiring.',
+    platformWebhook: '/api/webhooks/slack',
+    credentialStatus: getSlackCredentialStatus(),
     usage: {
       method: 'POST',
       body: { text: 'Suspicious job post text', platform: 'slack', channel: 'demo' },
@@ -31,18 +23,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing text for chat verification.' }, { status: 400 })
   }
 
-  const now = Date.now()
-  const report: AuditReport = {
-    ...pickFixture(text),
-    id: `chat_${now}`,
-    timestamp: new Date(now).toISOString(),
-    source: 'api' as const,
-    mode: 'demo' as const,
-  }
-
   const baseUrl = process.env.APP_BASE_URL || new URL(request.url).origin
-  await saveReport(report)
-  const verdict = formatChatVerdict(report, baseUrl)
+  const { report, verdict } = await createChatReply(text, baseUrl)
 
   return NextResponse.json({
     status: verdict.status,
