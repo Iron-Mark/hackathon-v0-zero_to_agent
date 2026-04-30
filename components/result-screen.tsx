@@ -6,7 +6,6 @@ import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, A
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import html2canvas from 'html2canvas'
-import { useLiveMode } from '@/hooks/useLiveMode'
 import RiskRadarChart from '@/components/risk-radar-chart'
 import { generatePdfDossier, generateCertificate } from '@/lib/generate-pdf'
 import { showToast } from '@/components/toast'
@@ -39,7 +38,6 @@ interface Result {
 
 interface ResultScreenProps {
   result: Result
-  isDemo?: boolean
   onBackToAudit?: () => void
 }
 
@@ -56,10 +54,9 @@ function sanitizeUrl(url?: string): string | undefined {
   }
 }
 
-export default function ResultScreen({ result, isDemo = true, onBackToAudit }: ResultScreenProps) {
+export default function ResultScreen({ result, onBackToAudit }: ResultScreenProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [isExporting, setIsExporting] = useState(false)
-  const { isLiveMode } = useLiveMode()
   const [feedbackLoading, setFeedbackLoading] = useState<string | null>(null)
 
   const [feedbackGiven, setFeedbackGiven] = useState<boolean>(Boolean(result.userFeedback))
@@ -545,12 +542,7 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
           )}
         </motion.section>
 
-        {isDemo && (
-          <motion.div variants={itemVariants} className="rounded-2xl border border-evidence-bg bg-evidence-bg p-4 text-center text-sm text-evidence">
-            <span className="font-black">Demo Data</span>
-            <p className="mt-1 font-semibold">This is a sample investigation. Connect live APIs for real-time verification.</p>
-          </motion.div>
-        )}
+
 
         <div className="text-center pb-6 print:hidden">
           <div className="mb-10 rounded-2xl border border-border-soft bg-surface/30 p-6">

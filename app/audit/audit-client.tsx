@@ -9,45 +9,15 @@ import ResultScreen from '@/components/result-screen'
 import { SiteHeader } from '@/components/site-header'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { AuditSkeleton } from '@/components/audit-skeleton'
-import { DEMO_FIXTURES } from '@/lib/fixtures'
 import { useAuditHistory } from '@/hooks/useAuditHistory'
-import { useLiveMode } from '@/hooks/useLiveMode'
 import type { AuditReport, AuditRequest } from '@/lib/schemas'
 
-type DemoScenario = 'high-risk' | 'caution' | 'safe'
 type StreamEvent =
   | { type: 'log'; message: string }
   | { type: 'result'; data: AuditReport }
   | { type: 'error'; message: string }
 
-const sampleRequests: Record<DemoScenario, AuditRequest> = {
-  'high-risk': {
-    text: 'Remote Frontend Intern - PHP 80,000/week. To apply, message our manager on Telegram: @ApexHiringManager. Do not apply through LinkedIn. Instant start, no interview required.',
-    location: 'Philippines',
-    mode: 'demo'
-  },
-  'caution': {
-    text: 'Junior Data Analyst at Global Insights Group. We are looking for a data analyst. Pay is competitive. Send your CV to hr@globalinsights-hr.com.',
-    location: 'Remote',
-    mode: 'demo'
-  },
-  'safe': {
-    text: 'Senior Frontend Engineer at Vercel. Join our team at Vercel to help build the best developer experience for the web. Apply via our official careers page at vercel.com/careers.',
-    location: 'United States',
-    mode: 'demo'
-  }
-}
 
-function pickDemoFixture(text: string) {
-  const lowerText = text.toLowerCase()
-  if (lowerText.includes('80,000') || lowerText.includes('80000') || lowerText.includes('telegram')) {
-    return DEMO_FIXTURES.highRisk
-  }
-  if (lowerText.includes('vercel') || lowerText.includes('official careers')) {
-    return DEMO_FIXTURES.safe
-  }
-  return DEMO_FIXTURES.caution
-}
 
 async function readAuditStream(response: Response, onEvent: (event: StreamEvent) => void) {
   if (!response.body) throw new Error('Audit stream did not return a readable body.')
@@ -103,22 +73,11 @@ function AuditContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { addReport } = useAuditHistory()
-  const { isLiveMode, setLiveMode } = useLiveMode()
   
   const [report, setReport] = useState<AuditReport | null>(null)
   const [isAuditing, setIsAuditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [demoTriggered, setDemoTriggered] = useState(false)
   const [streamLogs, setStreamLogs] = useState<string[]>([])
-
-  // Handle demo scenario from query param
-  useEffect(() => {
-    const demo = searchParams.get('demo') as DemoScenario
-    if (demo && sampleRequests[demo] && !demoTriggered && !report && !isAuditing) {
-      setDemoTriggered(true)
-      handleAudit(sampleRequests[demo])
-    }
-  }, [searchParams, demoTriggered, report, isAuditing])
 
   const handleAudit = async (request: AuditRequest) => {
     setIsAuditing(true)
@@ -127,29 +86,8 @@ function AuditContent() {
     setStreamLogs([])
 
     try {
-      // In demo mode or if live mode is off, we use mock results after a delay
-      if (!isLiveMode || request.mode === 'demo') {
-        setStreamLogs([
-          'Loading demo fixture...',
-          'Mapping sample evidence to the selected scenario...',
-          'Preparing deterministic report...',
-        ])
-        await new Promise(resolve => setTimeout(resolve, 3000))
-        const mockResult: AuditReport = JSON.parse(JSON.stringify(pickDemoFixture(request.text || '')))
-        
-        // Customize the mock result to match input slightly
-        const finalReport: AuditReport = {
-          ...mockResult,
-          id: `report_${Date.now()}`,
-          timestamp: new Date().toISOString(),
-          mode: 'demo'
-        }
-        
-        setReport(finalReport)
-        addReport(finalReport)
-      } else {
-        // Real API Call
-        const res = await fetch('/api/audit', {
+      // Real API Call
+      const res = await fetch('/api/audit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...request, mode: 'live' })
@@ -166,7 +104,6 @@ function AuditContent() {
         })
         setReport(finalReport)
         addReport(finalReport)
-      }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred during job verification.')
     } finally {
@@ -177,7 +114,6 @@ function AuditContent() {
   const reset = () => {
     setReport(null)
     setError(null)
-    setDemoTriggered(false)
     setStreamLogs([])
     router.push('/audit')
   }
@@ -204,33 +140,6 @@ function AuditContent() {
               </p>
             </div>
             
-            <div className="mb-6 rounded-2xl border border-border-soft bg-surface p-2">
-              <div className="grid gap-2 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setLiveMode(false)}
-                  disabled={isAuditing}
-                  className={`rounded-xl px-4 py-3 text-left transition ${
-                    !isLiveMode ? 'bg-foreground text-background' : 'hover:bg-background'
-                  }`}
-                >
-                  <span className="block text-xs font-black uppercase tracking-widest">Demo fixtures</span>
-                  <span className="mt-1 block text-xs font-semibold opacity-75">Fast seeded reports for reliable walkthroughs.</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLiveMode(true)}
-                  disabled={isAuditing}
-                  className={`rounded-xl px-4 py-3 text-left transition ${
-                    isLiveMode ? 'bg-safe text-background' : 'hover:bg-background'
-                  }`}
-                >
-                  <span className="block text-xs font-black uppercase tracking-widest">Live evidence</span>
-                  <span className="mt-1 block text-xs font-semibold opacity-75">Streams `/api/audit` events from live search and scoring.</span>
-                </button>
-              </div>
-            </div>
-
             <AuditForm onInvestigate={handleAudit} loading={isAuditing} />
             
             {error && (
@@ -243,25 +152,7 @@ function AuditContent() {
               </motion.div>
             )}
 
-            {/* Quick Demo Shortcuts */}
-            <div className="mt-16 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-6">Test Scenarios</p>
-              <div className="flex flex-wrap justify-center gap-4">
-                {(['high-risk', 'caution', 'safe'] as DemoScenario[]).map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => handleAudit(sampleRequests[type])}
-                    className="flex items-center gap-2 rounded-xl border border-border-soft bg-surface px-4 py-2 text-xs font-black uppercase tracking-widest transition-all hover:bg-background hover:scale-105 active:scale-95"
-                  >
-                    <div className={`h-2 w-2 rounded-full ${
-                      type === 'high-risk' ? 'bg-risk-text' : 
-                      type === 'caution' ? 'bg-caution' : 'bg-safe'
-                    }`} />
-                    {type}
-                  </button>
-                ))}
-              </div>
-            </div>
+
           </motion.div>
         )}
 
@@ -276,7 +167,7 @@ function AuditContent() {
             <div className="mx-auto -mt-4 max-w-4xl rounded-2xl border border-border-soft bg-surface p-5">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <span className="text-xs font-black uppercase tracking-widest text-safe">
-                  {isLiveMode ? 'Live audit stream' : 'Demo audit stream'}
+                  Live audit stream
                 </span>
                 <span className="text-[10px] font-black uppercase tracking-widest text-muted">
                   {streamLogs.length} events
@@ -303,7 +194,7 @@ function AuditContent() {
             exit={{ opacity: 0, scale: 1.05 }}
             className="pb-20"
           >
-            <ResultScreen result={report} onBackToAudit={reset} isDemo={report.mode === 'demo'} />
+            <ResultScreen result={report} onBackToAudit={reset} />
           </motion.div>
         )}
       </AnimatePresence>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { SiteHeader } from '@/components/site-header'
-import { useLiveMode } from '@/hooks/useLiveMode'
 import { useAuditHistory } from '@/hooks/useAuditHistory'
 import { motion } from 'framer-motion'
 import {
@@ -70,7 +69,6 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void 
 }
 
 export default function SettingsPage() {
-  const { isLiveMode, isLoaded, toggleLiveMode } = useLiveMode()
   const { history, clearHistory } = useAuditHistory()
   const { theme, setTheme } = useTheme()
   const [themeReady, setThemeReady] = useState(false)
@@ -153,17 +151,7 @@ export default function SettingsPage() {
           <section>
             <h2 className="mb-4 text-[10px] font-black uppercase tracking-[0.3em] text-muted">Forensic Engine</h2>
             <div className="space-y-3">
-              <SettingRow
-                icon={Zap}
-                label="Live Mode"
-                description="Use real AI agents and live web evidence instead of demo fixtures"
-              >
-                {isLoaded ? (
-                  <Toggle checked={isLiveMode} onChange={toggleLiveMode} />
-                ) : (
-                  <div className="h-6 w-11 rounded-full bg-border-soft animate-pulse" />
-                )}
-              </SettingRow>
+
 
               <SettingRow
                 icon={Database}

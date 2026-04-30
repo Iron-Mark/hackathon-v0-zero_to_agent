@@ -61,7 +61,6 @@ export default async function AuditPermalinkPage({ params }: { params: { id: str
       <ErrorBoundary fallbackMessage="Failed to render the archived report.">
         <ResultScreen 
           result={report} 
-          isDemo={report.mode !== 'live'} 
         />
       </ErrorBoundary>
     </div>

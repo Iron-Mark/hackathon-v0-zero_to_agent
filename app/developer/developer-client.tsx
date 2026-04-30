@@ -308,20 +308,7 @@ export function DeveloperClient() {
                 {mode === 'login' ? 'NEED NEW CREDENTIALS? REGISTER →' : 'ALREADY HAVE ACCESS? SIGN IN →'}
               </button>
 
-              {/* Judge / Reviewer Shortcut */}
-              <div className="mt-6 pt-6 border-t border-border-soft border-dashed">
-                <button 
-                  onClick={() => {
-                    setEmail('judge@hackathon.com')
-                    setPassword('hireproof2026')
-                    setMode('login')
-                    showToast('Demo credentials pre-filled.', 'success')
-                  }}
-                  className="w-full rounded-xl border border-border-soft bg-background py-2 text-[10px] font-black uppercase tracking-widest text-muted hover:border-evidence hover:text-foreground transition-all"
-                >
-                  Quick Demo Login (For Judges)
-                </button>
-              </div>
+
             </div>
           </div>
           <p className="mt-8 text-[10px] font-black uppercase tracking-widest text-muted/50">

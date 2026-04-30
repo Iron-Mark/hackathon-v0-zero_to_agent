@@ -20,7 +20,6 @@ import { SiteHeader } from '@/components/site-header'
 import { showToast } from '@/components/toast'
 import type { AuditReport, AuditRequest } from '@/lib/schemas'
 
-type ScanMode = 'demo' | 'live'
 type LabStepId = 'intake' | 'claims' | 'evidence' | 'risk' | 'report'
 type LabStepStatus = 'pending' | 'active' | 'complete' | 'error'
 
@@ -93,7 +92,6 @@ function stepForLog(message: string): LabStepId {
 
 export function LabClient() {
   const [input, setInput] = useState('')
-  const [mode, setMode] = useState<ScanMode>('demo')
   const [isProcessing, setIsProcessing] = useState(false)
   const [steps, setSteps] = useState<LabStep[]>(INITIAL_STEPS)
   const [logs, setLogs] = useState<string[]>([])
@@ -211,10 +209,10 @@ export function LabClient() {
     setError(null)
     setEventCount(0)
     setStepActive('intake', 'Submitting job post to the audit stream...')
-    addLog(`Starting ${mode} audit stream.`)
+    addLog(`Starting live audit stream.`)
 
     try {
-      const request: AuditRequest = { text: trimmed, mode }
+      const request: AuditRequest = { text: trimmed, mode: 'live' }
       const response = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -352,21 +350,7 @@ export function LabClient() {
                   <Fingerprint className="h-5 w-5 text-safe" />
                   <h2 className="text-xl font-black">Job Post Input</h2>
                 </div>
-                <div className="flex rounded-2xl border border-border-soft bg-background/60 p-1">
-                  {(['demo', 'live'] as const).map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setMode(option)}
-                      disabled={isProcessing}
-                      className={`rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest transition ${
-                        mode === option ? 'bg-foreground text-background' : 'text-muted hover:text-foreground'
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
+
               </div>
 
               <div className="relative">
@@ -574,7 +558,7 @@ export function LabClient() {
 
               <div className="space-y-4">
                 {[
-                  { label: 'Mode', value: titleCase(mode) },
+                  { label: 'Mode', value: titleCase('live') },
                   { label: 'Events', value: eventCount.toString() },
                   { label: 'Evidence', value: report ? report.evidence.length.toString() : '-' },
                   { label: 'Red flags', value: report ? report.redFlags.length.toString() : '-' },

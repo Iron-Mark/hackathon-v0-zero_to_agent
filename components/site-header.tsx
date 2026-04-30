@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { BrandMark } from '@/components/brand-mark'
-import { useLiveMode } from '@/hooks/useLiveMode'
 import {
   Activity,
   BookOpen,
@@ -65,7 +64,6 @@ const resourceGroups: { label: string; links: NavLink[] }[] = [
 ]
 
 export function SiteHeader() {
-  const { isLiveMode, isLoaded, toggleLiveMode } = useLiveMode()
   const pathname = usePathname()
   const router = useRouter()
   const menuRef = useRef<HTMLDivElement>(null)
@@ -73,9 +71,7 @@ export function SiteHeader() {
 
   const handleQuickDemoClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const scenarios = ['high-risk', 'caution', 'safe'];
-    const randomScenario = scenarios[Math.floor(Math.random() * scenarios.length)];
-    router.push(`/audit?demo=${randomScenario}`);
+    router.push('/audit');
   };
 
   const isActive = (href: string) => href === '/docs' ? pathname.startsWith('/docs') : pathname === href
@@ -241,21 +237,6 @@ export function SiteHeader() {
                 </div>
               )}
             </div>
-            {isLoaded && (
-              <button
-                type="button"
-                onClick={toggleLiveMode}
-                className={`hireproof-focus flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-black transition-colors ${
-                  isLiveMode 
-                    ? 'bg-safe/10 text-safe hover:bg-safe/20' 
-                    : 'bg-muted/10 text-muted hover:bg-muted/20'
-                }`}
-                title={isLiveMode ? "Using live API data" : "Using demo fixture data"}
-              >
-                {isLiveMode ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
-                <span className="hidden lg:inline">{isLiveMode ? 'Live' : 'Demo'}</span>
-              </button>
-            )}
             <ThemeToggle />
             <button onClick={handleQuickDemoClick} className="hireproof-focus ml-1 flex min-h-[38px] items-center rounded-full bg-foreground px-3 text-sm font-black text-background hover:bg-safe sm:px-4">
               <span className="sm:hidden">Demo</span>

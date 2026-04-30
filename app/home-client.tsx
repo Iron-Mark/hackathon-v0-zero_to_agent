@@ -31,9 +31,9 @@ const evidenceSignals = [
 ]
 
 const pitchDemos = [
-  { href: '/audit?demo=high-risk', icon: AlertCircle, label: 'High-risk', description: 'Unrealistic pay, no interview, Telegram contact.', className: 'border-risk-bg bg-risk-bg text-risk-text' },
-  { href: '/audit?demo=caution', icon: Zap, label: 'Caution', description: 'Some legitimacy, but incomplete details.', className: 'border-caution-bg bg-caution-bg text-caution-text' },
-  { href: '/audit?demo=safe', icon: CheckCircle2, label: 'Safe', description: 'Established company and professional path.', className: 'border-safe-bg bg-safe-bg text-safe-text' },
+  { href: '/audit', icon: AlertCircle, label: 'High-risk', description: 'Unrealistic pay, no interview, Telegram contact.', className: 'border-risk-bg bg-risk-bg text-risk-text' },
+  { href: '/audit', icon: Zap, label: 'Caution', description: 'Some legitimacy, but incomplete details.', className: 'border-caution-bg bg-caution-bg text-caution-text' },
+  { href: '/audit', icon: CheckCircle2, label: 'Safe', description: 'Established company and professional path.', className: 'border-safe-bg bg-safe-bg text-safe-text' },
 ]
 
 const typingPhrases = [
@@ -229,7 +229,7 @@ export function HomeClient() {
               <Link href="/audit" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-5 py-2.5 font-bold text-background shadow-lg transition-colors hover:bg-safe">
                 Start investigation <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/audit?demo=high-risk" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
+              <Link href="/audit" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
                 Quick demo
               </Link>
               <Link href="/proof" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-evidence-bg bg-evidence-bg px-5 py-2.5 font-bold text-evidence transition-colors hover:bg-background">
@@ -379,7 +379,7 @@ export function HomeClient() {
               <p><strong>Contact:</strong> Message us on Telegram</p>
               <p className="sm:col-span-2"><strong>Requirements:</strong> Basic HTML/CSS knowledge, no interview needed</p>
             </div>
-            <Link href="/audit?demo=high-risk" className="hireproof-focus mt-5 inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-background transition-colors hover:bg-safe">
+            <Link href="/audit" className="hireproof-focus mt-5 inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-background transition-colors hover:bg-safe">
               Run quick demo <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -580,7 +580,7 @@ export function HomeClient() {
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
-              href="/audit?demo=high-risk"
+              href="/audit"
               className="hireproof-focus inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-border-soft bg-background dark:border-white/20 dark:bg-white/5 px-8 py-4 text-lg font-black text-foreground dark:text-white transition-all hover:bg-surface dark:hover:bg-white/10 sm:w-auto"
             >
               Quick demo
