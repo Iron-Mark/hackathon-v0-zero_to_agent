@@ -99,7 +99,7 @@ Paste a job post, recruiter message, or suspicious listing, and it investigates 
 
 It returns a Safe, Caution, or High-Risk verdict with red flags, proof links, and safer alternatives.
 
-Built with v0, Vercel, MCP, AI SDK, and SerpApi, with live-tested ChatSDK Slack proof and a production-accepted Vercel Workflow run.
+Built with v0, Vercel, MCP, AI SDK, and SerpApi, with Forensic PDF Dossier exports, live-tested ChatSDK Slack proof and a production-accepted Vercel Workflow run.
 
 ### Short Video Caption
 
@@ -128,7 +128,7 @@ Hey, I built HireProof for Zero to Agent. It checks suspicious job posts with li
 - High-Risk result appears reliably.
 - Verdict, score, red flags, and evidence are visible in one screenshot.
 - Safer alternatives section is populated.
-- Export/share card is screenshot-ready.
+- Export/share card features PDF Dossier, Safety Certificate, and CSV/JSON downloads.
 - Demo mode badge appears when fixtures are used.
 - Environment variables are set for live mode.
 - Fallback demo still works without API keys.
