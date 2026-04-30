@@ -32,7 +32,8 @@ Additionally, securing the platform against abuse was a massive undertaking. We 
 1. **The Architecture:** We built a genuinely secure, production-ready platform. It features global security middleware, strict CSP headers, and protection against CSRF, SSRF, and Prototype Pollution. It isn't just a prototype; it's an enterprise-grade fortress.
 2. **The Evidence Loop:** By separating model reasoning from deterministic evidence tools, HireProof shows the user why a job post is risky instead of asking them to trust a black-box answer.
 3. **The Omni-Modal Approach:** The fact that the same core AI engine powers the Web App, the Chrome Extension, and the Headless API proves the flexibility of our design.
-4. **B2C Automation Protection:** Empowering developers to safely build automated job application agents without the fear of their AI carelessly leaking PII to scammers.
+4. **Forensic PDF System:** Implementation of the multi-page PDF Dossier and decorative Safety Certificate system, allowing users to take their evidence off-platform.
+5. **B2C Automation Protection:** Empowering developers to safely build automated job application agents without the fear of their AI carelessly leaking PII to scammers.
 
 ## 📚 What we learned
 Building an "Agent" is less about prompt engineering and more about strict orchestrations and security boundaries. We learned how to securely expose internal tools via the Model Context Protocol (MCP) while maintaining absolute control over the execution environment.

@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
-import { buildLegalAbuseReportMailto, buildTrendsJsonExport } from '../lib/report-actions.mjs'
+import { buildLegalAbuseReportMailto, buildReportCsvExport, buildTrendsCsvExport, buildTrendsJsonExport } from '../lib/report-actions.mjs'
 import { pruneRecordsByTimestamp } from '../lib/local-data-retention.mjs'
 import { buildHireProofWebhookHeaders } from '../lib/webhook-signing.mjs'
 
@@ -23,17 +23,61 @@ test('legal abuse mailto uses lowercase extracted claim keys', () => {
   assert.doesNotMatch(decoded, /WRONG ROLE/)
 })
 
-test('trends export is explicitly JSON and returns serializable content', async () => {
+test('trends export offers JSON and CSV while returning serializable JSON content', async () => {
   const source = await fs.readFile(new URL('../app/trends/trends-client.tsx', import.meta.url), 'utf8')
   const exportPayload = buildTrendsJsonExport({
     totalReports: 1,
     verdicts: { safe: 0, caution: 0, 'high-risk': 1 },
   })
 
-  assert.match(source, /Export trends JSON/)
+  assert.match(source, /buildTrendsJsonExport/)
+  assert.match(source, /buildTrendsCsvExport/)
+  assert.match(source, />\s*JSON\s*</)
+  assert.match(source, />\s*CSV\s*</)
   assert.equal(exportPayload.mimeType, 'application/json')
   assert.match(exportPayload.filename, /^hireproof-trends-\d{4}-\d{2}-\d{2}\.json$/)
   assert.equal(JSON.parse(exportPayload.content).totalReports, 1)
+})
+
+test('trends CSV export escapes values and uses a clear CSV filename', () => {
+  const exportPayload = buildTrendsCsvExport({
+    topLocations: [{ label: 'Manila, PH', count: 2 }],
+    topRoles: [{ label: 'Frontend "Intern"', count: 1 }],
+    topContactMethods: [{ label: 'Telegram', count: 3 }],
+    verdicts: { 'high-risk': 4 },
+  }, new Date('2026-04-30T00:00:00.000Z'))
+
+  assert.equal(exportPayload.mimeType, 'text/csv')
+  assert.equal(exportPayload.filename, 'hireproof-trends-2026-04-30.csv')
+  assert.match(exportPayload.content, /"Category","Label","Count"/)
+  assert.match(exportPayload.content, /"Location","Manila, PH","2"/)
+  assert.match(exportPayload.content, /"Role","Frontend ""Intern""","1"/)
+  assert.match(exportPayload.content, /"Verdict","high-risk","4"/)
+})
+
+test('audit report CSV export includes claims, signals, evidence, and next steps', () => {
+  const exportPayload = buildReportCsvExport({
+    verdict: 'high-risk',
+    riskScore: 92,
+    confidence: 'High',
+    summary: 'Multiple red flags.',
+    extractedClaims: {
+      company: 'Apex Careers',
+      role: 'Remote Frontend "Intern"',
+    },
+    redFlags: ['Telegram-only contact'],
+    greenFlags: ['Has a website'],
+    evidence: [{ source: 'Search', type: 'company', snippet: 'No official careers page found.', url: 'https://example.com' }],
+    nextSteps: ['Do not send personal documents'],
+  }, new Date('2026-04-30T00:00:00.000Z'))
+
+  assert.equal(exportPayload.mimeType, 'text/csv')
+  assert.equal(exportPayload.filename, 'hireproof-report-high-risk-2026-04-30.csv')
+  assert.match(exportPayload.content, /"Section","Field","Value"/)
+  assert.match(exportPayload.content, /"Verdict","Risk Score","92"/)
+  assert.match(exportPayload.content, /"Claim","role","Remote Frontend ""Intern"""/)
+  assert.match(exportPayload.content, /"Red Flag","1","Telegram-only contact"/)
+  assert.match(exportPayload.content, /"Evidence","Search","company: No official careers page found. https:\/\/example.com"/)
 })
 
 test('chrome extension docs only claim local install until store listing exists', async () => {
@@ -46,14 +90,18 @@ test('chrome extension docs only claim local install until store listing exists'
 test('public README keeps export and extension claims honest', async () => {
   const source = await fs.readFile(new URL('../README.md', import.meta.url), 'utf8')
   const pricing = await fs.readFile(new URL('../app/pricing/page.tsx', import.meta.url), 'utf8')
+  const resultScreen = await fs.readFile(new URL('../components/result-screen.tsx', import.meta.url), 'utf8')
 
   assert.match(source, /PNG Screenshot Export/)
+  assert.match(source, /Forensic PDF Dossier/)
+  assert.match(source, /Report CSV Export/)
   assert.match(source, /local install/i)
-  assert.doesNotMatch(source, /PDF Dossier Export/)
   assert.doesNotMatch(source, /Chrome Extension.*scan any webpage from the browser toolbar/)
   assert.match(pricing, /local extension/)
-  assert.match(pricing, /PDF\/CSV planned/)
-  assert.doesNotMatch(pricing, /PDF\/CSV\/JSON/)
+  assert.match(pricing, /JSON \+ PDF/)
+  assert.match(pricing, /PDF \+ CSV/)
+  assert.match(resultScreen, /Download report CSV/)
+  assert.match(resultScreen, /Download PDF dossier/)
 })
 
 test('verified badge docs require DNS TXT ownership and public tokens', async () => {

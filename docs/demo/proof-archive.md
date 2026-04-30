@@ -7,8 +7,7 @@ This file keeps the judge-facing proof artifacts in one place. It intentionally 
 ## Production URL
 
 - Stable demo: `https://hireproof-sigma.vercel.app`
-- Latest production deployment checked in this pass: `https://hireproof-2ka3peb8q-iron-marks-projects.vercel.app`
-- Vercel inspector: `https://vercel.com/iron-marks-projects/hireproof/2LA8q5x18qKfiqXLp17gFgzdaUta`
+- Production deployments are checked through the stable alias; deployment-specific preview URLs are not durable submission links.
 
 ## Readiness Proof
 

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/site-header'
 import { TrendingUp, AlertTriangle, ShieldCheck, Zap, Globe, BarChart3, Clock, Download } from 'lucide-react'
 import { buildTrendsViewModel } from '@/lib/trends-view-model.mjs'
-import { buildTrendsJsonExport } from '@/lib/report-actions.mjs'
+import { buildTrendsJsonExport, buildTrendsCsvExport } from '@/lib/report-actions.mjs'
 
 export function TrendsClient() {
   const [stats, setStats] = useState<any>(null)
@@ -35,6 +35,17 @@ export function TrendsClient() {
   const viewModel = buildTrendsViewModel(stats || {})
   const handleExportJson = () => {
     const exportPayload = buildTrendsJsonExport(stats || {})
+    const blob = new Blob([exportPayload.content], { type: exportPayload.mimeType })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = exportPayload.filename
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handleExportCsv = () => {
+    const exportPayload = buildTrendsCsvExport(stats || {})
     const blob = new Blob([exportPayload.content], { type: exportPayload.mimeType })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -77,14 +88,26 @@ export function TrendsClient() {
               Recurring risk patterns from job-post checks, saved reports, and live evidence sources.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleExportJson}
-            className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface px-4 py-3 text-sm font-black text-foreground transition-colors hover:bg-background"
-          >
-            <Download className="h-4 w-4" />
-            Export trends JSON
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleExportJson}
+              aria-label="Export trends JSON"
+              className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface px-4 py-3 text-sm font-black text-foreground transition-colors hover:bg-background"
+            >
+              <Download className="h-4 w-4" />
+              JSON
+            </button>
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              aria-label="Export trends CSV"
+              className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface px-4 py-3 text-sm font-black text-foreground transition-colors hover:bg-background"
+            >
+              <Download className="h-4 w-4" />
+              CSV
+            </button>
+          </div>
         </header>
 
         <motion.div 

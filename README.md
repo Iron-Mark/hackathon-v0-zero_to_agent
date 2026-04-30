@@ -53,11 +53,14 @@ HireProof is built to be portable. Whether you use the hosted demo or run it you
 - **Vercel Native**: One-click deployment to Vercel with Edge Function support.
 - **BYOK (Bring Your Own Key)**: Use your own OpenAI and SerpApi keys to bypass our managed limits.
 - **Hybrid Storage Engine**: The app automatically detects if Upstash Redis is configured. If not, it gracefully degrades to local `localStorage` and local `fs` storage, making it cost $0.00 to run.
-- **Zero-Config Docker**: Coming soon.
+- **Zero-Config Docker** — Full production Dockerfile and docker-compose orchestration included.
 
 ### Output & Sharing
-- **PNG Screenshot Export** — Full result capture via html2canvas from the report screen
-- **Trend JSON Export** — Download saved aggregate trend data as JSON
+- **PNG Screenshot Export** — Full result capture via html2canvas from the report screen.
+- **Forensic PDF Dossier** — Multi-page investigation report with executive summary and evidence receipts.
+- **Report CSV Export** — Download verdict, claims, signals, evidence, and next steps as a portable CSV.
+- **Trends CSV & JSON Exports** — Download aggregate trend data in standard portable formats.
+- **Safety Certificate** — Downloadable certificate for reports that receive a Safe verdict.
 - **Shareable Permalinks** — Every audit is persisted and accessible via `/audit/[id]`
 - **Copy Link Button** — One-click permalink sharing
 
@@ -81,7 +84,7 @@ HireProof is built to be portable. Whether you use the hosted demo or run it you
 | AI SDK | Vercel AI SDK 6 (`ai`, `@ai-sdk/gateway`, `@ai-sdk/openai` fallback) |
 | Animation | Framer Motion 12 |
 | Charts | Recharts |
-| Export | html2canvas PNG capture, JSON trend export |
+| Export | PDF dossier, report CSV, trends CSV/JSON, safe-report certificate, html2canvas PNG |
 | Search | SerpApi |
 | Database / Cache | Upstash Serverless Redis (Optional) |
 | Protocol | Model Context Protocol (MCP) |
@@ -181,7 +184,7 @@ lib/
 ├── serpapi.ts                  SerpApi wrapper functions
 ├── rate-limit.ts               Hybrid Upstash/In-memory rate limiter
 ├── db.ts                       Hybrid Upstash/JSON file persistence
-├── generate-pdf.ts             Legacy PDF helpers retained for future dossier work
+├── generate-pdf.ts             Production PDF engine (Dossiers + Certificates)
 extension/
 ├── manifest.json               Chrome Manifest V3
 ├── popup.html/js/css           Extension popup UI

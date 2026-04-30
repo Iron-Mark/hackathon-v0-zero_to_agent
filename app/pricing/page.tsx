@@ -169,7 +169,7 @@ export default function PricingPage() {
                   { name: 'Storage Engine', free: 'Local IndexedDB', pro: 'Upstash Global', ent: 'Dedicated Redis' },
                   { name: 'Audit History', free: '7 Days', pro: '30 Days', ent: 'Unlimited' },
                   { name: 'Human-in-the-loop', free: '❌', pro: '✅', ent: '✅' },
-                  { name: 'Compliance Exports', free: 'None', pro: 'JSON only', ent: 'JSON now; PDF/CSV planned' },
+                  { name: 'Compliance Exports', free: 'JSON only', pro: 'JSON + PDF', ent: 'PDF + CSV + Certificate' },
                 ].map((row) => (
                   <tr key={row.name} className="hover:bg-background/30 transition-colors">
                     <td className="px-6 py-4 font-black">{row.name}</td>

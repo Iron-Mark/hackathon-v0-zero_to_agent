@@ -5,8 +5,8 @@ Last checked: 2026-04-30
 HireProof is demo-ready on the stable production URL:
 
 - Production URL: `https://hireproof-sigma.vercel.app`
-- Latest verified production deployment: `https://hireproof-2ka3peb8q-iron-marks-projects.vercel.app`
-- Latest checkpoint commit: `0a2698b` (`fix(runtime): stabilize production audit checkpoint`)
+- Production deployments are verified through the stable alias; deployment-specific preview URLs are intentionally not treated as durable submission links.
+- GitHub `main` is the source of truth for the latest submission commit.
 
 ## Closed Runtime Work
 
@@ -21,6 +21,9 @@ HireProof is demo-ready on the stable production URL:
 - Verified badge flow has account-level domains, DNS TXT ownership checks, public embed tokens, status/script endpoints, and developer portal controls.
 - Production audit failures from whitespace-padded Redis env values are fixed by trimming Redis env values before client creation.
 - Audit and ChatSDK responses no longer fail solely because report persistence has a transient storage issue.
+- **Forensic PDF Engine**: Wired `generatePdfDossier` and `generateCertificate` to the `ResultScreen` UI. Investigators can now download full dossiers and safety certificates.
+- **CSV Data Export**: Implemented `buildTrendsCsvExport` and added a dedicated CSV download button to the Trends dashboard.
+- **Docker Orchestration**: Validated the `Dockerfile` and `docker-compose.yml` (ports 3002:3002) as production-ready.
 
 ## Production Proof
 
@@ -36,7 +39,7 @@ HireProof is demo-ready on the stable production URL:
 - Slack proof is represented by the captured screenshot at [`docs/demo/Screenshot 2026-04-30 024756.jpg`](demo/Screenshot%202026-04-30%20024756.jpg). Recent Vercel log searches for the original Slack webhook request returned no matching archived logs, so do not claim endpoint-level Slack logs unless a fresh Slack event is captured.
 - WDK proof is an accepted production workflow run, not a completed callback result. Use run ID `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`.
 - The Chrome extension is local-install only; no public store listing is claimed.
-- Docker remains a future packaging item.
+- **Dockerized Packaging**: Fully implemented and validated for production standalone deployment.
 
 ## Final Submission Checklist
 

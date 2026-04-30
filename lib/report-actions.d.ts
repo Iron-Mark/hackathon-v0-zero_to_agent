@@ -8,3 +8,15 @@ export function buildTrendsJsonExport(stats: unknown, now?: Date): {
   mimeType: 'application/json'
   content: string
 }
+
+export function buildTrendsCsvExport(stats: unknown, now?: Date): {
+  filename: string
+  mimeType: 'text/csv'
+  content: string
+}
+
+export function buildReportCsvExport(report: unknown, now?: Date): {
+  filename: string
+  mimeType: 'text/csv'
+  content: string
+}

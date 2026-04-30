@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, AlertCircle, Loader2, Link2, FileText, Bot, UserCheck, ShieldCheck, SearchCheck } from 'lucide-react'
+import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, AlertCircle, Loader2, Link2, FileText, Bot, UserCheck, ShieldCheck, SearchCheck, Table } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import html2canvas from 'html2canvas'
@@ -11,7 +11,7 @@ import RiskRadarChart from '@/components/risk-radar-chart'
 import { generatePdfDossier, generateCertificate } from '@/lib/generate-pdf'
 import { showToast } from '@/components/toast'
 import { Confetti } from '@/components/confetti'
-import { buildLegalAbuseReportMailto } from '@/lib/report-actions.mjs'
+import { buildLegalAbuseReportMailto, buildReportCsvExport } from '@/lib/report-actions.mjs'
 
 interface Result {
   id?: string
@@ -124,6 +124,17 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
     }
   }
 
+  const handleReportCsvDownload = () => {
+    const exportPayload = buildReportCsvExport(result)
+    const blob = new Blob([exportPayload.content], { type: exportPayload.mimeType })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = exportPayload.filename
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }
   const itemVariants = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } } }
 
@@ -152,9 +163,44 @@ export default function ResultScreen({ result, isDemo = true, onBackToAudit }: R
             <ArrowLeft className="w-4 h-4" /> Back to Audit
           </button>
           <div className="flex gap-2">
-            <button onClick={handleDownload} disabled={isExporting} className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface hover:bg-evidence-bg">
+            <button
+              onClick={handleDownload}
+              disabled={isExporting}
+              title="Download PNG Screenshot"
+              className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface hover:bg-evidence-bg transition-colors"
+            >
               {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             </button>
+            <button
+              onClick={() => generatePdfDossier({
+                ...result,
+                timestamp: result.id ? new Date().toISOString() : undefined
+              })}
+              title="Download PDF dossier"
+              className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface hover:bg-evidence-bg text-evidence transition-colors"
+            >
+              <FileText className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleReportCsvDownload}
+              title="Download report CSV"
+              className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface hover:bg-evidence-bg text-evidence transition-colors"
+            >
+              <Table className="w-4 h-4" />
+            </button>
+            {result.verdict === 'safe' && (
+              <button
+                onClick={() => generateCertificate({
+                  company: result.extractedClaims.company || 'Verified Organization',
+                  role: result.extractedClaims.role || 'Verified Role',
+                  timestamp: new Date().toISOString()
+                })}
+                title="Download Safety Certificate"
+                className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface hover:bg-evidence-bg text-safe transition-colors"
+              >
+                <UserCheck className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </div>
