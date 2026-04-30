@@ -51,6 +51,7 @@
   },
   "overrides": {
     "devalue": "^5.7.1",
+    "postcss": "^8.5.10",
     "undici": "^7.25.0"
   },
   "devDependencies": {
