@@ -24,6 +24,7 @@ import { showToast } from '@/components/toast'
 type User = { id: string; email: string; name: string }
 type ApiKey = { id: string; name: string; lastFour: string; createdAt: string; lastUsedAt: string | null }
 type Usage = { totalRequests: number; successfulRequests: number; failedRequests: number; recent: Array<{ id: string; endpoint: string; status: number; createdAt: string }> }
+type ProviderCredential = { provider: 'openai' | 'serpapi'; lastFour: string; createdAt: string; updatedAt: string; verifiedAt: string | null }
 type VerifiedDomain = {
   id: string
   domain: string
@@ -55,6 +56,8 @@ export function DeveloperClient() {
   const [serpapiKey, setSerpapiKey] = useState('')
   const [isVerifyingOpenAI, setIsVerifyingOpenAI] = useState(false)
   const [isVerifyingSerp, setIsVerifyingSerp] = useState(false)
+  const [providerCredentials, setProviderCredentials] = useState<ProviderCredential[]>([])
+  const [localImportAvailable, setLocalImportAvailable] = useState(false)
   const [systemLogs, setSystemLogs] = useState<Array<{ msg: string; type: 'info' | 'success' | 'error'; time: string }>>([
     { msg: 'System initialized. Waiting for investigator...', type: 'info', time: new Date().toLocaleTimeString() }
   ])
@@ -69,9 +72,11 @@ export function DeveloperClient() {
           fetch('/api/developer/usage').then((res) => res.json()),
           fetch('/api/developer/domains').then((res) => res.json()),
         ])
+        const credentialRes = await fetch('/api/developer/provider-credentials').then((res) => res.json())
         setKeys(keyRes.keys || [])
         setUsage(usageRes)
         setDomains(domainRes.domains || [])
+        setProviderCredentials(credentialRes.credentials || [])
       }
     } catch (e) {
       console.error('Failed to load developer portal state')
@@ -80,15 +85,14 @@ export function DeveloperClient() {
 
   useEffect(() => {
     void load()
-    setOpenaiKey(localStorage.getItem('MODEL_PROVIDER_KEY') || '')
-    setSerpapiKey(localStorage.getItem('SERPAPI_API_KEY') || '')
+    try {
+      const localOpenai = localStorage.getItem('MODEL_PROVIDER_KEY')
+      const localSerp = localStorage.getItem('SERPAPI_API_KEY')
+      setOpenaiKey(localOpenai || '')
+      setSerpapiKey(localSerp || '')
+      setLocalImportAvailable(Boolean(localOpenai || localSerp))
+    } catch {}
   }, [])
-
-  const saveInfrastructure = () => {
-    localStorage.setItem('MODEL_PROVIDER_KEY', openaiKey)
-    localStorage.setItem('SERPAPI_API_KEY', serpapiKey)
-    showToast('Infrastructure keys saved for local verification only.', 'success')
-  }
 
   async function submitAuth() {
     const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register'
@@ -208,36 +212,53 @@ export function DeveloperClient() {
     setSystemLogs(prev => [{ msg, type, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 50))
   }
 
-  async function verifyKey(provider: 'openai' | 'serp') {
+  async function saveProviderCredential(provider: 'openai' | 'serpapi') {
     const key = provider === 'openai' ? openaiKey : serpapiKey
     if (!key) return showToast(`Please enter your ${provider === 'openai' ? 'OpenAI' : 'SerpApi'} key first.`, 'info')
     
     const setter = provider === 'openai' ? setIsVerifyingOpenAI : setIsVerifyingSerp
     setter(true)
-    addLog(`Verifying ${provider.toUpperCase()} infrastructure connection...`, 'info')
+    addLog(`Verifying and storing ${provider === 'openai' ? 'OpenAI' : 'SerpApi'} BYOK credential...`, 'info')
     
     try {
-      // We'll call a dedicated verification endpoint or do a minimal test
-      const res = await fetch('/api/developer/verify-infrastructure', {
-        method: 'POST',
+      const res = await fetch('/api/developer/provider-credentials', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider, key }),
       })
       
       const json = await res.json()
-      if (res.ok && json.valid) {
-        showToast(`${provider.toUpperCase()} key verified successfully.`, 'success')
-        addLog(`${provider.toUpperCase()} connection established and verified.`, 'success')
+      if (res.ok && json.credential) {
+        showToast(`${provider === 'openai' ? 'OpenAI' : 'SerpApi'} key verified and stored.`, 'success')
+        addLog(`${provider === 'openai' ? 'OpenAI' : 'SerpApi'} BYOK credential encrypted server-side.`, 'success')
+        if (provider === 'openai') setOpenaiKey('')
+        if (provider === 'serpapi') setSerpapiKey('')
+        await load()
       } else {
-        showToast(json.error || `Invalid ${provider.toUpperCase()} key.`, 'info')
-        addLog(`${provider.toUpperCase()} verification failed: ${json.error || 'Invalid credentials'}`, 'error')
+        showToast(json.error || `Invalid ${provider === 'openai' ? 'OpenAI' : 'SerpApi'} key.`, 'info')
+        addLog(`${provider === 'openai' ? 'OpenAI' : 'SerpApi'} verification failed: ${json.error || 'Invalid credentials'}`, 'error')
       }
     } catch (e) {
-      showToast(`Failed to verify ${provider.toUpperCase()} key.`, 'info')
-      addLog(`Communication error with ${provider.toUpperCase()} gateway.`, 'error')
+      showToast(`Failed to save ${provider === 'openai' ? 'OpenAI' : 'SerpApi'} key.`, 'info')
+      addLog(`Communication error with ${provider === 'openai' ? 'OpenAI' : 'SerpApi'} gateway.`, 'error')
     } finally {
       setter(false)
     }
+  }
+
+  async function revokeProvider(provider: 'openai' | 'serpapi') {
+    await fetch(`/api/developer/provider-credentials?provider=${provider}`, { method: 'DELETE' })
+    await load()
+    showToast(`${provider === 'openai' ? 'OpenAI' : 'SerpApi'} BYOK credential removed.`, 'info')
+  }
+
+  function clearImportedLocalKeys() {
+    try {
+      localStorage.removeItem('MODEL_PROVIDER_KEY')
+      localStorage.removeItem('SERPAPI_API_KEY')
+    } catch {}
+    setLocalImportAvailable(false)
+    showToast('Local provider-key copies cleared from this browser.', 'success')
   }
 
   async function logout() {
@@ -404,30 +425,43 @@ export function DeveloperClient() {
               </div>
             </section>
 
-            {/* Infrastructure local verification */}
+            {/* Hosted BYOK vault */}
             <section className="rounded-3xl border border-border-soft bg-surface shadow-sm overflow-hidden">
               <div className="border-b border-border-soft bg-background/50 px-8 py-6">
                 <div className="flex items-center gap-3">
                   <Cpu className="h-5 w-5 text-safe" />
-                  <h2 className="text-xl font-black">Inference Infrastructure (Local Verification Only)</h2>
+                  <h2 className="text-xl font-black">Hosted BYOK Vault</h2>
                 </div>
-                <p className="mt-1 text-[10px] font-black text-muted uppercase tracking-widest">Local key checks; hosted audits use server environment keys</p>
+                <p className="mt-1 text-[10px] font-black text-muted uppercase tracking-widest">Encrypted server-side keys for your authenticated audits</p>
               </div>
               <div className="p-8 space-y-6">
-                <div className="rounded-2xl border border-caution/30 bg-caution/10 p-4 text-xs font-bold leading-relaxed text-caution">
-                  These keys stay in this browser for connection checks and do not power hosted server audits. Live server audits use the environment keys reported by /api/health.
+                <div className="rounded-2xl border border-safe/30 bg-safe/10 p-4 text-xs font-bold leading-relaxed text-safe">
+                  Saved credentials are verified, encrypted at rest, and used only for this account's authenticated /api/v1/audit and MCP tool calls.
                 </div>
+                {localImportAvailable && (
+                  <div className="rounded-2xl border border-caution/30 bg-caution/10 p-4 text-xs font-bold leading-relaxed text-caution">
+                    Local-only provider keys were found in this browser. Save them below to move them into the hosted BYOK vault, then clear the local copies.
+                    <button onClick={clearImportedLocalKeys} className="mt-3 block rounded-lg border border-caution/30 px-3 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-caution/10">
+                      Clear local copies
+                    </button>
+                  </div>
+                )}
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="text-[10px] font-black uppercase tracking-widest text-muted">OpenAI API Key</label>
-                      <button 
-                        onClick={() => verifyKey('openai')} 
+                      <button
+                        onClick={() => saveProviderCredential('openai')}
                         disabled={isVerifyingOpenAI}
                         className="text-[10px] font-black uppercase tracking-widest text-safe hover:underline disabled:opacity-50"
                       >
-                        {isVerifyingOpenAI ? 'Verifying...' : 'Verify Connection'}
+                        {isVerifyingOpenAI ? 'Saving...' : 'Verify & Save'}
                       </button>
+                    </div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted">
+                      {providerCredentials.find((credential) => credential.provider === 'openai')
+                        ? `Stored - ending ${providerCredentials.find((credential) => credential.provider === 'openai')?.lastFour}`
+                        : 'Not stored'}
                     </div>
                     <input 
                       type="password" 
@@ -436,17 +470,27 @@ export function DeveloperClient() {
                       placeholder="sk-..." 
                       className="w-full rounded-2xl border border-border-soft bg-background p-4 font-mono text-sm outline-none focus:border-safe" 
                     />
+                    {providerCredentials.some((credential) => credential.provider === 'openai') && (
+                      <button onClick={() => revokeProvider('openai')} className="text-[10px] font-black uppercase tracking-widest text-risk-text hover:underline">
+                        Remove stored OpenAI key
+                      </button>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="text-[10px] font-black uppercase tracking-widest text-muted">SerpApi Key</label>
-                      <button 
-                        onClick={() => verifyKey('serp')} 
+                      <button
+                        onClick={() => saveProviderCredential('serpapi')}
                         disabled={isVerifyingSerp}
                         className="text-[10px] font-black uppercase tracking-widest text-evidence hover:underline disabled:opacity-50"
                       >
-                        {isVerifyingSerp ? 'Verifying...' : 'Verify Connection'}
+                        {isVerifyingSerp ? 'Saving...' : 'Verify & Save'}
                       </button>
+                    </div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted">
+                      {providerCredentials.find((credential) => credential.provider === 'serpapi')
+                        ? `Stored - ending ${providerCredentials.find((credential) => credential.provider === 'serpapi')?.lastFour}`
+                        : 'Not stored'}
                     </div>
                     <input 
                       type="password" 
@@ -455,13 +499,15 @@ export function DeveloperClient() {
                       placeholder="Paste key..." 
                       className="w-full rounded-2xl border border-border-soft bg-background p-4 font-mono text-sm outline-none focus:border-safe" 
                     />
+                    {providerCredentials.some((credential) => credential.provider === 'serpapi') && (
+                      <button onClick={() => revokeProvider('serpapi')} className="text-[10px] font-black uppercase tracking-widest text-risk-text hover:underline">
+                        Remove stored SerpApi key
+                      </button>
+                    )}
                   </div>
                 </div>
-                <button onClick={saveInfrastructure} className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-4 text-sm font-black text-background transition-all hover:bg-safe">
-                  Save Local Verification Keys
-                </button>
                 <p className="text-center text-[10px] font-black text-muted uppercase tracking-tighter opacity-50">
-                  STORED STRICTLY IN LOCALSTORAGE · does not power hosted server audits
+                  SECRETS ARE NEVER RETURNED TO THE BROWSER AFTER SAVE
                 </p>
               </div>
             </section>

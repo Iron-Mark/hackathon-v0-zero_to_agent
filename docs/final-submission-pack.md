@@ -185,7 +185,7 @@ Use these only if asked:
 
 - Slack: "Slack has screenshot proof through the ChatSDK surface. If deeper proof is needed, we can show the webhook route and integration readiness."
 - Workflow: "The production Workflow route accepted a run. We are not claiming a completed long-running workflow transcript unless a completed result is captured."
-- Browser extension: "The extension is positioned as local install until a real store listing exists."
+- Browser extension: "The extension has a Chrome Web Store-ready package and listing draft; public listing publication still requires Google review."
 - Export: "The current reliable export path includes PNG screenshots, PDF dossiers, safety certificates for Safe listings, and JSON/CSV trend exports."
 - Verified badge: "Badge verification requires DNS TXT ownership and public embed tokens. It does not expose API keys."
 

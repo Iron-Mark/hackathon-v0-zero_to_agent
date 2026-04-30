@@ -10,10 +10,26 @@ import { saveReport } from '@/lib/db'
 import type { AuditReport } from '@/lib/schemas'
 
 export type ChatPlatform = 'slack' | 'discord' | 'telegram' | 'whatsapp' | 'local'
+type WebhookPlatform = 'slack' | 'discord' | 'telegram' | 'zernio'
 
 type HireProofBot = Chat<Record<string, Adapter>>
 
+const CHAT_TEXT_LIMIT = 10_000
+const requiredEnvironmentByPlatform: Record<WebhookPlatform, string[]> = {
+  slack: ['SLACK_BOT_TOKEN', 'SLACK_SIGNING_SECRET', 'REDIS_URL'],
+  discord: ['DISCORD_BOT_TOKEN', 'DISCORD_PUBLIC_KEY', 'DISCORD_APPLICATION_ID', 'REDIS_URL'],
+  telegram: ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_WEBHOOK_SECRET_TOKEN', 'TELEGRAM_BOT_USERNAME', 'REDIS_URL'],
+  zernio: ['ZERNIO_API_KEY', 'ZERNIO_WEBHOOK_SECRET', 'REDIS_URL'],
+}
+const chatPlatformByWebhookPlatform: Record<WebhookPlatform, Exclude<ChatPlatform, 'local'>> = {
+  slack: 'slack',
+  discord: 'discord',
+  telegram: 'telegram',
+  zernio: 'whatsapp',
+}
+
 let bot: HireProofBot | null = null
+let botFingerprint: string | null = null
 
 function present(value?: string) {
   return Boolean(value?.trim())
@@ -48,6 +64,10 @@ function pickFixture(text: string) {
   if (lower.includes('telegram') || lower.includes('80000') || lower.includes('80,000')) return DEMO_FIXTURES.highRisk
   if (lower.includes('unclear') || lower.includes('maybe') || lower.includes('caution')) return DEMO_FIXTURES.caution
   return DEMO_FIXTURES.safe
+}
+
+function normalizeChatText(text: string) {
+  return text.trim().slice(0, CHAT_TEXT_LIMIT)
 }
 
 export function getSlackCredentialStatus() {
@@ -97,13 +117,35 @@ export function getChatCredentialStatus() {
   }
 }
 
+function getChatConfigFingerprint() {
+  return JSON.stringify({
+    redis: process.env.REDIS_URL?.trim() || '',
+    slack: hasSlackCredentials(),
+    discord: hasDiscordCredentials(),
+    telegram: hasTelegramCredentials(),
+    whatsapp: hasWhatsAppCredentials(),
+  })
+}
+
+function createCredentialGateResponse(platform: WebhookPlatform) {
+  const chatPlatform = chatPlatformByWebhookPlatform[platform]
+
+  return Response.json({
+    error: `${platform === 'zernio' ? 'WhatsApp/Zernio' : platform} ChatSDK credentials are not configured.`,
+    platform: chatPlatform,
+    required: requiredEnvironmentByPlatform[platform],
+    credentialStatus: getChatCredentialStatus()[chatPlatform],
+  }, { status: 503 })
+}
+
 export async function createChatReply(text: string, baseUrl: string, platform: ChatPlatform = 'local', metadata?: {
   threadId?: string
   channelId?: string
 }) {
   const now = Date.now()
+  const safeText = normalizeChatText(text)
   const report: AuditReport = {
-    ...pickFixture(text),
+    ...pickFixture(safeText),
     id: `chat_${now}`,
     timestamp: new Date(now).toISOString(),
     source: 'chat' as const,
@@ -124,10 +166,11 @@ export async function createChatReply(text: string, baseUrl: string, platform: C
 }
 
 async function replyToThread(thread: Thread, message: Message, platform: ChatPlatform) {
-  if (!message.text?.trim()) return
+  const text = normalizeChatText(message.text || '')
+  if (!text) return
 
   const baseUrl = process.env.APP_BASE_URL || ''
-  const { verdict } = await createChatReply(message.text, baseUrl, platform, {
+  const { verdict } = await createChatReply(text, baseUrl, platform, {
     threadId: thread.id,
     channelId: thread.channelId,
   })
@@ -183,7 +226,11 @@ function getAdapters() {
 }
 
 export function getHireProofBot() {
-  if (bot) return bot
+  const fingerprint = getChatConfigFingerprint()
+  if (bot && botFingerprint === fingerprint) return bot
+  bot = null
+  botFingerprint = fingerprint
+
   if (!hasChatState()) return null
 
   const adapters = getAdapters()
@@ -216,14 +263,11 @@ export function getHireProofBot() {
   return bot
 }
 
-async function handlePlatformWebhook(platform: 'slack' | 'discord' | 'telegram' | 'zernio', request: Request, options?: WebhookOptions) {
+async function handlePlatformWebhook(platform: WebhookPlatform, request: Request, options?: WebhookOptions) {
   const chat = getHireProofBot()
 
   if (!chat || !chat.webhooks[platform]) {
-    return Response.json({
-      error: `${platform === 'zernio' ? 'WhatsApp/Zernio' : platform} ChatSDK credentials are not configured.`,
-      credentialStatus: getChatCredentialStatus(),
-    }, { status: 503 })
+    return createCredentialGateResponse(platform)
   }
 
   return chat.webhooks[platform](request, options)

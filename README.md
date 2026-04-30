@@ -53,7 +53,7 @@ HireProof is built to be portable. Whether you use the hosted demo or run it you
 - **Vercel Native**: One-click deployment to Vercel with Edge Function support.
 - **BYOK (Bring Your Own Key)**: Use your own OpenAI and SerpApi keys to bypass our managed limits.
 - **Hybrid Storage Engine**: The app automatically detects if Upstash Redis is configured. If not, it gracefully degrades to local `localStorage` and local `fs` storage, making it cost $0.00 to run.
-- **Zero-Config Docker** — Full production Dockerfile and docker-compose orchestration included.
+- **Production Docker Distribution** — Standalone Next.js image, Compose orchestration, healthcheck, and smoke scripts included.
 
 ### Output & Sharing
 - **PNG Screenshot Export** — Full result capture via html2canvas from the report screen.
@@ -72,7 +72,7 @@ HireProof is built to be portable. Whether you use the hosted demo or run it you
 
 ### UI Polish
 - **Dark Mode** — System-aware theme toggle with `next-themes`
-- **Chrome Extension Local Install** — Manifest V3 extension assets can be loaded locally from `extension/`; no store listing is claimed yet
+- **Chrome Extension Package** — Manifest V3 extension assets can be loaded locally or packaged into a Chrome Web Store-ready ZIP.
 
 ## Tech Stack
 
@@ -157,7 +157,30 @@ Execute individual investigation tools. Requires `x-api-key` header.
 1. Open `chrome://extensions`
 2. Enable "Developer mode"
 3. Click "Load unpacked" → select the `extension/` folder
-4. Use the local extension build for demo/testing only until a public store listing is verified
+4. Use the local extension build for demo/testing
+
+## Chrome Web Store Package
+
+```bash
+npm run package:extension
+```
+
+The command validates the Manifest V3 extension, generates the required PNG icon sizes, stages distributable files, and creates `dist/chrome/hireproof-extension.zip`. Listing copy and reviewer notes live in [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md). A public store listing still requires a Chrome Web Store developer account and Google review approval.
+
+## Docker Self-Hosting
+
+```bash
+npm run docker:build
+npm run docker:run
+```
+
+In another terminal:
+
+```bash
+npm run docker:smoke
+```
+
+The Docker image uses the Next.js standalone output, runs as a non-root user, exposes port `3002`, and includes a container healthcheck for `/api/health`.
 
 ## Demo Mode
 

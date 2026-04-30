@@ -50,4 +50,6 @@ ENV PORT 3002
 # set hostname to localhost
 ENV HOSTNAME "0.0.0.0"
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 CMD node -e "const port=process.env.PORT||3002; fetch(`http://127.0.0.1:${port}/api/health`).then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 CMD ["node", "server.js"]

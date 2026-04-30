@@ -25,7 +25,7 @@ export default function ChromeExtensionPage() {
           <div className="rounded-3xl border border-border-soft bg-surface p-8 shadow-sm">
             <h3 className="mb-2 font-black">1. Install</h3>
             <p className="text-sm font-medium text-muted leading-relaxed">
-              Load it locally from the <code className="bg-background px-1 rounded">/extension</code> directory in the repo.
+              Load it locally from the <code className="bg-background px-1 rounded">/extension</code> directory, or generate the store upload ZIP with <code className="bg-background px-1 rounded">npm run package:extension</code>.
             </p>
           </div>
           <div className="rounded-3xl border border-border-soft bg-surface p-8 shadow-sm">
@@ -77,6 +77,13 @@ export default function ChromeExtensionPage() {
         </div>
         <p className="font-medium text-muted leading-relaxed">
           The extension is built on <strong>Manifest V3</strong>, ensuring compatibility with the latest browser privacy standards. It utilizes a background service worker to handle API communications securely.
+        </p>
+      </section>
+
+      <section className="space-y-4 rounded-2xl border border-border-soft bg-surface p-6">
+        <h2 className="text-2xl font-black">Chrome Web Store Package</h2>
+        <p className="font-medium text-muted leading-relaxed">
+          HireProof now ships a validated Chrome Web Store-ready ZIP at <code className="bg-background px-1 rounded">dist/chrome/hireproof-extension.zip</code>. Public publication still depends on the Chrome Web Store developer account, privacy form, screenshots, and Google review.
         </p>
       </section>
     </div>

@@ -19,10 +19,10 @@ import {
   extractGreenFlags,
   generateSummary,
 } from '@/lib/risk-scorer'
-import { isSerpApiConfigured, searchCompanyPresence, searchComparableJobs, searchLocalPresence, searchNewsReputation } from '@/lib/serpapi'
+import { hasSerpApiKey, searchCompanyPresence, searchComparableJobs, searchLocalPresence, searchNewsReputation } from '@/lib/serpapi'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { saveReport } from '@/lib/db'
-import { authenticateApiKey, recordUsage } from '@/lib/auth-store'
+import { authenticateApiKey, getOwnerProviderCredentials, recordUsage } from '@/lib/auth-store'
 import { getHireProofModel, hasHireProofModelProvider } from '@/lib/ai-model'
 import { buildHireProofWebhookHeaders } from '@/lib/webhook-signing.mjs'
 
@@ -48,10 +48,10 @@ function extractCompanyFromUrl(url?: string) {
   }
 }
 
-async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
+async function extractClaims(input: AuditRequest, modelProviderKey?: string): Promise<ExtractedClaims> {
   const text = input.text
 
-  if (!hasHireProofModelProvider()) {
+  if (!hasHireProofModelProvider(modelProviderKey)) {
     const companyFromUrl = extractCompanyFromUrl(input.url || undefined)
     const company = companyFromUrl || extractFirstMatch(text, [
       /(?:company|employer)\s*[:\-]\s*([A-Za-z0-9&.,' -]{2,70})/i,
@@ -105,8 +105,8 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
   const safeText = text.replace(/<\|.*?\|>/g, '') // Strip special LLM tokens if any
 
   try {
-    const { object } = await generateObject({
-      model: getHireProofModel(),
+      const { object } = await generateObject({
+      model: getHireProofModel(modelProviderKey),
       schema: z.object({
         company: z.string().describe("The name of the company hiring for the role. Return 'Unknown / Not Verifiable' if missing."),
         role: z.string().describe("The job title. Return 'Unspecified role' if missing."),
@@ -204,6 +204,11 @@ export async function POST(request: Request) {
   if (!apiKey || !apiAuth) {
     return new Response(JSON.stringify({ error: 'Unauthorized. Invalid or missing x-api-key header.' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
   }
+  const ownerCredentials = apiAuth.isFallback ? {} : await getOwnerProviderCredentials(apiAuth.ownerId)
+  const ownerHasByok = Boolean(ownerCredentials.modelProviderKey || ownerCredentials.serpapiKey)
+  const serpapiAvailable = hasSerpApiKey(ownerCredentials.serpapiKey)
+  const modelAvailable = hasHireProofModelProvider(ownerCredentials.modelProviderKey)
+  const credentialMode: AuditReport['credentialMode'] = ownerHasByok ? 'owner-byok' : (serpapiAvailable || modelAvailable) ? 'platform-env' : 'demo'
 
   // 2. Rate Limiting (Agent Tier: 20 reqs / 1 min)
   const rateLimitResult = await checkRateLimit(apiKey, { limit: 20, windowMs: 60000 })
@@ -268,17 +273,17 @@ export async function POST(request: Request) {
   try {
     const performInvestigation = async (): Promise<AuditReport | null> => {
       try {
-        if (validated.mode === 'live' || (isSerpApiConfigured() && validated.mode !== 'demo')) {
-          const extractedClaims = await extractClaims(validated)
+        if (validated.mode === 'live' || (serpapiAvailable && validated.mode !== 'demo')) {
+          const extractedClaims = await extractClaims(validated, ownerCredentials.modelProviderKey)
           const hasCompany = !extractedClaims.company.toLowerCase().includes('unknown')
           let evidence: EvidenceItem[] = []
 
-          if (hasCompany && isSerpApiConfigured() && hasHireProofModelProvider()) {
+          if (hasCompany && serpapiAvailable && modelAvailable) {
             try {
               const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3000'
               
               const result = await generateText({
-                model: getHireProofModel(),
+                model: getHireProofModel(ownerCredentials.modelProviderKey),
                 stopWhen: stepCountIs(5),
                 tools: {
                   search_company: tool({
@@ -343,19 +348,19 @@ export async function POST(request: Request) {
               }
             } catch (agentError) {
               const [companyEvidence, newsEvidence, jobsEvidence, localEvidence] = await Promise.all([
-                searchCompanyPresence(extractedClaims.company, extractedClaims.role),
-                searchNewsReputation(extractedClaims.company),
-                searchComparableJobs(extractedClaims.role, extractedClaims.location),
-                searchLocalPresence(extractedClaims.company, extractedClaims.location),
+                searchCompanyPresence(extractedClaims.company, extractedClaims.role, ownerCredentials.serpapiKey),
+                searchNewsReputation(extractedClaims.company, ownerCredentials.serpapiKey),
+                searchComparableJobs(extractedClaims.role, extractedClaims.location, ownerCredentials.serpapiKey),
+                searchLocalPresence(extractedClaims.company, extractedClaims.location, ownerCredentials.serpapiKey),
               ])
               evidence = [...companyEvidence, ...newsEvidence, ...jobsEvidence, ...localEvidence]
             }
-          } else if (isSerpApiConfigured()) {
+          } else if (serpapiAvailable) {
             const [companyEvidence, newsEvidence, jobsEvidence, localEvidence] = await Promise.all([
-              hasCompany ? searchCompanyPresence(extractedClaims.company, extractedClaims.role) : Promise.resolve([]),
-              hasCompany ? searchNewsReputation(extractedClaims.company) : Promise.resolve([]),
-              searchComparableJobs(extractedClaims.role, extractedClaims.location),
-              hasCompany ? searchLocalPresence(extractedClaims.company, extractedClaims.location) : Promise.resolve([]),
+              hasCompany ? searchCompanyPresence(extractedClaims.company, extractedClaims.role, ownerCredentials.serpapiKey) : Promise.resolve([]),
+              hasCompany ? searchNewsReputation(extractedClaims.company, ownerCredentials.serpapiKey) : Promise.resolve([]),
+              searchComparableJobs(extractedClaims.role, extractedClaims.location, ownerCredentials.serpapiKey),
+              hasCompany ? searchLocalPresence(extractedClaims.company, extractedClaims.location, ownerCredentials.serpapiKey) : Promise.resolve([]),
             ])
             evidence = [...companyEvidence, ...newsEvidence, ...jobsEvidence, ...localEvidence]
           }
@@ -364,8 +369,8 @@ export async function POST(request: Request) {
           const greenFlags = extractGreenFlags(extractedClaims, evidence)
 
           if (!hasCompany) redFlags = [...redFlags, 'Company name could not be confidently extracted']
-          if (hasCompany && evidence.filter(e => e.type === 'Local Presence').length === 0 && isSerpApiConfigured()) redFlags = [...redFlags, 'No local presence found']
-          if (evidence.length === 0 && isSerpApiConfigured()) redFlags = [...redFlags, 'No supporting evidence found']
+          if (hasCompany && evidence.filter(e => e.type === 'Local Presence').length === 0 && serpapiAvailable) redFlags = [...redFlags, 'No local presence found']
+          if (evidence.length === 0 && serpapiAvailable) redFlags = [...redFlags, 'No supporting evidence found']
 
           const riskScore = calculateRiskScore(extractedClaims, redFlags, greenFlags, evidence)
           const verdict = determineVerdict(riskScore)
@@ -384,6 +389,7 @@ export async function POST(request: Request) {
             nextSteps: buildNextSteps(verdict, extractedClaims.company),
             timestamp: new Date().toISOString(),
             mode: 'live',
+            credentialMode,
             ownerId: apiAuth.ownerId,
             apiKeyId: apiAuth.apiKeyId,
             source: 'api',
@@ -398,11 +404,11 @@ export async function POST(request: Request) {
         const textLower = validated.text.toLowerCase()
         let fixture: AuditReport
         if (textLower.includes('80000') || textLower.includes('telegram')) {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.highRisk, timestamp: new Date().toISOString(), mode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
+          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.highRisk, timestamp: new Date().toISOString(), mode: 'demo', credentialMode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
         } else if (textLower.includes('unclear') || textLower.includes('caution')) {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.caution, timestamp: new Date().toISOString(), mode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
+          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.caution, timestamp: new Date().toISOString(), mode: 'demo', credentialMode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
         } else {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.safe, timestamp: new Date().toISOString(), mode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
+          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.safe, timestamp: new Date().toISOString(), mode: 'demo', credentialMode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
         }
         await persistReportSafely(fixture)
         return fixture

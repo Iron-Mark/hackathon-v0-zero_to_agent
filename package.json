@@ -10,8 +10,15 @@
     "dev": "next dev -p 3002",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit",
-    "cleanup:local-data": "node scripts/cleanup-local-data.mjs"
+    "lint": "tsc --noEmit --project tsconfig.lint.json",
+    "cleanup:local-data": "node scripts/cleanup-local-data.mjs",
+    "icons:extension": "node scripts/generate-extension-icons.mjs",
+    "package:extension": "node scripts/package-extension.mjs",
+    "docker:build": "docker build -t hireproof:local .",
+    "docker:run": "docker run --rm -p 3002:3002 --env APP_BASE_URL=http://localhost:3002 --env AGENT_API_KEY=hireproof_agent_demo_key hireproof:local",
+    "docker:smoke": "node scripts/smoke-docker.mjs",
+    "proof:chat-live": "node scripts/check-live-chat-proof.mjs",
+    "proof:chat-live:strict": "node scripts/check-live-chat-proof.mjs --require-live"
   },
   "repository": {
     "type": "git",

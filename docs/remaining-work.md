@@ -38,8 +38,8 @@ HireProof is demo-ready on the stable production URL:
 
 - Slack proof is represented by the captured screenshot at [`docs/demo/Screenshot 2026-04-30 024756.jpg`](demo/Screenshot%202026-04-30%20024756.jpg). Recent Vercel log searches for the original Slack webhook request returned no matching archived logs, so do not claim endpoint-level Slack logs unless a fresh Slack event is captured.
 - WDK proof is an accepted production workflow run, not a completed callback result. Use run ID `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`.
-- The Chrome extension is local-install only; no public store listing is claimed.
-- **Dockerized Packaging**: Fully implemented and validated for production standalone deployment.
+- The Chrome extension has a store-ready package workflow, privacy disclosure, and listing draft. No public Chrome Web Store listing is claimed until Google review publishes one.
+- **Dockerized Packaging**: Fully implemented for production standalone deployment, with Compose orchestration, healthcheck, and local smoke script.
 
 ## Final Submission Checklist
 

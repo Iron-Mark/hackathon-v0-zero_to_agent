@@ -12,7 +12,7 @@ Last checked: 2026-04-30
 
 ## P1 - Remaining Product Gaps
 
-- Finish hybrid BYOK so verified user-provided keys can actually power server-side audits, or relabel the current BYOK panel as local verification only.
+- Finish hybrid BYOK rollout verification: Developer-account keys are encrypted server-side and can power authenticated hosted audits; production still needs `BYOK_ENCRYPTION_KEY` configured before saving user provider keys.
 - Bring webhook sandbox signatures into parity with `/api/v1/audit` production webhook delivery.
 
 ## P2 - Submission Readiness

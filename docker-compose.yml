@@ -6,16 +6,25 @@ services:
     container_name: hireproof
     ports:
       - "3002:3002"
-    env_file:
-      - .env.local
     environment:
-      - NODE_ENV=production
-    restart: always
-
-# Optional: Enable Redis for global persistence and rate limiting
-#  redis:
-#    image: redis:alpine
-#    container_name: hireproof-redis
-#    ports:
-#      - "6379:6379"
-#    restart: always
+      NODE_ENV: production
+      PORT: 3002
+      HOSTNAME: 0.0.0.0
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3002}
+      AGENT_API_KEY: ${AGENT_API_KEY:-hireproof_agent_demo_key}
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
+      VERCEL_AI_GATEWAY_API_KEY: ${VERCEL_AI_GATEWAY_API_KEY:-}
+      HIREPROOF_MODEL: ${HIREPROOF_MODEL:-openai/gpt-4o-mini}
+      MODEL_PROVIDER_KEY: ${MODEL_PROVIDER_KEY:-}
+      SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
+      UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL:-}
+      UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN:-}
+      REDIS_URL: ${REDIS_URL:-}
+      WORKFLOW_SECRET: ${WORKFLOW_SECRET:-}
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const port=process.env.PORT||3002; fetch('http://127.0.0.1:'+port+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    restart: unless-stopped

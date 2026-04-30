@@ -38,7 +38,7 @@ export default function ArchitecturePage() {
             { icon: Globe, title: 'Web App', desc: 'React 19 + Next.js 16 App Router. Real-time SSE streaming of agent steps directly to the browser.', color: 'border-safe/30 bg-safe/5' },
             { icon: Plug, title: 'Headless REST API', desc: '/api/v1/audit — authenticated JSON endpoint for external AI agents and automations.', color: 'border-evidence/30 bg-evidence/5' },
             { icon: Cpu, title: 'MCP Server', desc: '/api/mcp — exposes 4 investigation tools via the Model Context Protocol for direct agent tool-calling.', color: 'border-caution/30 bg-caution/5' },
-            { icon: PuzzleIcon, title: 'Chrome Extension', desc: 'Manifest V3 assets are available for local install and demo testing; no public store listing is claimed yet.', color: 'border-risk-bg bg-risk-bg/20' },
+            { icon: PuzzleIcon, title: 'Chrome Extension', desc: 'Manifest V3 assets are available for local install and Chrome Web Store-ready packaging; public listing still requires Google review.', color: 'border-risk-bg bg-risk-bg/20' },
           ].map((s) => (
             <div key={s.title} className={`rounded-2xl border p-5 ${s.color}`}>
               <s.icon className="h-5 w-5 mb-3 opacity-70" />

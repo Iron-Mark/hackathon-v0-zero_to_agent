@@ -61,8 +61,9 @@ The app has been deployed to production on Vercel. The current local working tre
 ✅ SEO optimized with metadata tags
 ✅ All icons and styling loading correctly
 ✅ Trends JSON export
-✅ Local Chrome extension install path
+✅ Chrome extension local install and store-ready package path
 ✅ Credential-gated ChatSDK and WDK endpoints
+✅ Docker standalone image, Compose service, healthcheck, and smoke script
 
 ### Environment Variables (Optional)
 
@@ -107,8 +108,28 @@ WORKFLOW_SECRET=your_workflow_secret
 3. **Live Mode**: Full agent pipeline is available when model and search credentials are configured; demo fallback remains available without keys
 4. **Hybrid Storage**: Upstash Redis for global persistence, local fs fallback
 5. **Documentation**: Live docs portal at `/docs`
-6. **Chrome Extension**: Manifest V3 in `/extension`, local install only
+6. **Chrome Extension**: Manifest V3 in `/extension`, local install and store-ready ZIP via `npm run package:extension`
 7. **ChatSDK / WDK**: Implemented and credential-gated until real platform credentials are configured
+
+### Packaging & Distribution
+
+#### Docker Self-Hosting
+
+```bash
+npm run docker:build
+npm run docker:run
+npm run docker:smoke
+```
+
+The image uses Next.js standalone output, runs on port `3002`, includes a non-root runtime user, and reports container health through `/api/health`.
+
+#### Chrome Web Store Package
+
+```bash
+npm run package:extension
+```
+
+The generated ZIP is written to `dist/chrome/hireproof-extension.zip`. Store listing copy, privacy disclosure, reviewer notes, and screenshot requirements are documented in `docs/chrome-web-store-listing.md`. Public listing publication still requires the Chrome Web Store developer account workflow and Google review.
 
 ### Git Status
 

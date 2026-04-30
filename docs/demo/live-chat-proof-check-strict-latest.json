@@ -1,0 +1,94 @@
+{
+  "checkedAt": "2026-04-30T02:14:19.178Z",
+  "base": "https://hireproof-sigma.vercel.app",
+  "status": "credential-gated",
+  "health": {
+    "httpStatus": 200,
+    "status": "ok",
+    "storage": "redis",
+    "model": true,
+    "liveSearch": true
+  },
+  "platforms": {
+    "slack": {
+      "state": "ready",
+      "endpoint": "/api/webhooks/slack",
+      "missing": []
+    },
+    "discord": {
+      "state": "credential-gated",
+      "endpoint": "/api/webhooks/discord",
+      "missing": [
+        "DISCORD_BOT_TOKEN",
+        "DISCORD_PUBLIC_KEY",
+        "DISCORD_APPLICATION_ID"
+      ]
+    },
+    "telegram": {
+      "state": "credential-gated",
+      "endpoint": "/api/webhooks/telegram",
+      "missing": [
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_WEBHOOK_SECRET_TOKEN",
+        "TELEGRAM_BOT_USERNAME"
+      ]
+    },
+    "whatsapp": {
+      "state": "credential-gated",
+      "endpoint": "/api/webhooks/zernio",
+      "missing": [
+        "ZERNIO_API_KEY",
+        "ZERNIO_WEBHOOK_SECRET"
+      ]
+    }
+  },
+  "sharedChatReplyPath": {
+    "httpStatus": 200,
+    "status": "ChatSDK Agents verdict formatted.",
+    "platform": "discord",
+    "reportUrl": "https://hireproof-sigma.vercel.app/audit/chat_1777515259998",
+    "verdict": "high-risk",
+    "riskScore": 92
+  },
+  "webhookGetChecks": {
+    "discord": {
+      "httpStatus": 200,
+      "ready": false,
+      "credentialStatus": {
+        "botToken": false,
+        "publicKey": false,
+        "applicationId": false,
+        "redis": true,
+        "ready": false
+      }
+    },
+    "telegram": {
+      "httpStatus": 200,
+      "ready": false,
+      "credentialStatus": {
+        "botToken": false,
+        "webhookSecretToken": false,
+        "botUsername": false,
+        "redis": true,
+        "ready": false
+      }
+    },
+    "whatsapp": {
+      "httpStatus": 200,
+      "ready": false,
+      "credentialStatus": {
+        "apiKey": false,
+        "webhookSecret": false,
+        "redis": true,
+        "ready": false
+      }
+    }
+  },
+  "validation": {
+    "mode": "strict-live",
+    "passed": false,
+    "errors": [
+      "live platform proof is still pending for: discord, telegram, whatsapp"
+    ]
+  }
+}

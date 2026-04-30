@@ -1,6 +1,6 @@
 import { executeMCPTool, MCP_TOOLS } from '@/lib/mcp-tools'
 import { checkRateLimit } from '@/lib/rate-limit'
-import { authenticateApiKey, recordUsage } from '@/lib/auth-store'
+import { authenticateApiKey, getOwnerProviderCredentials, recordUsage } from '@/lib/auth-store'
 
 /**
  * MCP Route for HireProof
@@ -83,8 +83,9 @@ export async function POST(request: Request) {
 
       // Execute tool with timeout
       const timeoutMs = 15_000
+      const ownerCredentials = apiAuth.isFallback ? {} : await getOwnerProviderCredentials(apiAuth.ownerId)
       const result = await Promise.race([
-        executeMCPTool(name, safeParams),
+        executeMCPTool(name, safeParams, { serpapiKey: ownerCredentials.serpapiKey }),
         new Promise((_, reject) => setTimeout(() => reject(new Error(`Tool ${name} timed out after ${timeoutMs}ms`)), timeoutMs)),
       ])
       await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: `/api/mcp:${name}`, status: 200 })

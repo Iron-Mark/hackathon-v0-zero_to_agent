@@ -12,6 +12,8 @@ Option C is closed for production credential/readiness proof, WDK accepted-run p
 - Production WDK proof passed: `/api/workflows/audit` accepted a run and returned `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`.
 - Production ChatSDK reply proof passed through `/api/chat/hireproof` and returned a formatted HireProof verdict plus report link.
 - Multi-platform ChatSDK wiring now includes Discord, Telegram, and WhatsApp via Zernio behind their own credential gates. These new platforms are code-ready but still need live platform credentials/events before they can be claimed as live-tested.
+- Live proof runbook for the pending platforms is documented in `docs/live-chat-platform-proof-plan.md`.
+- Controlled proof checker is available as `npm run proof:chat-live`; the latest snapshot is `docs/demo/live-chat-proof-check-latest.json`.
 - Local WDK proof passed: `/api/workflows/audit` accepted a run and returned `wrun_01KQD72F2DVABS2KSFKABWAKXR`.
 - Local ChatSDK reply proof passed through `/api/chat/hireproof` and returned a formatted HireProof verdict plus report link.
 - Local platform readiness passed for Workflow and AI Gateway with the local proof environment.

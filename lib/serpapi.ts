@@ -37,14 +37,19 @@ export function isSerpApiConfigured() {
   return Boolean(SERPAPI_KEY)
 }
 
+export function hasSerpApiKey(serpapiKey?: string) {
+  return Boolean((serpapiKey || SERPAPI_KEY || '').trim())
+}
+
 // Truncate inputs to prevent massive queries that could break the URL limit or abuse the API
 function sanitizeQuery(query: string, maxLength: number = 200): string {
   if (!query) return ''
   return String(query).trim().slice(0, maxLength)
 }
 
-async function fetchSerpApi(params: Record<string, any>): Promise<SerpApiResponse | null> {
-  if (!SERPAPI_KEY) {
+async function fetchSerpApi(params: Record<string, any>, serpapiKey?: string): Promise<SerpApiResponse | null> {
+  const apiKey = (serpapiKey || SERPAPI_KEY || '').trim()
+  if (!apiKey) {
     return null // Return null if API key not configured
   }
 
@@ -53,7 +58,7 @@ async function fetchSerpApi(params: Record<string, any>): Promise<SerpApiRespons
 
   try {
     const queryParams = new URLSearchParams({
-      api_key: SERPAPI_KEY,
+      api_key: apiKey,
       ...params,
     })
 
@@ -86,7 +91,8 @@ async function fetchSerpApi(params: Record<string, any>): Promise<SerpApiRespons
  */
 export async function searchCompanyPresence(
   companyName: string,
-  role: string
+  role: string,
+  serpapiKey?: string
 ): Promise<EvidenceItem[]> {
   const evidence: EvidenceItem[] = []
   const safeCompany = sanitizeQuery(companyName, 100)
@@ -99,7 +105,7 @@ export async function searchCompanyPresence(
       q: `${safeCompany} company official website linkedin`,
       num: 5,
       gl: 'us',
-    })
+    }, serpapiKey)
 
     if (data?.organic_results) {
       data.organic_results.slice(0, 3).forEach((result: SerpApiSearchResult) => {
@@ -121,7 +127,7 @@ export async function searchCompanyPresence(
 /**
  * Search for news and reputation signals
  */
-export async function searchNewsReputation(companyName: string): Promise<EvidenceItem[]> {
+export async function searchNewsReputation(companyName: string, serpapiKey?: string): Promise<EvidenceItem[]> {
   const evidence: EvidenceItem[] = []
   const safeCompany = sanitizeQuery(companyName, 100)
 
@@ -133,7 +139,7 @@ export async function searchNewsReputation(companyName: string): Promise<Evidenc
       q: `${safeCompany} scam fraud review reputation`,
       num: 5,
       gl: 'us',
-    })
+    }, serpapiKey)
 
     if (data?.news_results) {
       data.news_results.slice(0, 3).forEach((result) => {
@@ -161,7 +167,8 @@ export async function searchNewsReputation(companyName: string): Promise<Evidenc
  */
 export async function searchComparableJobs(
   role: string,
-  location: string
+  location: string,
+  serpapiKey?: string
 ): Promise<EvidenceItem[]> {
   const evidence: EvidenceItem[] = []
   const safeRole = sanitizeQuery(role, 100)
@@ -175,7 +182,7 @@ export async function searchComparableJobs(
       q: `${safeRole} jobs ${safeLocation}`,
       num: 5,
       gl: 'us',
-    })
+    }, serpapiKey)
 
     if (data?.jobs_results) {
       data.jobs_results.slice(0, 3).forEach((result) => {
@@ -200,7 +207,8 @@ export async function searchComparableJobs(
  */
 export async function searchLocalPresence(
   companyName: string,
-  location: string
+  location: string,
+  serpapiKey?: string
 ): Promise<EvidenceItem[]> {
   const evidence: EvidenceItem[] = []
   const safeCompany = sanitizeQuery(companyName, 100)
@@ -214,7 +222,7 @@ export async function searchLocalPresence(
       q: `"${safeCompany}" business address ${safeLocation} maps`,
       num: 5,
       gl: 'us',
-    })
+    }, serpapiKey)
 
     if (data?.local_results) {
       data.local_results.slice(0, 2).forEach((result: any) => {
@@ -248,16 +256,17 @@ export async function searchLocalPresence(
 export async function gatherAllEvidence(
   companyName: string,
   role: string,
-  location: string
+  location: string,
+  serpapiKey?: string
 ): Promise<EvidenceItem[]> {
   const allEvidence: EvidenceItem[] = []
 
   // Run all searches in parallel
   const [company, news, jobs, local] = await Promise.all([
-    searchCompanyPresence(companyName, role),
-    searchNewsReputation(companyName),
-    searchComparableJobs(role, location),
-    searchLocalPresence(companyName, location),
+    searchCompanyPresence(companyName, role, serpapiKey),
+    searchNewsReputation(companyName, serpapiKey),
+    searchComparableJobs(role, location, serpapiKey),
+    searchLocalPresence(companyName, location, serpapiKey),
   ])
 
   allEvidence.push(...company, ...news, ...jobs, ...local)

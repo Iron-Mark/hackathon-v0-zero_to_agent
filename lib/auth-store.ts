@@ -12,6 +12,14 @@ import {
   verifySessionToken,
 } from './auth-core.mjs'
 import type { ApiKeyRecord } from './auth-core'
+import { decryptSecret, encryptSecret, redactSecret } from './byok-crypto.mjs'
+
+interface EncryptedSecretPayload {
+  algorithm: 'aes-256-gcm'
+  iv: string
+  ciphertext: string
+  tag: string
+}
 
 export interface UserAccount {
   id: string
@@ -58,6 +66,33 @@ export interface VerifiedDomainRecord {
   lastCheckedAt: string | null
 }
 
+export type ProviderCredentialKind = 'openai' | 'serpapi'
+
+export interface ProviderCredentialRecord {
+  id: string
+  ownerId: string
+  provider: ProviderCredentialKind
+  encryptedSecret: EncryptedSecretPayload
+  lastFour: string
+  createdAt: string
+  updatedAt: string
+  verifiedAt: string | null
+  revokedAt: string | null
+}
+
+export interface RedactedProviderCredential {
+  provider: ProviderCredentialKind
+  lastFour: string
+  createdAt: string
+  updatedAt: string
+  verifiedAt: string | null
+}
+
+export interface OwnerProviderCredentials {
+  modelProviderKey?: string
+  serpapiKey?: string
+}
+
 const dataDir = path.join(process.cwd(), 'data')
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7
 const MISSING_USER_DUMMY_PASSWORD_HASH =
@@ -82,6 +117,29 @@ function getRedis() {
 
 function sessionSecret() {
   return process.env.SESSION_SECRET || process.env.AGENT_API_KEY || 'hireproof_dev_session_secret'
+}
+
+function byokEncryptionSecret() {
+  const configured = process.env.BYOK_ENCRYPTION_KEY?.trim()
+  if (configured) return configured
+  if (process.env.NODE_ENV === 'production') throw new Error('BYOK_ENCRYPTION_KEY is required for hosted credential storage.')
+  return process.env.SESSION_SECRET || process.env.AGENT_API_KEY || 'hireproof_dev_byok_encryption_secret'
+}
+
+function normalizeProvider(provider: string): ProviderCredentialKind {
+  if (provider === 'openai' || provider === 'serpapi') return provider
+  if (provider === 'serp') return 'serpapi'
+  throw new Error('Unsupported provider.')
+}
+
+function redactProviderCredential(record: ProviderCredentialRecord): RedactedProviderCredential {
+  return {
+    provider: record.provider,
+    lastFour: record.lastFour,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    verifiedAt: record.verifiedAt,
+  }
 }
 
 async function readJson<T>(name: string, fallback: T): Promise<T> {
@@ -276,6 +334,73 @@ export async function getUsageSummary(ownerId: string) {
     failedRequests: mine.length - successful,
     recent: mine.slice(0, 20),
   }
+}
+
+export async function listProviderCredentials(ownerId: string) {
+  const credentials = await readJson<Record<string, ProviderCredentialRecord>>('provider-credentials', {})
+  return Object.values(credentials)
+    .filter((credential) => credential.ownerId === ownerId && !credential.revokedAt)
+    .sort((a, b) => a.provider.localeCompare(b.provider))
+    .map(redactProviderCredential)
+}
+
+export async function saveProviderCredential(ownerId: string, providerInput: string, secret: string) {
+  const provider = normalizeProvider(providerInput)
+  const value = secret.trim()
+  if (!value) throw new Error('Provider key is required.')
+  if (value.length > 4000) throw new Error('Provider key is too long.')
+
+  const credentials = await readJson<Record<string, ProviderCredentialRecord>>('provider-credentials', {})
+  const existing = Object.values(credentials).find(
+    (credential) => credential.ownerId === ownerId && credential.provider === provider && !credential.revokedAt
+  )
+  const now = new Date().toISOString()
+  const encryptedSecret = encryptSecret(value, byokEncryptionSecret()) as EncryptedSecretPayload
+  const record: ProviderCredentialRecord = {
+    id: existing?.id || `provider_${crypto.randomUUID()}`,
+    ownerId,
+    provider,
+    encryptedSecret,
+    lastFour: redactSecret(value).lastFour,
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+    verifiedAt: now,
+    revokedAt: null,
+  }
+
+  credentials[record.id] = record
+  await writeJson('provider-credentials', credentials)
+  return redactProviderCredential(record)
+}
+
+export async function revokeProviderCredential(ownerId: string, providerInput: string) {
+  const provider = normalizeProvider(providerInput)
+  const credentials = await readJson<Record<string, ProviderCredentialRecord>>('provider-credentials', {})
+  const existing = Object.values(credentials).find(
+    (credential) => credential.ownerId === ownerId && credential.provider === provider && !credential.revokedAt
+  )
+  if (!existing) return false
+  credentials[existing.id] = { ...existing, revokedAt: new Date().toISOString() }
+  await writeJson('provider-credentials', credentials)
+  return true
+}
+
+export async function getOwnerProviderCredentials(ownerId: string): Promise<OwnerProviderCredentials> {
+  const credentials = await readJson<Record<string, ProviderCredentialRecord>>('provider-credentials', {})
+  const active = Object.values(credentials).filter((credential) => credential.ownerId === ownerId && !credential.revokedAt)
+  const result: OwnerProviderCredentials = {}
+
+  for (const credential of active) {
+    try {
+      const secret = decryptSecret(credential.encryptedSecret, byokEncryptionSecret())
+      if (credential.provider === 'openai') result.modelProviderKey = secret
+      if (credential.provider === 'serpapi') result.serpapiKey = secret
+    } catch (error) {
+      console.warn(`[BYOK] Could not decrypt ${credential.provider} credential for owner ${ownerId}.`)
+    }
+  }
+
+  return result
 }
 
 export function normalizeDomain(input: string) {

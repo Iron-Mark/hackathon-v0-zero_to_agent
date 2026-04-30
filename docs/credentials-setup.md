@@ -17,6 +17,7 @@ Short answer: mostly yes for a hackathon demo, with limits.
 | `ZERNIO_API_KEY` / `ZERNIO_WEBHOOK_SECRET` | Zernio account | Depends on Zernio plan | Enables WhatsApp-backed messages through Zernio's ChatSDK adapter. |
 | `REDIS_URL` | Upstash Redis or another Redis host | Yes on Upstash free tier | Upstash free tier is enough for demo ChatSDK thread state. |
 | `WORKFLOW_SECRET` | You generate it | Yes | This is our app-level protection secret, not a paid vendor credential. |
+| `BYOK_ENCRYPTION_KEY` | You generate it | Yes | Required before Developer Portal users can save encrypted OpenAI/SerpApi keys server-side. |
 | `AI_GATEWAY_API_KEY` | Vercel AI Gateway | Free monthly credits, then paid usage | Vercel lists a free monthly AI Gateway credit tier. |
 | `VERCEL_AI_GATEWAY_API_KEY` | Vercel AI Gateway | Same as above | This repo accepts either key name. |
 
@@ -186,7 +187,23 @@ VERCEL_AI_GATEWAY_API_KEY=gw_your_key
 
 Prefer `AI_GATEWAY_API_KEY` because Vercel’s AI Gateway provider looks for that by default.
 
-## 5. Add Variables To Vercel
+## 5. BYOK Encryption Key
+
+`BYOK_ENCRYPTION_KEY` protects user-provided OpenAI-compatible and SerpApi keys saved from the Developer Portal. Generate it yourself:
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Save the output as:
+
+```env
+BYOK_ENCRYPTION_KEY=generated-random-hex
+```
+
+Without this value, production will reject hosted BYOK saves. Authenticated `/api/v1/audit` and `/api/mcp` calls use the account owner's stored BYOK credentials when present, then fall back to platform environment keys.
+
+## 6. Add Variables To Vercel
 
 In Vercel:
 
@@ -200,6 +217,7 @@ SLACK_BOT_TOKEN=
 SLACK_SIGNING_SECRET=
 REDIS_URL=
 WORKFLOW_SECRET=
+BYOK_ENCRYPTION_KEY=
 AI_GATEWAY_API_KEY=
 HIREPROOF_MODEL=openai/gpt-4o-mini
 ```
@@ -207,7 +225,7 @@ HIREPROOF_MODEL=openai/gpt-4o-mini
 5. Apply to **Production**, **Preview**, and **Development** if needed.
 6. Redeploy after adding the values. Environment changes do not affect old deployments.
 
-## 6. Add Variables Locally
+## 7. Add Variables Locally
 
 Create or update `.env.local`:
 
@@ -216,6 +234,7 @@ SLACK_BOT_TOKEN=xoxb-your-token
 SLACK_SIGNING_SECRET=your-signing-secret
 REDIS_URL=redis://default:password@host:port
 WORKFLOW_SECRET=generated-random-hex
+BYOK_ENCRYPTION_KEY=generated-random-hex
 AI_GATEWAY_API_KEY=gw_your_key
 HIREPROOF_MODEL=openai/gpt-4o-mini
 APP_BASE_URL=http://localhost:3002
@@ -223,7 +242,7 @@ APP_BASE_URL=http://localhost:3002
 
 Restart the dev server after changing `.env.local`.
 
-## 7. Verify Setup
+## 8. Verify Setup
 
 Run the app:
 
@@ -242,6 +261,7 @@ Expected result:
 - `slack.state` becomes `ready` when `SLACK_BOT_TOKEN`, `SLACK_SIGNING_SECRET`, and `REDIS_URL` are present.
 - `workflow.state` becomes `ready` when `WORKFLOW_SECRET` is present.
 - `gateway.state` becomes `ready` when `AI_GATEWAY_API_KEY` or `VERCEL_AI_GATEWAY_API_KEY` is present.
+- Developer Portal hosted BYOK saves succeed when `BYOK_ENCRYPTION_KEY` is present and the submitted provider key verifies.
 
 Local route checks:
 
@@ -251,7 +271,7 @@ Invoke-RestMethod http://localhost:3002/api/webhooks/slack
 Invoke-RestMethod http://localhost:3002/api/workflows/audit
 ```
 
-## 8. Recommended Hackathon Setup
+## 9. Recommended Hackathon Setup
 
 For the lowest-cost demo:
 

@@ -137,13 +137,14 @@ test('local JSON retention prunes old and excess records deterministically', () 
   )
 })
 
-test('developer BYOK panel is honest about local verification only', async () => {
+test('developer BYOK panel is honest about hosted encrypted credential storage', async () => {
   const source = await fs.readFile(new URL('../app/developer/developer-client.tsx', import.meta.url), 'utf8')
-  const remaining = await fs.readFile(new URL('../docs/remaining-work.md', import.meta.url), 'utf8')
+  const actionPlan = await fs.readFile(new URL('../docs/hireproof-action-plan.md', import.meta.url), 'utf8')
 
-  assert.match(source, /Local Verification Only/)
-  assert.match(source, /does not power hosted server audits/)
-  assert.match(remaining, /relabelled as local verification only/)
+  assert.match(source, /Hosted BYOK Vault/)
+  assert.match(source, /encrypted at rest/)
+  assert.match(source, /\/api\/developer\/provider-credentials/)
+  assert.match(actionPlan, /encrypted server-side/)
 })
 
 test('sandbox webhooks use the same signed headers as production webhooks', async () => {

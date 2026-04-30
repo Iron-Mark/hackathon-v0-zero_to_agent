@@ -138,6 +138,26 @@ test('multi-platform chat agents are wired through ChatSDK adapters', async () =
   assert.match(schemas, /'chat'/)
 })
 
+test('live chat proof script fails loudly but keeps controlled credential gates honest', async () => {
+  const packageJson = JSON.parse(await fs.readFile(new URL('../package.json', import.meta.url), 'utf8'))
+  const script = await fs.readFile(new URL('../scripts/check-live-chat-proof.mjs', import.meta.url), 'utf8')
+  const runbook = await fs.readFile(new URL('../docs/live-chat-platform-proof-plan.md', import.meta.url), 'utf8')
+  const proofArchive = await fs.readFile(new URL('../docs/demo/proof-archive.md', import.meta.url), 'utf8')
+
+  assert.equal(packageJson.scripts['proof:chat-live'], 'node scripts/check-live-chat-proof.mjs')
+  assert.equal(packageJson.scripts['proof:chat-live:strict'], 'node scripts/check-live-chat-proof.mjs --require-live')
+  assert.match(script, /REQUEST_TIMEOUT_MS = 15_000/)
+  assert.match(script, /live-chat-proof-check-strict-latest\.json/)
+  assert.match(script, /assertPublicHttpBaseUrl/)
+  assert.match(script, /collectValidationErrors/)
+  assert.match(script, /shared ChatSDK reply path did not return the expected high-risk production report/)
+  assert.match(script, /live platform proof is still pending for/)
+  assert.match(script, /HIREPROOF_PROOF_OUTPUT_PATH/)
+  assert.doesNotMatch(script, /raw: text/)
+  assert.match(runbook, /proof:chat-live:strict/)
+  assert.match(proofArchive, /live-chat-proof-check-latest\.json/)
+})
+
 test('ai gateway is the primary model provider when configured', async () => {
   const model = await fs.readFile(new URL('../lib/ai-model.ts', import.meta.url), 'utf8')
   const auditRoute = await fs.readFile(new URL('../app/api/audit/route.ts', import.meta.url), 'utf8')

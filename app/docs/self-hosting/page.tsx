@@ -132,18 +132,21 @@ npm run start`}
               Docker & docker-compose
             </h3>
             <p className="mb-6 font-medium text-muted leading-relaxed">
-              We provide a multi-stage Dockerfile that creates an ultra-lightweight standalone image. To start HireProof with one command:
+              We provide a multi-stage Dockerfile that creates a standalone production image with a non-root runtime user and healthcheck. To start HireProof with one command:
             </p>
             <CodeBlock 
               language="bash"
-              code={`# Start the container
-docker-compose up -d
+              code={`# Build and start the container
+docker compose up --build -d
 
 # View logs
-docker logs -f hireproof`}
+docker logs -f hireproof
+
+# Verify the container
+npm run docker:smoke`}
             />
             <p className="mt-4 text-sm font-medium text-muted italic">
-              Note: Ensure your .env.local file is configured before running docker-compose.
+              Note: Configure provider keys through your shell or Compose environment for live mode. Demo mode works with the bundled demo API key.
             </p>
           </div>
 

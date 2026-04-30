@@ -66,7 +66,8 @@ export const MCP_TOOLS = {
 // Execute MCP tools with SerpApi backend
 export async function executeMCPTool(
   toolName: string,
-  params: Record<string, any>
+  params: Record<string, any>,
+  options: { serpapiKey?: string } = {}
 ): Promise<{
   evidence: EvidenceItem[]
   summary: string
@@ -77,7 +78,7 @@ export async function executeMCPTool(
       case 'search_company': {
         const companyName = String(params.company_name || '')
         const role = String(params.role || '')
-        const evidence = await searchCompanyPresence(companyName, role)
+        const evidence = await searchCompanyPresence(companyName, role, options.serpapiKey)
         return {
           evidence,
           summary: evidence.length > 0
@@ -89,7 +90,7 @@ export async function executeMCPTool(
 
       case 'news_check': {
         const companyName = String(params.company_name || '')
-        const evidence = await searchNewsReputation(companyName)
+        const evidence = await searchNewsReputation(companyName, options.serpapiKey)
         
         // Check for negative keywords in results
         const negativeKeywords = ['scam', 'fraud', 'lawsuit', 'bankruptcy']
@@ -109,7 +110,7 @@ export async function executeMCPTool(
       case 'jobs_compare': {
         const role = String(params.role || '')
         const location = String(params.location || 'United States')
-        const evidence = await searchComparableJobs(role, location)
+        const evidence = await searchComparableJobs(role, location, options.serpapiKey)
         return {
           evidence,
           summary: evidence.length > 0
@@ -122,7 +123,7 @@ export async function executeMCPTool(
       case 'local_presence': {
         const companyName = String(params.company_name || '')
         const location = String(params.location || '')
-        const evidence = await searchLocalPresence(companyName, location)
+        const evidence = await searchLocalPresence(companyName, location, options.serpapiKey)
         return {
           evidence,
           summary: evidence.length > 0
