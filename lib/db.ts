@@ -18,13 +18,28 @@ let writeLock: Promise<void> = Promise.resolve()
 
 let globalRedis: Redis | null = null
 
+function parseRedisIndex(value: unknown): string[] {
+  if (Array.isArray(value)) return value.filter((id): id is string => typeof id === 'string')
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
+    } catch {
+      return []
+    }
+  }
+  return []
+}
+
 function getRedis() {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) return null
+  const url = process.env.UPSTASH_REDIS_REST_URL?.trim()
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim()
+  if (!url || !token) return null
   if (!globalRedis) {
     try {
       globalRedis = new Redis({
-        url: process.env.UPSTASH_REDIS_REST_URL,
-        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+        url,
+        token,
       })
     } catch {
       return null
@@ -45,9 +60,9 @@ export async function saveReport(report: AuditReport) {
     try {
       // Save directly to Redis with a 30-day TTL to auto-manage storage
       await redis.set(safeReport.id!, JSON.stringify(safeReport), { ex: REDIS_TTL_SECONDS })
-      const index = ((await redis.get(redisIndexKey)) || []) as string[]
+      const index = parseRedisIndex(await redis.get(redisIndexKey))
       const nextIndex = [safeReport.id!, ...index.filter((id) => id !== safeReport.id)].slice(0, MAX_REPORTS)
-      await redis.set(redisIndexKey, JSON.stringify(nextIndex))
+      await redis.set(redisIndexKey, nextIndex)
       return // Successfully saved to Redis, skip local FS
     } catch (e) {
       console.warn("[Database] Upstash save failed, falling back to local FS.", e)
@@ -99,7 +114,7 @@ export async function listReports(limit = 100): Promise<AuditReport[]> {
   const redis = getRedis()
   if (redis) {
     try {
-      const index = ((await redis.get(redisIndexKey)) || []) as string[]
+      const index = parseRedisIndex(await redis.get(redisIndexKey))
       const reports = await Promise.all(index.slice(0, limit).map((id) => getReport(id)))
       return reports.filter((report): report is AuditReport => Boolean(report))
     } catch (e) {

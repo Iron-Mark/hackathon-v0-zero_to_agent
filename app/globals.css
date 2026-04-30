@@ -129,19 +129,3 @@ textarea {
   animation: glitch 0.2s cubic-bezier(.25,.46,.45,.94) both infinite;
   text-shadow: 2px 0 #ff003c, -2px 0 #00e5ff;
 }
-
-.bot-scan-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--hireproof-risk);
-  opacity: 0.5;
-  animation: scan-line 4s linear infinite;
-}
-
-@keyframes scan-line {
-  0% { top: 0% }
-  100% { top: 100% }
-}

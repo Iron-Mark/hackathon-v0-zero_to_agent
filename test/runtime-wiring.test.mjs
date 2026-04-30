@@ -182,3 +182,29 @@ test('lab client streams real audit events instead of simulated telemetry', asyn
   assert.doesNotMatch(source, /0\.4ms/)
   assert.doesNotMatch(source, /Math\.random/)
 })
+
+test('audit APIs do not fail the response when report persistence fails', async () => {
+  const uiRoute = await fs.readFile(new URL('../app/api/audit/route.ts', import.meta.url), 'utf8')
+  const v1Route = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+  const db = await fs.readFile(new URL('../lib/db.ts', import.meta.url), 'utf8')
+
+  assert.match(uiRoute, /persistReportSafely/)
+  assert.match(v1Route, /persistReportSafely/)
+  assert.match(db, /function parseRedisIndex/)
+  assert.match(db, /await redis\.set\(redisIndexKey, nextIndex\)/)
+  assert.doesNotMatch(db, /await redis\.set\(redisIndexKey, JSON\.stringify\(nextIndex\)\)/)
+})
+
+test('redis-backed services trim production environment variables before client creation', async () => {
+  const db = await fs.readFile(new URL('../lib/db.ts', import.meta.url), 'utf8')
+  const authStore = await fs.readFile(new URL('../lib/auth-store.ts', import.meta.url), 'utf8')
+  const rateLimit = await fs.readFile(new URL('../lib/rate-limit.ts', import.meta.url), 'utf8')
+  const bot = await fs.readFile(new URL('../lib/hireproof-bot.ts', import.meta.url), 'utf8')
+
+  for (const source of [db, authStore, rateLimit]) {
+    assert.match(source, /UPSTASH_REDIS_REST_URL\?\.trim\(\)/)
+    assert.match(source, /UPSTASH_REDIS_REST_TOKEN\?\.trim\(\)/)
+  }
+  assert.match(bot, /REDIS_URL\?\.trim\(\)/)
+  assert.match(bot, /REDIS_URL!\.trim\(\)/)
+})

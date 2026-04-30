@@ -13,7 +13,7 @@ type HireProofBot = Chat<{
 let bot: HireProofBot | null = null
 
 function hasSlackCredentials() {
-  return Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_SIGNING_SECRET && process.env.REDIS_URL)
+  return Boolean(process.env.SLACK_BOT_TOKEN?.trim() && process.env.SLACK_SIGNING_SECRET?.trim() && process.env.REDIS_URL?.trim())
 }
 
 function pickFixture(text: string) {
@@ -25,9 +25,9 @@ function pickFixture(text: string) {
 
 export function getSlackCredentialStatus() {
   return {
-    botToken: Boolean(process.env.SLACK_BOT_TOKEN),
-    signingSecret: Boolean(process.env.SLACK_SIGNING_SECRET),
-    redis: Boolean(process.env.REDIS_URL),
+    botToken: Boolean(process.env.SLACK_BOT_TOKEN?.trim()),
+    signingSecret: Boolean(process.env.SLACK_SIGNING_SECRET?.trim()),
+    redis: Boolean(process.env.REDIS_URL?.trim()),
     ready: hasSlackCredentials(),
   }
 }
@@ -42,7 +42,11 @@ export async function createChatReply(text: string, baseUrl: string) {
     mode: 'demo' as const,
   }
 
-  await saveReport(report)
+  try {
+    await saveReport(report)
+  } catch (error) {
+    console.error('[ChatSDK] Report persistence failed:', error instanceof Error ? error.message : 'Unknown persistence error')
+  }
   const verdict = formatChatVerdict(report, baseUrl)
 
   return { report, verdict }
@@ -56,13 +60,13 @@ export function getHireProofBot() {
     userName: 'hireproof',
     adapters: {
       slack: createSlackAdapter({
-        botToken: process.env.SLACK_BOT_TOKEN,
-        signingSecret: process.env.SLACK_SIGNING_SECRET,
+        botToken: process.env.SLACK_BOT_TOKEN!.trim(),
+        signingSecret: process.env.SLACK_SIGNING_SECRET!.trim(),
         userName: 'hireproof',
       }),
     },
     state: createRedisState({
-      url: process.env.REDIS_URL!,
+      url: process.env.REDIS_URL!.trim(),
       keyPrefix: 'hireproof:chat-sdk',
     }),
     dedupeTtlMs: 600_000,

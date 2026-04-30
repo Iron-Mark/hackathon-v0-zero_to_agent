@@ -190,6 +190,14 @@ function buildNextSteps(verdict: AuditReport['verdict'], company: string) {
   ]
 }
 
+async function persistReportSafely(report: AuditReport) {
+  try {
+    await saveReport(report)
+  } catch (error) {
+    console.error('[Audit API] Report persistence failed:', error instanceof Error ? error.message : 'Unknown persistence error')
+  }
+}
+
 export async function POST(request: Request) {
   // 1. CSRF Protection: Mandatory check for all non-GET requests
   const origin = request.headers.get('origin')
@@ -437,7 +445,7 @@ export async function POST(request: Request) {
           publiclyListed: true,
         }
 
-        await saveReport(report)
+        await persistReportSafely(report)
         sendEvent('result', { data: report })
         return
       }
@@ -484,7 +492,7 @@ export async function POST(request: Request) {
         }
       }
 
-      await saveReport(fixture)
+      await persistReportSafely(fixture)
       sendEvent('result', { data: fixture })
     } catch (error) {
       console.error('[Audit API] Error:', error instanceof Error ? error.message : 'Unknown execution error')

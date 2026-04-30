@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
+import Script from 'next/script'
 import { useEffect, useState } from 'react'
 import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap, Bot, Terminal, Cpu, Zap as ZapIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/site-header'
-import { SiteFooter } from '@/components/site-footer'
+
 import { SpotTheBot } from '@/components/spot-the-bot'
 import { BrandMark } from '@/components/brand-mark'
 import { ImpactTicker } from '@/components/impact-ticker'
@@ -84,7 +85,7 @@ const demoData = {
     status: 'High-Risk',
     colorClass: 'text-risk-text',
     progressClass: 'bg-risk-bg shadow-[0_0_10px_#f43f5e]',
-    shortDesc: 'Identifying automation markers...',
+    shortDesc: 'Critical risk factors identified',
     scans: [
       { label: 'Pay Index', status: '400% Above Market', icon: TrendingUp },
       { label: 'Contact Path', status: 'Off-platform (Telegram)', icon: ShieldAlert },
@@ -97,7 +98,7 @@ const demoData = {
     status: 'Safe',
     colorClass: 'text-safe',
     progressClass: 'bg-safe shadow-[0_0_10px_#10b981]',
-    shortDesc: 'Company footprint matches...',
+    shortDesc: 'Strong reputation signals verified',
     scans: [
       { label: 'Domain Age', status: '12.4 Years', icon: Globe },
       { label: 'Reputation', status: 'Positive (Major Boards)', icon: SearchCheck },
@@ -143,8 +144,10 @@ export function HomeClient() {
       <SiteHeader />
 
       {/* SEO FAQ Schema */}
-      <script
+      <Script
+        id="hireproof-faq-schema"
         type="application/ld+json"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
@@ -195,9 +198,6 @@ export function HomeClient() {
             animate="show"
             className="max-w-2xl"
           >
-            <motion.div variants={fadeUp} custom={0} className="mb-4 flex items-center gap-3">
-              <BrandMark className="h-12 w-12 shrink-0 shadow-lg" />
-            </motion.div>
 
             <motion.div variants={fadeUp} custom={1} className="mb-5 inline-flex items-center gap-2 rounded-full border border-risk-bg bg-risk-bg px-3 py-1 text-sm font-bold text-risk-text">
               <ShieldAlert className="h-4 w-4" />
@@ -262,19 +262,26 @@ export function HomeClient() {
             className="hidden lg:block"
           >
             <div className="mb-6 flex gap-3">
-              {['scam', 'legit'].map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setActiveDemo(mode as any)}
-                  className={`rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeDemo === mode 
-                      ? 'bg-foreground text-background shadow-lg' 
-                      : 'bg-surface text-muted hover:bg-background hover:text-foreground'
-                  }`}
-                >
-                  {mode === 'scam' ? 'Case: Phishing' : 'Case: Verified'}
-                </button>
-              ))}
+              {['scam', 'legit'].map((mode) => {
+                const isActive = activeDemo === mode
+                const isScam = mode === 'scam'
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => setActiveDemo(mode as any)}
+                    className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all ${
+                      isActive
+                        ? isScam
+                          ? 'bg-risk-bg text-risk-text shadow-lg shadow-risk-bg/20'
+                          : 'bg-safe/15 text-safe shadow-lg shadow-safe/20'
+                        : 'bg-surface text-muted hover:bg-background hover:text-foreground'
+                    }`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${isActive ? (isScam ? 'bg-risk-text' : 'bg-safe') : 'bg-muted'}`} />
+                    {isScam ? 'Case: Phishing' : 'Case: Verified'}
+                  </button>
+                )
+              })}
             </div>
 
               <motion.div
@@ -542,9 +549,9 @@ export function HomeClient() {
       </section>
 
       {/* Final CTA */}
-      <section className="relative overflow-hidden bg-foreground py-24 text-background">
+      <section className="relative overflow-hidden bg-surface dark:bg-[#080a0d] py-24">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]" />
+          <div className="absolute inset-0 bg-[radial-gradient(var(--hireproof-safe)_1px,transparent_1px)] [background-size:32px_32px]" />
         </div>
         <div className="mx-auto max-w-4xl px-6 text-center relative z-10">
           <motion.div
@@ -555,10 +562,10 @@ export function HomeClient() {
           >
             <ShieldAlert className="h-10 w-10" />
           </motion.div>
-          <h2 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl">
+          <h2 className="text-4xl font-black tracking-tight text-foreground dark:text-white md:text-5xl lg:text-6xl">
             Check the post before you apply.
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-relaxed opacity-80 md:text-xl">
+          <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-relaxed text-muted dark:text-white/70 md:text-xl">
             Paste the listing, recruiter message, or application URL. HireProof turns suspicious claims into an evidence-backed verdict.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -571,18 +578,18 @@ export function HomeClient() {
             </Link>
             <Link
               href="/audit?demo=high-risk"
-              className="hireproof-focus inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/5 px-8 py-4 text-lg font-black text-white transition-all hover:bg-white/10 sm:w-auto"
+              className="hireproof-focus inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-border-soft bg-background dark:border-white/20 dark:bg-white/5 px-8 py-4 text-lg font-black text-foreground dark:text-white transition-all hover:bg-surface dark:hover:bg-white/10 sm:w-auto"
             >
               Quick demo
             </Link>
           </div>
-          <p className="mt-8 text-xs font-black uppercase tracking-[0.3em] opacity-40">
+          <p className="mt-8 text-xs font-black uppercase tracking-[0.3em] text-muted dark:text-white/30">
             Evidence-backed · Candidate-first · Free demo
           </p>
         </div>
       </section>
 
-      <SiteFooter />
+
     </div>
   )
 }

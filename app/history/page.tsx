@@ -126,18 +126,28 @@ export default function HistoryPage() {
           </motion.div>
         )}
         
-        <div className="mt-20 rounded-[2.5rem] border border-border-soft bg-[#0c0f14] p-10 relative overflow-hidden">
+        <div className="mt-20 rounded-[2.5rem] border border-border-soft bg-foreground p-10 relative overflow-hidden">
            <div className="absolute inset-0 opacity-10 pointer-events-none">
              <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px]" />
            </div>
            <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
              <div>
-               <h2 className="text-2xl font-black text-white mb-4">Export Full Archive</h2>
-               <p className="text-white/60 font-medium">Download all your investigation case files as a single report packet for offline review.</p>
+               <h2 className="text-2xl font-black text-background mb-4">Export Full Archive</h2>
+               <p className="text-background/60 font-medium">Download all your investigation case files as a single report packet for offline review.</p>
              </div>
              <div className="flex justify-end">
                <button 
                  disabled={history.length === 0}
+                 onClick={() => {
+                   const data = JSON.stringify(history, null, 2)
+                   const blob = new Blob([data], { type: 'application/json' })
+                   const url = URL.createObjectURL(blob)
+                   const a = document.createElement('a')
+                   a.href = url
+                   a.download = `hireproof-archive-${new Date().toISOString().split('T')[0]}.json`
+                   a.click()
+                   URL.revokeObjectURL(url)
+                 }}
                  className="hireproof-focus flex items-center gap-3 rounded-2xl bg-safe px-8 py-4 text-base font-black text-background hover:scale-105 transition-all shadow-xl hover:shadow-safe/20 disabled:opacity-50 disabled:pointer-events-none"
                >
                  <Download className="h-5 w-5" />

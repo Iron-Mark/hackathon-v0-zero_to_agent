@@ -67,12 +67,15 @@ let globalRedis: Redis | null = null
 let writeLock: Promise<void> = Promise.resolve()
 
 function getRedis() {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) return null
+  const url = process.env.UPSTASH_REDIS_REST_URL?.trim()
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim()
+  if (!url || !token) return null
   if (!globalRedis) {
-    globalRedis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    })
+    try {
+      globalRedis = new Redis({ url, token })
+    } catch {
+      return null
+    }
   }
   return globalRedis
 }

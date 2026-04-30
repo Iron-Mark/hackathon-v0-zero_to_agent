@@ -188,6 +188,14 @@ function buildNextSteps(verdict: AuditReport['verdict'], company: string) {
   ]
 }
 
+async function persistReportSafely(report: AuditReport) {
+  try {
+    await saveReport(report)
+  } catch (error) {
+    console.error('[A2A Audit API] Report persistence failed:', error instanceof Error ? error.message : 'Unknown persistence error')
+  }
+}
+
 export async function POST(request: Request) {
   // 1. API Key Authentication
   const apiKey = request.headers.get('x-api-key')
@@ -382,7 +390,7 @@ export async function POST(request: Request) {
             publiclyListed: true,
           }
 
-          await saveReport(report)
+          await persistReportSafely(report)
           return report
         }
 
@@ -396,7 +404,7 @@ export async function POST(request: Request) {
         } else {
           fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.safe, timestamp: new Date().toISOString(), mode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
         }
-        await saveReport(fixture)
+        await persistReportSafely(fixture)
         return fixture
       } catch (err) {
         console.error('[Investigation Error]', err instanceof Error ? err.message : 'Unknown investigation error')

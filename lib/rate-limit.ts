@@ -34,12 +34,14 @@ function cleanupStale(windowMs: number) {
 let globalRedis: Redis | null = null
 
 function getRedis() {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) return null
+  const url = process.env.UPSTASH_REDIS_REST_URL?.trim()
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim()
+  if (!url || !token) return null
   if (!globalRedis) {
     try {
       globalRedis = new Redis({
-        url: process.env.UPSTASH_REDIS_REST_URL,
-        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+        url,
+        token,
       })
     } catch {
       return null
