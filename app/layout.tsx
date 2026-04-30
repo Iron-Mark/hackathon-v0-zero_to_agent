@@ -5,6 +5,7 @@ import { ToastProvider } from '@/components/toast'
 import { CommandMenu } from '@/components/command-menu'
 import { SiteFooter } from '@/components/site-footer'
 import { ThemeScanner } from '@/components/theme-scanner'
+import { DemoLoginSnackbar } from '@/components/demo-login-snackbar'
 import Script from 'next/script'
 
 export const metadata: Metadata = {
@@ -82,6 +83,7 @@ export default function RootLayout({
           <ToastProvider>
             <ThemeScanner />
             <CommandMenu />
+            <DemoLoginSnackbar />
             <Script
               id="json-ld"
               type="application/ld+json"

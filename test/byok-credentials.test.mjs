@@ -94,3 +94,25 @@ test('authenticated audit and mcp routes load owner byok credentials', async () 
   assert.match(serpapi, /serpapiKey\?: string/)
   assert.match(aiModel, /modelProviderKey\?: string/)
 })
+
+test('live api audits require at least one live credential source', async () => {
+  const fs = await import('node:fs/promises')
+  const v1AuditRoute = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+
+  assert.match(v1AuditRoute, /const liveCredentialsAvailable = serpapiAvailable \|\| modelAvailable/)
+  assert.match(v1AuditRoute, /if \(\(validated\.mode === 'live' \|\| \(serpapiAvailable && validated\.mode !== 'demo'\)\) && liveCredentialsAvailable\)/)
+  assert.match(v1AuditRoute, /Live audit credentials not configured/)
+})
+
+test('v1 audit supports explicit demo mode and clear missing live credential errors', async () => {
+  const fs = await import('node:fs/promises')
+  const v1AuditRoute = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+
+  assert.match(v1AuditRoute, /DEMO_FIXTURES/)
+  assert.match(v1AuditRoute, /if \(validated\.mode === 'demo'\)/)
+  assert.match(v1AuditRoute, /credentialMode: 'demo'/)
+  assert.match(v1AuditRoute, /LiveAuditCredentialsError/)
+  assert.match(v1AuditRoute, /err instanceof LiveAuditCredentialsError/)
+  assert.match(v1AuditRoute, /status: 503/)
+  assert.match(v1AuditRoute, /missing: error\.missing/)
+})

@@ -73,7 +73,7 @@ export default function VoiceInputButton({ onTranscript, onListeningChange, disa
       type="button"
       onClick={toggleListening}
       disabled={disabled}
-      className={`flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 px-2 text-xs font-black transition-colors ${
+      className={`flex h-10 w-10 items-center justify-center rounded-lg border border-border-soft bg-background text-xs font-black transition-colors sm:h-auto sm:w-auto sm:min-h-[44px] sm:min-w-[44px] sm:gap-1.5 sm:border-0 sm:bg-transparent sm:px-2 ${
         isListening
           ? 'text-high-risk animate-pulse'
           : 'text-muted hover:text-foreground'
@@ -82,7 +82,7 @@ export default function VoiceInputButton({ onTranscript, onListeningChange, disa
       aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
     >
       {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
-      {isListening ? 'Listening...' : 'Voice'}
+      <span className="hidden sm:inline">{isListening ? 'Listening...' : 'Voice'}</span>
     </button>
   )
 }

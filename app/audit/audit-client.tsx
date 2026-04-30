@@ -10,6 +10,7 @@ import { SiteHeader } from '@/components/site-header'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { AuditSkeleton } from '@/components/audit-skeleton'
 import { useAuditHistory } from '@/hooks/useAuditHistory'
+import { getFixtureByVerdict } from '@/lib/fixtures'
 import type { AuditReport, AuditRequest } from '@/lib/schemas'
 
 type StreamEvent =
@@ -17,7 +18,32 @@ type StreamEvent =
   | { type: 'result'; data: AuditReport }
   | { type: 'error'; message: string }
 
+type DemoVerdict = 'safe' | 'caution' | 'high-risk'
 
+const DEMO_VERDICTS: DemoVerdict[] = ['high-risk', 'caution', 'safe']
+
+function isDemoVerdict(value: string | null): value is DemoVerdict {
+  return Boolean(value && DEMO_VERDICTS.includes(value as DemoVerdict))
+}
+
+function buildDemoReport(verdict: DemoVerdict): AuditReport {
+  return {
+    id: `demo_${verdict}_${Date.now()}`,
+    ...getFixtureByVerdict(verdict),
+    timestamp: new Date().toISOString(),
+    mode: 'demo',
+    credentialMode: 'demo',
+    source: 'demo',
+    publiclyListed: true,
+  }
+}
+
+function chooseDemoVerdict(text: string): DemoVerdict {
+  const lower = text.toLowerCase()
+  if (lower.includes('80000') || lower.includes('telegram') || lower.includes('urgent')) return 'high-risk'
+  if (lower.includes('unclear') || lower.includes('caution') || lower.includes('competitive')) return 'caution'
+  return 'safe'
+}
 
 async function readAuditStream(response: Response, onEvent: (event: StreamEvent) => void) {
   if (!response.body) throw new Error('Audit stream did not return a readable body.')
@@ -78,6 +104,22 @@ function AuditContent() {
   const [isAuditing, setIsAuditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [streamLogs, setStreamLogs] = useState<string[]>([])
+  const [liveMode, setLiveMode] = useState(true)
+  const loadedDemoRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    const demo = searchParams.get('demo')
+    if (!isDemoVerdict(demo)) return
+    if (loadedDemoRef.current === demo) return
+
+    const demoReport = buildDemoReport(demo)
+    loadedDemoRef.current = demo
+    setLiveMode(false)
+    setReport(demoReport)
+    setError(null)
+    setStreamLogs(['Demo fixtures loaded for instant judging.'])
+    addReport(demoReport)
+  }, [searchParams, addReport])
 
   const handleAudit = async (request: AuditRequest) => {
     setIsAuditing(true)
@@ -86,11 +128,18 @@ function AuditContent() {
     setStreamLogs([])
 
     try {
+      if (!liveMode) {
+        const demoReport = buildDemoReport(chooseDemoVerdict(request.text))
+        setReport(demoReport)
+        addReport(demoReport)
+        return
+      }
+
       // Real API Call
       const res = await fetch('/api/audit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...request, mode: 'live' })
+          body: JSON.stringify({ ...request, mode: liveMode ? 'live' : 'demo' })
         })
         
         if (!res.ok) {
@@ -138,6 +187,23 @@ function AuditContent() {
               <p className="mt-4 text-lg font-medium text-muted">
                 Paste the job details below. Our agents will cross-reference signals in real-time.
               </p>
+            </div>
+
+            <div className="mb-6 inline-flex rounded-xl border border-border-soft bg-surface p-1 text-xs font-black">
+              <button
+                type="button"
+                onClick={() => setLiveMode(true)}
+                className={`rounded-lg px-3 py-2 transition-colors ${liveMode ? 'bg-foreground text-background' : 'text-muted hover:text-foreground'}`}
+              >
+                Live evidence
+              </button>
+              <button
+                type="button"
+                onClick={() => setLiveMode(false)}
+                className={`rounded-lg px-3 py-2 transition-colors ${!liveMode ? 'bg-foreground text-background' : 'text-muted hover:text-foreground'}`}
+              >
+                Demo fixtures
+              </button>
             </div>
             
             <AuditForm onInvestigate={handleAudit} loading={isAuditing} />

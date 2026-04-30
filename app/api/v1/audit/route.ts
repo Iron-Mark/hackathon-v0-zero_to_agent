@@ -29,6 +29,48 @@ import { buildHireProofWebhookHeaders } from '@/lib/webhook-signing.mjs'
 
 export const runtime = 'nodejs'
 
+class LiveAuditCredentialsError extends Error {
+  missing: string[]
+
+  constructor(missing: string[]) {
+    super(`Live audit credentials not configured. Missing: ${missing.join(', ')}. Use BYOK to add your own keys via the developer portal.`)
+    this.name = 'LiveAuditCredentialsError'
+    this.missing = missing
+  }
+}
+
+function getMissingLiveCredentials(serpapiAvailable: boolean, modelAvailable: boolean) {
+  const missing: string[] = []
+  if (!serpapiAvailable) missing.push('SERPAPI_API_KEY')
+  if (!modelAvailable) missing.push('MODEL_PROVIDER_KEY or AI_GATEWAY_API_KEY')
+  return missing
+}
+
+function buildDemoReport(validated: AuditRequest, ownerId: string, apiKeyId: string): AuditReport {
+  const textLower = validated.text.toLowerCase()
+  let fixture: Omit<AuditReport, 'id' | 'timestamp' | 'mode' | 'credentialMode' | 'ownerId' | 'apiKeyId' | 'source' | 'publiclyListed'>
+
+  if (textLower.includes('80000') || textLower.includes('telegram')) {
+    fixture = DEMO_FIXTURES.highRisk
+  } else if (textLower.includes('unclear') || textLower.includes('caution')) {
+    fixture = DEMO_FIXTURES.caution
+  } else {
+    fixture = DEMO_FIXTURES.safe
+  }
+
+  return {
+    id: `report_${Date.now()}`,
+    ...fixture,
+    timestamp: new Date().toISOString(),
+    mode: 'demo',
+    credentialMode: 'demo',
+    ownerId,
+    apiKeyId,
+    source: 'api',
+    publiclyListed: true,
+  }
+}
+
 function extractFirstMatch(text: string, patterns: RegExp[], fallback = 'Unknown') {
   for (const pattern of patterns) {
     const match = text.match(pattern)
@@ -209,7 +251,8 @@ export async function POST(request: Request) {
   const ownerHasByok = Boolean(ownerCredentials.modelProviderKey || ownerCredentials.serpapiKey)
   const serpapiAvailable = hasSerpApiKey(ownerCredentials.serpapiKey)
   const modelAvailable = hasHireProofModelProvider(ownerCredentials.modelProviderKey)
-  const credentialMode: AuditReport['credentialMode'] = ownerHasByok ? 'owner-byok' : (serpapiAvailable || modelAvailable) ? 'platform-env' : 'demo'
+  const liveCredentialsAvailable = serpapiAvailable || modelAvailable
+  const credentialMode: AuditReport['credentialMode'] = ownerHasByok ? 'owner-byok' : 'platform-env'
 
   // 2. Rate Limiting (Agent Tier: 20 reqs / 1 min)
   const rateLimitResult = await checkRateLimit(apiKey, { limit: 20, windowMs: 60000 })
@@ -274,7 +317,13 @@ export async function POST(request: Request) {
   try {
     const performInvestigation = async (): Promise<AuditReport | null> => {
       try {
-        if (validated.mode === 'live' || (serpapiAvailable && validated.mode !== 'demo')) {
+        if (validated.mode === 'demo') {
+          const fixture = buildDemoReport(validated, apiAuth.ownerId, apiAuth.apiKeyId)
+          await persistReportSafely(fixture)
+          return fixture
+        }
+
+        if ((validated.mode === 'live' || (serpapiAvailable && validated.mode !== 'demo')) && liveCredentialsAvailable) {
           const extractedClaims = await extractClaims(validated, ownerCredentials.modelProviderKey)
           const hasCompany = !extractedClaims.company.toLowerCase().includes('unknown')
           let evidence: EvidenceItem[] = []
@@ -401,19 +450,10 @@ export async function POST(request: Request) {
           return report
         }
 
-        // Fallback to demo
-        const textLower = validated.text.toLowerCase()
-        let fixture: AuditReport
-        if (textLower.includes('80000') || textLower.includes('telegram')) {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.highRisk, timestamp: new Date().toISOString(), mode: 'demo', credentialMode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
-        } else if (textLower.includes('unclear') || textLower.includes('caution')) {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.caution, timestamp: new Date().toISOString(), mode: 'demo', credentialMode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
-        } else {
-          fixture = { id: `report_${Date.now()}`, ...DEMO_FIXTURES.safe, timestamp: new Date().toISOString(), mode: 'demo', credentialMode: 'demo', ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, source: 'api', publiclyListed: true }
-        }
-        await persistReportSafely(fixture)
-        return fixture
+        // No live credentials available — fail explicitly instead of returning fake data
+        throw new LiveAuditCredentialsError(getMissingLiveCredentials(serpapiAvailable, modelAvailable))
       } catch (err) {
+        if (err instanceof LiveAuditCredentialsError) throw err
         console.error('[Investigation Error]', err instanceof Error ? err.message : 'Unknown investigation error')
         return null
       }
@@ -465,6 +505,14 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify(report), { status: 200, headers: { 'Content-Type': 'application/json' } })
 
   } catch (error) {
+    if (error instanceof LiveAuditCredentialsError) {
+      await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit', status: 503 })
+      return new Response(JSON.stringify({
+        error: error.message,
+        missing: error.missing,
+        recovery: 'Use mode=demo for fixtures or add live credentials through the developer portal BYOK settings.',
+      }), { status: 503, headers: { 'Content-Type': 'application/json' } })
+    }
     console.error('[A2A Audit API] Error:', error instanceof Error ? error.message : 'Unknown routing error')
     return new Response(JSON.stringify({ error: 'Failed to complete audit' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }

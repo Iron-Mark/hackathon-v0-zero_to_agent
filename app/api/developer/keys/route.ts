@@ -16,6 +16,10 @@ export async function GET() {
 export async function POST(request: Request) {
   const user = await requireUser()
   if (!user) return NextResponse.json({ error: 'Authentication required.' }, { status: 401 })
+  // Demo accounts are sandboxed — they cannot create real API keys
+  if (user.email === 'judge@hackathon.com') {
+    return NextResponse.json({ error: 'Demo accounts cannot create API keys.' }, { status: 403 })
+  }
   const body = await request.json().catch(() => ({}))
   const { rawKey, record } = await issueApiKey(user.id, String(body.name || 'Production API Key'))
   return NextResponse.json({ rawKey, key: record }, { status: 201 })
