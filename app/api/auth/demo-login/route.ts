@@ -40,6 +40,22 @@ function getClientIp(reqHeaders: Headers): string {
   )
 }
 
+function assertSameOrigin(request: Request, reqHeaders: Headers) {
+  const origin = reqHeaders.get('origin')
+  const referer = reqHeaders.get('referer')
+  const requestOrigin = new URL(request.url).origin
+
+  if (origin) {
+    return new URL(origin).origin === requestOrigin
+  }
+
+  if (referer) {
+    return new URL(referer).origin === requestOrigin
+  }
+
+  return process.env.NODE_ENV !== 'production'
+}
+
 /**
  * POST /api/auth/demo-login
  * Idempotently creates the demo judge account (if it doesn't exist) and logs in.
@@ -49,13 +65,17 @@ function getClientIp(reqHeaders: Headers): string {
  *   - Demo session TTL is 2 hours (not 7 days)
  *   - Demo account cannot issue real API keys (enforced separately in /api/developer/keys)
  */
-export async function POST() {
+export async function POST(request: Request) {
   if (process.env.DEMO_LOGIN_ENABLED !== 'true') {
     return NextResponse.json({ error: 'Demo login is not enabled.' }, { status: 403 })
   }
 
   // --- Rate limiting ---
   const reqHeaders = await headers()
+  if (!assertSameOrigin(request, reqHeaders)) {
+    return NextResponse.json({ error: 'Cross-origin demo login is not allowed.' }, { status: 403 })
+  }
+
   const ip = getClientIp(reqHeaders)
   const { allowed, remaining } = await checkRateLimit(ip)
   if (!allowed) {

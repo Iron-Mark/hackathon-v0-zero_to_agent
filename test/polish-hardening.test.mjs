@@ -259,10 +259,44 @@ test('audit form supports clipboard text and screenshot paste', async () => {
   assert.doesNotMatch(auditForm, /bg-foreground py-3/)
 })
 
+test('history, result, and proof pages keep the audit journey polished', async () => {
+  const historyPage = await fs.readFile(new URL('../app/history/page.tsx', import.meta.url), 'utf8')
+  const resultScreen = await fs.readFile(new URL('../components/result-screen.tsx', import.meta.url), 'utf8')
+  const proofPage = await fs.readFile(new URL('../app/proof/page.tsx', import.meta.url), 'utf8')
+
+  assert.match(historyPage, /Open report/)
+  assert.match(historyPage, /isLoaded/)
+  assert.match(historyPage, /Loading local archive/)
+  assert.match(historyPage, /Archive summary/)
+  assert.match(historyPage, /High-risk/)
+  assert.match(historyPage, /data-testid="history-report-card"/)
+  assert.match(historyPage, /data-testid="history-empty-state"/)
+  assert.match(historyPage, /rounded-2xl/)
+  assert.doesNotMatch(historyPage, /rounded-\[3rem\]/)
+
+  assert.match(resultScreen, /Quick exports/)
+  assert.match(resultScreen, /Evidence receipts/)
+  assert.match(resultScreen, /Share verdict/)
+  assert.match(resultScreen, /Open source/)
+  assert.match(resultScreen, /Next step/)
+  assert.match(resultScreen, /data-testid="audit-result-verdict"/)
+
+  assert.match(proofPage, /Credential-gated, not live proof/)
+  assert.match(proofPage, /brandColor/)
+  assert.match(proofPage, /Not claimed as live/)
+  assert.match(proofPage, /Chrome Web Store/)
+})
+
 test('demo login response only returns public demo identity', async () => {
   const route = await fs.readFile(new URL('../app/api/auth/demo-login/route.ts', import.meta.url), 'utf8')
   const snackbar = await fs.readFile(new URL('../components/demo-login-snackbar.tsx', import.meta.url), 'utf8')
 
+  assert.match(route, /assertSameOrigin/)
+  assert.match(route, /new URL\(origin\)/)
+  assert.match(route, /request\.url/)
+  assert.match(route, /Cross-origin demo login is not allowed/)
+  assert.match(snackbar, /NEXT_PUBLIC_DEMO_LOGIN_ENABLED/)
+  assert.match(snackbar, /demoLoginEnabled/)
   assert.match(route, /user: \{ id: user\.id, email: user\.email, name: user\.name \}/)
   assert.match(route, /reqHeaders\.get\('x-real-ip'\) \?\?\s+reqHeaders\.get\('x-forwarded-for'\)/)
   assert.doesNotMatch(route, /return NextResponse\.json\(\s*\{\s*user, isDemo: true/)

@@ -7,154 +7,188 @@ import { useAuditHistory } from '@/hooks/useAuditHistory'
 import Link from 'next/link'
 
 export default function HistoryPage() {
-  const { history, clearHistory } = useAuditHistory()
+  const { history, isLoaded, clearHistory } = useAuditHistory()
+  const highRiskCount = history.filter((report) => report.verdict === 'high-risk').length
+  const cautionCount = history.filter((report) => report.verdict === 'caution').length
+  const safeCount = history.filter((report) => report.verdict === 'safe').length
 
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
+      transition: { staggerChildren: 0.05 },
+    },
   }
 
   const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    show: { opacity: 1, x: 0 }
+    hidden: { opacity: 0, x: -12 },
+    show: { opacity: 1, x: 0 },
   }
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-12 lg:px-8">
-        <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:py-12 lg:px-8">
+        <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border-soft bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-widest text-muted shadow-sm">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border-soft bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-normal text-muted shadow-sm">
               <History className="h-3.5 w-3.5" />
               Local Report Archive
             </div>
-            <h1 className="text-4xl font-black lg:text-6xl tracking-tight">Case History</h1>
-            <p className="mt-4 max-w-xl text-lg font-medium text-muted leading-relaxed">
-              Access your previous job investigations. All data is stored locally in your encrypted browser session.
+            <h1 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">Case History</h1>
+            <p className="mt-3 max-w-xl text-base font-medium leading-7 text-muted sm:text-lg">
+              Access your previous job investigations. All data is stored locally in your browser session.
             </p>
           </div>
-          
+
           {history.length > 0 && (
-            <button 
+            <button
               onClick={() => {
                 if (confirm('Are you sure you want to delete all locally stored case files?')) {
                   clearHistory()
                 }
               }}
-              className="text-xs font-black uppercase tracking-widest text-muted hover:text-risk-text transition-colors"
+              className="text-left text-xs font-black uppercase tracking-normal text-muted transition-colors hover:text-risk-text md:text-right"
             >
               Purge Local Archive
             </button>
           )}
         </div>
 
-        {history.length === 0 ? (
-          <div className="rounded-[3rem] border border-dashed border-border-soft bg-surface/10 p-24 text-center backdrop-blur-sm">
-            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] bg-surface mb-8 text-muted border border-border-soft">
-              <FileSearch className="h-10 w-10 opacity-20" />
+        {!isLoaded ? (
+          <div className="rounded-2xl border border-border-soft bg-surface p-6 shadow-sm sm:p-8">
+            <div className="mb-4 text-xs font-black uppercase tracking-normal text-muted">Loading local archive</div>
+            <div className="space-y-3">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="h-16 animate-pulse rounded-xl border border-border-soft bg-background" />
+              ))}
             </div>
-            <h2 className="text-3xl font-black mb-3">Archive is empty</h2>
-            <p className="text-muted text-lg font-medium mb-10 max-w-md mx-auto">You haven't checked any job posts in this session yet.</p>
-            <Link href="/audit" className="inline-flex rounded-2xl bg-foreground px-10 py-5 text-base font-black text-background hover:bg-safe transition-all shadow-xl hover:shadow-safe/20">
+          </div>
+        ) : history.length === 0 ? (
+          <div data-testid="history-empty-state" className="rounded-2xl border border-dashed border-border-soft bg-surface/40 p-6 text-center shadow-sm sm:p-10">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-xl border border-border-soft bg-background text-muted">
+              <FileSearch className="h-7 w-7 opacity-50" />
+            </div>
+            <h2 className="mb-2 text-2xl font-black">Archive is empty</h2>
+            <p className="mx-auto mb-6 max-w-md text-sm font-medium leading-6 text-muted sm:text-base">
+              You haven't checked any job posts in this session yet.
+            </p>
+            <Link href="/audit" className="inline-flex rounded-xl bg-safe px-6 py-3 text-sm font-black text-background shadow-lg shadow-safe/20 transition-colors hover:bg-safe-text">
               Check a Job Post
             </Link>
           </div>
         ) : (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="space-y-4"
-          >
-            {history.map((report, i) => (
-              <motion.div key={report.id} variants={itemVariants}>
-                <Link 
-                  href={`/audit/${report.id}`}
-                  className="group flex flex-col md:flex-row md:items-center gap-6 rounded-[2rem] border border-border-soft bg-surface/50 p-8 backdrop-blur-sm transition-all hover:border-safe/30 hover:bg-background hover:shadow-2xl hover:shadow-safe/5"
-                >
-                  <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${
-                    report.verdict === 'high-risk' ? 'bg-risk-bg text-risk-text' : 
-                    report.verdict === 'caution' ? 'bg-caution-bg text-caution-text' : 
-                    'bg-safe-bg text-safe'
-                  }`}>
-                    {report.verdict === 'high-risk' ? <AlertTriangle className="h-8 w-8" /> : 
-                     report.verdict === 'caution' ? <Zap className="h-8 w-8" /> : 
-                     <ShieldCheck className="h-8 w-8" />}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className={`text-[10px] font-black uppercase tracking-widest ${
-                        report.verdict === 'high-risk' ? 'text-risk-text' : 
-                        report.verdict === 'caution' ? 'text-caution-text' : 
-                        'text-safe'
-                      }`}>
-                        {report.verdict} Report
-                      </span>
-                      <div className="h-1 w-1 rounded-full bg-border-soft" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-muted flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(report.timestamp || '').toLocaleDateString()}
-                      </span>
+          <>
+            <div className="mb-5 grid gap-3 sm:grid-cols-4" aria-label="Archive summary">
+              {[
+                { label: 'Total', value: history.length, className: 'text-foreground' },
+                { label: 'High-risk', value: highRiskCount, className: 'text-risk-text' },
+                { label: 'Caution', value: cautionCount, className: 'text-caution-text' },
+                { label: 'Safe', value: safeCount, className: 'text-safe' },
+              ].map((item) => (
+                <div key={item.label} className="rounded-xl border border-border-soft bg-surface p-3 shadow-sm">
+                  <div className="text-[10px] font-black uppercase tracking-normal text-muted">{item.label}</div>
+                  <div className={`mt-1 text-2xl font-black ${item.className}`}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="space-y-3"
+            >
+              {history.map((report) => (
+                <motion.div key={report.id} variants={itemVariants}>
+                  <Link
+                    href={`/history/${report.id}`}
+                    data-testid="history-report-card"
+                    className="group flex flex-col gap-4 rounded-2xl border border-border-soft bg-surface p-4 shadow-sm transition-all hover:border-safe/40 hover:bg-background hover:shadow-lg hover:shadow-safe/5 sm:p-5 md:flex-row md:items-center"
+                  >
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+                      report.verdict === 'high-risk' ? 'bg-risk-bg text-risk-text' :
+                      report.verdict === 'caution' ? 'bg-caution-bg text-caution-text' :
+                      'bg-safe-bg text-safe'
+                    }`}>
+                      {report.verdict === 'high-risk' ? <AlertTriangle className="h-6 w-6" /> :
+                       report.verdict === 'caution' ? <Zap className="h-6 w-6" /> :
+                       <ShieldCheck className="h-6 w-6" />}
                     </div>
-                    <h3 className="text-2xl font-black truncate group-hover:text-safe transition-colors">{report.extractedClaims.role}</h3>
-                    <p className="text-base font-bold text-muted/70">{report.extractedClaims.company}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-8 md:text-right">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-muted mb-1">Risk Score</span>
-                      <span className={`text-2xl font-black ${
-                        report.verdict === 'high-risk' ? 'text-risk-text' : 
-                        report.verdict === 'caution' ? 'text-caution-text' : 
-                        'text-safe'
-                      }`}>
-                        {report.riskScore}<span className="text-[10px] opacity-40 ml-1">/100</span>
-                      </span>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-normal ${
+                          report.verdict === 'high-risk' ? 'bg-risk-bg text-risk-text' :
+                          report.verdict === 'caution' ? 'bg-caution-bg text-caution-text' :
+                          'bg-safe-bg text-safe'
+                        }`}>
+                          {report.verdict} Report
+                        </span>
+                        <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-normal text-muted">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(report.timestamp || '').toLocaleDateString()}
+                        </span>
+                      </div>
+                      <h3 className="truncate text-lg font-black transition-colors group-hover:text-safe sm:text-xl">
+                        {report.extractedClaims.role || 'Unknown role'}
+                      </h3>
+                      <p className="truncate text-sm font-bold text-muted/70">
+                        {report.extractedClaims.company || 'Unknown company'}
+                      </p>
                     </div>
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface border border-border-soft group-hover:bg-safe group-hover:text-background group-hover:border-safe transition-all shadow-sm">
-                      <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
+
+                    <div className="flex items-center justify-between gap-4 md:text-right">
+                      <div className="flex flex-col">
+                        <span className="mb-1 text-[10px] font-black uppercase tracking-normal text-muted">Risk Score</span>
+                        <span className={`text-xl font-black ${
+                          report.verdict === 'high-risk' ? 'text-risk-text' :
+                          report.verdict === 'caution' ? 'text-caution-text' :
+                          'text-safe'
+                        }`}>
+                          {report.riskScore}<span className="ml-1 text-[10px] opacity-40">/100</span>
+                        </span>
+                      </div>
+                      <div className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border-soft bg-background px-3 text-xs font-black text-evidence transition-all group-hover:border-safe group-hover:bg-safe group-hover:text-background">
+                        Open report
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          </>
         )}
-        
-        <div className="mt-20 rounded-[2.5rem] border border-border-soft bg-foreground p-10 relative overflow-hidden">
-           <div className="absolute inset-0 opacity-10 pointer-events-none">
-             <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px]" />
-           </div>
-           <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
-             <div>
-               <h2 className="text-2xl font-black text-background mb-4">Export Full Archive</h2>
-               <p className="text-background/60 font-medium">Download all your investigation case files as a single report packet for offline review.</p>
-             </div>
-             <div className="flex justify-end">
-               <button 
-                 disabled={history.length === 0}
-                 onClick={() => {
-                   const data = JSON.stringify(history, null, 2)
-                   const blob = new Blob([data], { type: 'application/json' })
-                   const url = URL.createObjectURL(blob)
-                   const a = document.createElement('a')
-                   a.href = url
-                   a.download = `hireproof-archive-${new Date().toISOString().split('T')[0]}.json`
-                   a.click()
-                   URL.revokeObjectURL(url)
-                 }}
-                 className="hireproof-focus flex items-center gap-3 rounded-2xl bg-safe px-8 py-4 text-base font-black text-background hover:scale-105 transition-all shadow-xl hover:shadow-safe/20 disabled:opacity-50 disabled:pointer-events-none"
-               >
-                 <Download className="h-5 w-5" />
-                 Download Report Packet
-               </button>
-             </div>
-           </div>
+
+        <div className="mt-12 rounded-2xl border border-border-soft bg-surface p-5 shadow-sm sm:p-6">
+          <div className="grid gap-5 md:grid-cols-2 md:items-center">
+            <div>
+              <h2 className="mb-2 text-xl font-black">Export Full Archive</h2>
+              <p className="text-sm font-medium leading-6 text-muted">
+                Download all your investigation case files as a single JSON packet for offline review.
+              </p>
+            </div>
+            <div className="flex md:justify-end">
+              <button
+                disabled={history.length === 0}
+                onClick={() => {
+                  const data = JSON.stringify(history, null, 2)
+                  const blob = new Blob([data], { type: 'application/json' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `hireproof-archive-${new Date().toISOString().split('T')[0]}.json`
+                  a.click()
+                  URL.revokeObjectURL(url)
+                }}
+                className="hireproof-focus flex w-full items-center justify-center gap-2 rounded-xl border border-safe bg-safe px-5 py-3 text-sm font-black text-background shadow-lg shadow-safe/20 transition-colors hover:bg-safe-text disabled:border-safe/30 disabled:bg-safe-bg disabled:text-safe-text disabled:opacity-100 md:w-auto"
+              >
+                <Download className="h-5 w-5" />
+                Download Report Packet
+              </button>
+            </div>
+          </div>
         </div>
       </main>
     </div>

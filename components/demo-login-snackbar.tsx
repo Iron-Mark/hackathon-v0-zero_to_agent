@@ -8,6 +8,7 @@ import { showToast } from '@/components/toast'
 
 const SHOW_DELAY_MS = 1800
 const AUTO_DISMISS_MS = 18000 // 18 seconds before it decays away
+const demoLoginEnabled = process.env.NEXT_PUBLIC_DEMO_LOGIN_ENABLED === 'true'
 
 export function DemoLoginSnackbar() {
   const pathname = usePathname()
@@ -18,7 +19,7 @@ export function DemoLoginSnackbar() {
   const [progress, setProgress] = useState(100)
 
   // Only show on the developer portal
-  const isDeveloperPage = pathname === '/developer'
+  const isDeveloperPage = demoLoginEnabled && pathname === '/developer'
 
   useEffect(() => {
     if (!isDeveloperPage || dismissed) return

@@ -1,13 +1,31 @@
 # HireProof Demo Proof Archive
 
-Last checked: 2026-04-30
+Last checked: 2026-05-01
 
 This file keeps the judge-facing proof artifacts in one place. It intentionally avoids secrets, request headers, tokens, and private Slack workspace identifiers.
+
+## Current Proof Status
+
+| Capability | Current status | Evidence | Do not claim yet |
+| --- | --- | --- | --- |
+| Web audit demo | Live-proven | Production `/api/v1/audit` demo mode returns High-Risk score `92`. | N/A |
+| Web audit live mode | Live-proven | Production `/api/v1/audit` live mode returns a credential-backed High-Risk report. | N/A |
+| Slack ChatSDK | Live-proven | Real Slack mention screenshot plus production Slack route readiness. | Fresh Slack logs unless a new mention is captured. |
+| Vercel Workflow / WDK | Accepted-run proven | Production workflow route returned accepted run ID `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`. | Completed durable callback report. |
+| Discord ChatSDK | Credential-gated | Route exists and controlled shared reply path passes; provider credentials are missing. | Live Discord bot delivery. |
+| Telegram ChatSDK | Credential-gated | Route exists and controlled shared reply path passes; provider credentials are missing. | Live Telegram bot delivery. |
+| WhatsApp/Zernio ChatSDK | Credential-gated | Route exists and controlled shared reply path passes; provider credentials are missing. | Live WhatsApp delivery. |
+
+Use this one-line status in public/demo materials:
+
+> HireProof is production-verified for the web audit flow and Slack proof. Discord, Telegram, and WhatsApp/Zernio are implemented behind credential gates and still need live provider event proof.
 
 ## Production URL
 
 - Stable demo: `https://hireproof-sigma.vercel.app`
-- Production deployments are checked through the stable alias; deployment-specific preview URLs are not durable submission links.
+- Latest verified production deployment: `https://hireproof-bdvxyu0k1-iron-marks-projects.vercel.app`
+- Latest verified deployment ID: `dpl_HSd4UqgThX6kPQxbDjYAfLjfkyHi`
+- Production demos should use the stable alias; deployment-specific URLs are kept only as proof evidence.
 
 ## Readiness Proof
 
@@ -30,9 +48,18 @@ Production `POST /api/v1/audit` with the public demo key returned:
 - Verdict: `high-risk`
 - Risk score: `92`
 - Mode: `demo`
+- Credential mode: `demo`
 - Source: `api`
 
-Production `POST /api/audit` returned an SSE result event containing the High-Risk demo report.
+Production `POST /api/v1/audit` with platform live credentials returned:
+
+- Verdict: `high-risk`
+- Risk score: `100`
+- Mode: `live`
+- Credential mode: `platform-env`
+- Live extraction returned company text from the submitted sample and completed with a High-Risk verdict.
+
+Production `POST /api/audit` returns an SSE result event containing the High-Risk report.
 
 ## ChatSDK Slack Proof
 
@@ -63,7 +90,7 @@ Result:
 - Telegram: `credential-gated`
 - WhatsApp/Zernio: `credential-gated`
 - Production health: `ok`
-- Shared ChatSDK reply path: returned `200`, verdict `high-risk`, score `92`
+- Shared ChatSDK reply path: returned `200`, verdict `high-risk`
 - Shared reply proof report: see the latest `sharedChatReplyPath.reportUrl` value in the JSON artifact.
 
 Missing production provider credentials:
@@ -75,6 +102,38 @@ Missing production provider credentials:
 Use this claim until provider credentials and real message screenshots are captured:
 
 > Discord, Telegram, and WhatsApp/Zernio are implemented and production-reachable behind credential gates. The shared ChatSDK reply path is production-verified, but external provider event delivery is still pending live credentials and real message captures.
+
+Strict live platform proof status:
+
+- Command: `npm run proof:chat-live:strict`
+- Latest result: failed as expected because Discord, Telegram, and WhatsApp/Zernio have no production provider credentials yet.
+- Honest status: implemented, build-verified, and production-reachable; not end-to-end live-proven on those external platforms.
+
+## Live Platform Proof Runbook
+
+Run this only after the missing provider credentials are added to production.
+
+1. Deploy the latest `main` build to production.
+2. Confirm `https://hireproof-sigma.vercel.app/api/health` returns `ok`.
+3. Add the Discord app credentials in Vercel production env.
+4. Send one real Discord message or interaction to the bot.
+5. Capture the Discord client screenshot and the matching production webhook log.
+6. Add the Telegram bot credentials in Vercel production env.
+7. Send one real Telegram message to the bot.
+8. Capture the Telegram client screenshot and the matching production webhook log.
+9. Add the WhatsApp/Zernio credentials in Vercel production env.
+10. Send one real WhatsApp/Zernio event.
+11. Capture the WhatsApp/Zernio client screenshot and the matching production webhook log.
+12. Run `npm run proof:chat-live`.
+13. Run `npm run proof:chat-live:strict`.
+14. Update this archive with the new screenshots, log IDs, deployment ID, and strict proof result.
+
+Pass criteria:
+
+- Each provider has `ready` status in `docs/demo/live-chat-proof-check-latest.json`.
+- `npm run proof:chat-live:strict` exits `0`.
+- Each provider has one screenshot and one matching webhook log entry.
+- Public copy no longer says credential-gated for any provider that has passed real event proof.
 
 ## Vercel Workflow / WDK Proof
 
@@ -113,18 +172,21 @@ Do not claim a completed durable report callback unless a callback result is cap
 
 ## Submission Readiness Checklist
 
-- [ ] Production URL opens: `https://hireproof-sigma.vercel.app`.
-- [ ] `GET /api/health` returns `ok`.
-- [ ] `GET /api/integrations/proof` returns Slack, Workflow, and AI Gateway as ready.
-- [ ] `POST /api/v1/audit` with `hireproof_agent_demo_key` returns the High-Risk sample report.
-- [ ] `POST /api/workflows/audit` accepts a run or the archived accepted run is cited.
-- [ ] Slack screenshot proof is included: `docs/demo/Screenshot 2026-04-30 024756.jpg`.
+- [x] Production URL opens: `https://hireproof-sigma.vercel.app`.
+- [x] `GET /api/health` returns `ok`.
+- [x] `POST /api/v1/audit` with `hireproof_agent_demo_key` returns the High-Risk sample report.
+- [x] Production live-mode `/api/v1/audit` returns a credential-backed High-Risk report.
+- [x] `POST /api/workflows/audit` accepts a run or the archived accepted run is cited.
+- [x] Slack screenshot proof is included: `docs/demo/Screenshot 2026-04-30 024756.jpg`.
+- [x] BYOK credential route hardening is verified by `test/byok-credentials.test.mjs`.
+- [x] `npm run proof:chat-live` passes for controlled chat proof.
+- [x] `npm run build` passes before final submission.
 - [ ] Chrome extension ZIP/listing assets are available if extension packaging is mentioned.
-- [ ] BYOK credential route hardening is verified by `test/byok-credentials.test.mjs`.
-- [ ] `npm run proof:chat-live` passes for controlled chat proof.
-- [ ] `npm run proof:chat-live:strict` is either passing, or Discord/Telegram/WhatsApp are described only as credential-gated.
+- [ ] Real Discord message/event is sent and captured with webhook logs/screenshots.
+- [ ] Real Telegram message/event is sent and captured with webhook logs/screenshots.
+- [ ] Real WhatsApp/Zernio message/event is sent and captured with webhook logs/screenshots.
+- [ ] `npm run proof:chat-live:strict` passes after Discord/Telegram/WhatsApp credentials and live event proof exist.
 - [ ] Final copy avoids claiming live Discord, Telegram, or WhatsApp proof before real platform captures exist.
-- [ ] `npm run build` passes before final submission.
 
 ## Demo Failure Backup
 

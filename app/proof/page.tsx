@@ -63,6 +63,7 @@ const proofStats = [
     brandIcon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/slack.svg',
     label: 'Chat proof',
     value: 'Slack screenshot',
+    brandColor: '#4A154B',
     brandIconColor: '#4A154B',
     cardClassName: 'border-[#4A154B]/25 bg-[#4A154B]/10',
     iconClassName: 'border border-[#4A154B]/20 bg-white',
@@ -79,10 +80,10 @@ const packagedSurfaces = [
 ]
 
 const gatedSurfaces = [
-  { brandIcon: 'https://cdn.simpleicons.org/discord/5865F2', brandName: 'Discord', text: 'Discord ChatSDK delivery is implemented but credential-gated until a real provider event is captured.' },
-  { brandIcon: 'https://cdn.simpleicons.org/telegram/26A5E4', brandName: 'Telegram', text: 'Telegram ChatSDK delivery is implemented but credential-gated until a real provider event is captured.' },
-  { brandIcon: 'https://cdn.simpleicons.org/whatsapp/25D366', brandName: 'WhatsApp', text: 'WhatsApp/Zernio delivery is implemented but credential-gated until a real provider event is captured.' },
-  { brandIcon: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Google_Chrome_Web_Store_icon_2022.svg', brandName: 'Chrome Web Store', text: 'Chrome Web Store publication still requires developer-account submission and Google review.' },
+  { brandIcon: 'https://cdn.simpleicons.org/discord/5865F2', brandName: 'Discord', brandColor: '#5865F2', text: 'Discord ChatSDK delivery is implemented but credential-gated until a real provider event is captured.' },
+  { brandIcon: 'https://cdn.simpleicons.org/telegram/26A5E4', brandName: 'Telegram', brandColor: '#26A5E4', text: 'Telegram ChatSDK delivery is implemented but credential-gated until a real provider event is captured.' },
+  { brandIcon: 'https://cdn.simpleicons.org/whatsapp/25D366', brandName: 'WhatsApp', brandColor: '#25D366', text: 'WhatsApp/Zernio delivery is implemented but credential-gated until a real provider event is captured.' },
+  { brandIcon: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Google_Chrome_Web_Store_icon_2022.svg', brandName: 'Chrome Web Store', brandColor: '#4285F4', text: 'Chrome Web Store publication still requires developer-account submission and Google review.' },
 ]
 
 function BrandIcon({
@@ -155,12 +156,12 @@ export default function ProofPage() {
             {proofStats.map((item) => {
               const Icon = item.icon
               const brandIcon = 'brandIcon' in item && typeof item.brandIcon === 'string' ? item.brandIcon : null
-              const brandIconColor = 'brandIconColor' in item && typeof item.brandIconColor === 'string' ? item.brandIconColor : undefined
+              const brandColor = 'brandColor' in item && typeof item.brandColor === 'string' ? item.brandColor : undefined
               return (
                 <div key={item.label} className={`rounded-xl border p-4 ${'cardClassName' in item ? item.cardClassName : 'border-border-soft bg-background'}`}>
                   <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${'iconClassName' in item ? item.iconClassName : 'bg-evidence-bg text-evidence'}`}>
                     {brandIcon ? (
-                      <BrandIcon src={brandIcon} alt={`${item.label} logo`} className="h-5 w-5" color={brandIconColor} />
+                      <BrandIcon src={brandIcon} alt={`${item.label} logo`} className="h-5 w-5" color={brandColor} />
                     ) : (
                       <Icon className="h-5 w-5" />
                     )}
@@ -221,15 +222,24 @@ export default function ProofPage() {
           <div className="rounded-2xl border border-caution-bg bg-caution-bg/40 p-6">
             <div className="mb-4 flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-caution-text" />
-              <h2 className="text-xl font-black">Credential-gated boundaries</h2>
+              <h2 className="text-xl font-black">Credential-gated, not live proof</h2>
             </div>
+            <p className="mb-4 text-sm font-semibold leading-6 text-muted">Not claimed as live until real provider events and screenshots are captured.</p>
             <ul className="space-y-3">
               {gatedSurfaces.map((item) => (
-                <li key={item.text} className="flex gap-3 text-sm font-semibold leading-6 text-muted">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-caution-bg text-caution-text">
+                <li key={item.text} className="flex gap-3 rounded-xl border border-caution-bg bg-background/40 p-3 text-sm font-semibold leading-6 text-muted">
+                  <span
+                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-background"
+                    style={{ border: `1px solid ${item.brandColor}33` }}
+                  >
                     <img src={item.brandIcon} alt={`${item.brandName} logo`} className="h-3.5 w-3.5" />
                   </span>
-                  {item.text}
+                  <span>
+                    <span className="mb-1 inline-flex rounded-full bg-caution-bg px-2 py-0.5 text-[10px] font-black uppercase tracking-normal text-caution-text">
+                      Not claimed as live
+                    </span>
+                    <span className="block">{item.text}</span>
+                  </span>
                 </li>
               ))}
             </ul>

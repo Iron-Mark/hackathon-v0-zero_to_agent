@@ -156,17 +156,25 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
       {result.verdict === 'safe' && result.riskScore < 15 && <Confetti />}
       <div className="sticky top-[73px] z-10 border-b border-border-soft bg-background/95 backdrop-blur-sm print:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <button onClick={onBackToAudit} className="hireproof-focus flex items-center gap-2 rounded-lg text-sm font-black hover:text-safe">
-            <ArrowLeft className="w-4 h-4" /> Back to Audit
-          </button>
-          <div className="flex gap-2">
+          {onBackToAudit ? (
+            <button onClick={onBackToAudit} className="hireproof-focus flex items-center gap-2 rounded-lg text-sm font-black hover:text-safe">
+              <ArrowLeft className="w-4 h-4" /> Back to Audit
+            </button>
+          ) : (
+            <Link href="/audit" className="hireproof-focus flex items-center gap-2 rounded-lg text-sm font-black hover:text-safe">
+              <ArrowLeft className="w-4 h-4" /> Back to Audit
+            </Link>
+          )}
+          <div className="flex items-center gap-2" aria-label="Quick exports">
+            <span className="hidden text-[10px] font-black uppercase tracking-normal text-muted sm:inline">Quick exports</span>
             <button
               onClick={handleDownload}
               disabled={isExporting}
               title="Download PNG Screenshot"
-              className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface hover:bg-evidence-bg transition-colors"
+              className="hireproof-focus flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface transition-colors hover:bg-evidence-bg sm:w-auto sm:gap-1.5 sm:px-3"
             >
               {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              <span className="hidden text-xs font-black sm:inline">PNG</span>
             </button>
             <button
               onClick={() => generatePdfDossier({
@@ -174,16 +182,27 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
                 timestamp: result.id ? new Date().toISOString() : undefined
               })}
               title="Download PDF dossier"
-              className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface hover:bg-evidence-bg text-evidence transition-colors"
+              className="hireproof-focus flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface text-evidence transition-colors hover:bg-evidence-bg sm:w-auto sm:gap-1.5 sm:px-3"
             >
               <FileText className="w-4 h-4" />
+              <span className="hidden text-xs font-black sm:inline">PDF</span>
             </button>
             <button
               onClick={handleReportCsvDownload}
               title="Download report CSV"
-              className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface hover:bg-evidence-bg text-evidence transition-colors"
+              className="hireproof-focus flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface text-evidence transition-colors hover:bg-evidence-bg sm:w-auto sm:gap-1.5 sm:px-3"
             >
               <Table className="w-4 h-4" />
+              <span className="hidden text-xs font-black sm:inline">CSV</span>
+            </button>
+            <button
+              onClick={handleShare}
+              title="Share verdict"
+              aria-label="Share verdict"
+              className="hireproof-focus flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface text-evidence transition-colors hover:bg-evidence-bg sm:w-auto sm:gap-1.5 sm:px-3"
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="hidden text-xs font-black sm:inline">Share</span>
             </button>
             {result.verdict === 'safe' && (
               <button
@@ -203,7 +222,7 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
       </div>
 
       <motion.div variants={containerVariants} initial="hidden" animate="show" ref={contentRef} id="result-content" className="mx-auto max-w-4xl space-y-10 px-4 py-10 relative">
-        <motion.section variants={itemVariants} className="relative z-10 rounded-2xl border p-6 shadow-sm sm:p-8">
+        <motion.section variants={itemVariants} data-testid="audit-result-verdict" className="relative z-10 rounded-2xl border p-6 shadow-sm sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-3xl border border-border-soft bg-surface/50 p-8 shadow-sm backdrop-blur-sm relative overflow-hidden">
             <div className="bot-scan-line opacity-10" />
             <div className="space-y-4 relative z-10">
@@ -218,6 +237,12 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
                     Evidence-backed report
                   </div>
                 </div>
+              </div>
+              <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-black uppercase tracking-normal ${getVerdictBg(result.verdict)} ${getVerdictColor(result.verdict)}`}>
+                {result.verdict === 'high-risk' ? <AlertTriangle className="h-3.5 w-3.5" /> :
+                 result.verdict === 'caution' ? <Zap className="h-3.5 w-3.5" /> :
+                 <CheckCircle2 className="h-3.5 w-3.5" />}
+                {getVerdictText(result.verdict)} verdict
               </div>
               <div className="flex items-baseline gap-2">
                 <span className={`text-7xl font-black tracking-tighter ${getVerdictColor(result.verdict)}`}>
@@ -255,6 +280,20 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
                 <div className="mt-1 h-1 w-8 rounded-full bg-border-soft overflow-hidden">
                   <motion.div animate={{ x: [-32, 32] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="h-full w-full bg-white/20" />
                 </div>
+              </div>
+            </div>
+            <div className="mt-5 grid w-full gap-3 border-t border-border-soft pt-5 sm:grid-cols-3">
+              <div className="rounded-xl border border-border-soft bg-background p-3">
+                <div className="text-[10px] font-black uppercase tracking-normal text-muted">Evidence receipts</div>
+                <div className="mt-1 text-xl font-black">{result.evidence.length}</div>
+              </div>
+              <div className="rounded-xl border border-border-soft bg-background p-3">
+                <div className="text-[10px] font-black uppercase tracking-normal text-muted">Next steps</div>
+                <div className="mt-1 text-xl font-black">{result.nextSteps.length}</div>
+              </div>
+              <div className="rounded-xl border border-border-soft bg-background p-3">
+                <div className="text-[10px] font-black uppercase tracking-normal text-muted">Confidence</div>
+                <div className="mt-1 truncate text-xl font-black">{result.confidence}</div>
               </div>
             </div>
           </div>
@@ -469,7 +508,7 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
 
         {(result.evidence || []).length > 0 && (
           <motion.section variants={itemVariants}>
-            <h2 className="mb-5 text-2xl font-black">Supporting Evidence</h2>
+            <h2 className="mb-5 text-2xl font-black">Evidence receipts</h2>
             <div className="space-y-3">
               {(result.evidence || []).map((ev, i) => (
                 <motion.div 
@@ -486,7 +525,7 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
                   <p className="mb-3 text-sm font-medium leading-6 text-muted">{ev.snippet}</p>
                   {sanitizeUrl(ev.url) && (
                     <a href={sanitizeUrl(ev.url)} target="_blank" rel="noopener noreferrer" className="hireproof-focus text-xs font-black text-evidence hover:text-safe">
-                      Read full article
+                      Open source
                     </a>
                   )}
                 </motion.div>
@@ -519,11 +558,19 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
         <motion.section variants={itemVariants} className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <h2 className="mb-4 flex items-center gap-2 text-2xl font-black">
             <AlertCircle className="w-5 h-5" />
-            Next Steps
+            Next step
           </h2>
-          <ol className="list-inside list-decimal space-y-2 text-sm">
+          <ol className="space-y-3 text-sm">
             {result.nextSteps.map((step, i) => (
-              <li key={i} className="font-semibold text-muted">{step}</li>
+              <li key={i} className="flex gap-3 rounded-xl border border-border-soft bg-background p-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-evidence-bg text-xs font-black text-evidence">
+                  {i + 1}
+                </span>
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-normal text-muted">Next step</div>
+                  <div className="font-semibold text-muted">{step}</div>
+                </div>
+              </li>
             ))}
           </ol>
           {result.verdict === 'high-risk' && (

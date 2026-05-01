@@ -9,56 +9,66 @@ export function calculateRiskScore(
   greenFlags: string[],
   evidence: EvidenceItem[]
 ): number {
-  let score = 25 // Base low-to-medium risk before signals
+  let score = 25
 
-  // Red flags increase the risk score.
-  const redFlagWeights: Record<string, number> = {
-    unrealistic: 25,
-    salary: 12,
-    interview: 15,
-    telegram: 18,
-    whatsapp: 14,
-    company: 15,
-    reputation: 18,
-    local: 10,
-    payment: 25,
-    fee: 25,
-    pressure: 12,
-  }
-
+  const redFlagWeights: Array<[string, number]> = [
+    ['payment', 30],
+    ['fee', 30],
+    ['unrealistic', 28],
+    ['telegram', 18],
+    ['whatsapp', 16],
+    ['reputation', 18],
+    ['interview', 16],
+    ['salary', 14],
+    ['company', 14],
+    ['local', 8],
+    ['evidence', 8],
+    ['pressure', 10],
+  ]
   const safeRedFlags = Array.isArray(redFlags) ? redFlags : []
   safeRedFlags.forEach(flag => {
     const lowerFlag = String(flag || '').toLowerCase()
-    for (const [key, weight] of Object.entries(redFlagWeights)) {
+    for (const [key, weight] of redFlagWeights) {
       if (lowerFlag.includes(key)) {
         score += weight
+        break
       }
     }
   })
 
-  // Green flags reduce the risk score.
-  const greenFlagWeights: Record<string, number> = {
-    verified: -18,
-    official: -14,
-    professional: -12,
-    standard: -10,
-    legitimate: -15,
-    specific: -8,
-  }
-
+  const greenFlagWeights: Array<[string, number]> = [
+    ['verified', -12],
+    ['official', -12],
+    ['professional', -10],
+    ['legitimate', -10],
+    ['standard', -8],
+    ['specific', -4],
+  ]
+  let greenCredit = 0
   const safeGreenFlags = Array.isArray(greenFlags) ? greenFlags : []
   safeGreenFlags.forEach(flag => {
     const lowerFlag = String(flag || '').toLowerCase()
-    for (const [key, weight] of Object.entries(greenFlagWeights)) {
+    for (const [key, weight] of greenFlagWeights) {
       if (lowerFlag.includes(key)) {
-        score -= weight // fixed to minus because weight is negative, so score += weight reduces it. Wait, if weight is negative, score += weight decreases it.
-        // Wait! In original code it was score += weight. Let's keep it score += weight to match original logic where greenFlagWeights are negative.
-        // Oh actually in my write I just typed score -= weight by mistake. Let me use score += weight.
+        greenCredit += weight
+        break
       }
     }
   })
+  score += Math.max(greenCredit, -28)
 
-  // Clamp score between 0-100
+  const safeEvidence = Array.isArray(evidence) ? evidence : []
+  const evidenceTypes = new Set(safeEvidence.map(item => String(item?.type || '').toLowerCase()))
+  if (evidenceTypes.has('company check')) score -= 3
+  if (evidenceTypes.has('local presence')) score -= 3
+  if (evidenceTypes.has('comparable jobs')) score -= 2
+
+  const negativeEvidenceCount = safeEvidence.filter(item => {
+    const snippet = String(item?.snippet || '').toLowerCase()
+    return /\b(scam|fraud|fake|impersonat|phishing)\b/.test(snippet)
+  }).length
+  score += Math.min(negativeEvidenceCount * 8, 16)
+
   return Math.max(0, Math.min(100, score))
 }
 

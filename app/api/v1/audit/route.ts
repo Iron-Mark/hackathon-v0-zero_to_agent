@@ -97,7 +97,7 @@ async function extractClaims(input: AuditRequest, modelProviderKey?: string): Pr
   if (!hasHireProofModelProvider(modelProviderKey)) {
     const companyFromUrl = extractCompanyFromUrl(input.url || undefined)
     const company = companyFromUrl || extractFirstMatch(text, [
-      /(?:company|employer)\s*[:\-]\s*([A-Za-z0-9&.,' -]{2,70})/i,
+      /(?:company|employer)\s*[:\-]\s*([A-Za-z0-9&,' -]{2,70}?)(?=\s*(?:[.;\n\r]|role|position|job title|salary|location|contact|apply)\s*[:\-]?|$)/i,
       /(?:at|from|with)\s+([A-Z][A-Za-z0-9&.,' -]{2,70})(?:\s+(?:is|for|as|hiring|offers|seeks)|[.,\n]|$)/,
     ], 'Unknown / Not Verifiable')
   
