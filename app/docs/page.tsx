@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Shield, Zap, Globe, Mic, Image, FileText, Code2, Webhook, ArrowRight, Download, Cpu } from 'lucide-react'
+import { Zap, Code2, Webhook, ArrowRight, Download, Cpu } from 'lucide-react'
 import { CodeBlock } from '@/components/ui/code-block'
 
 export const metadata = { title: 'Documentation — HireProof' }
@@ -15,7 +15,7 @@ const platforms = [
   { title: 'Web App', desc: 'Use the investigation UI at /audit — paste, upload, or speak your job post.' },
   { title: 'REST API', desc: 'Hit /api/v1/audit directly from any script, workflow, or AI agent.' },
   { title: 'MCP Server', desc: 'Connect at /api/mcp to call individual tools from Claude, Cursor, or Codex.' },
-  { title: 'Chrome Extension', desc: 'Click the toolbar icon on any job page to scan it in seconds.' },
+  { title: 'Local extension package', desc: 'Load it locally from /extension or generate the review ZIP before making public store claims.' },
   { title: 'TypeScript SDK', desc: 'npm install hireproof-sdk — typed client for Node.js agents.' },
   { title: 'AI CLI Skill', desc: 'Drop SKILL.md into .agents/skills/hireproof/ and any CLI agent can use it.' },
 ]

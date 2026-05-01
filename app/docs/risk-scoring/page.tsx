@@ -22,7 +22,7 @@ export default function RiskScoringPage() {
           <h2 className="text-2xl font-black">The Weighted System</h2>
         </div>
         <p className="font-medium text-muted leading-relaxed">
-          Risk calculations start at a baseline of <strong>25</strong>. We then apply weighted penalties (Red Flags) and bonuses (Green Flags) based on the evidence gathered by the AI agent.
+          Risk calculations start at a baseline of <strong>25</strong>. Red flags add risk, green flags subtract risk through capped green-credit, and evidence receipts make small adjustments. The cap keeps one positive signal from erasing concrete scam patterns.
         </p>
         
         <div className="grid gap-6 md:grid-cols-2">
@@ -34,10 +34,11 @@ export default function RiskScoringPage() {
             </h3>
             <div className="space-y-3">
               {[
-                { label: 'Unrealistic Pay', weight: '+25', desc: 'Salary far above market outlier' },
-                { label: 'Payment Requested', weight: '+25', desc: 'Mention of "training fees" or "kits"' },
+                { label: 'Payment or Fee Requested', weight: '+30', desc: 'Training fees, starter kits, deposits, or paid onboarding' },
+                { label: 'Unrealistic Pay', weight: '+28', desc: 'Salary far above market outlier' },
                 { label: 'Telegram/WhatsApp', weight: '+18', desc: 'Anonymous chat-only contact' },
-                { label: 'Zero Footprint', weight: '+15', desc: 'No verifiable business registration' },
+                { label: 'No Interview Process', weight: '+16', desc: 'No credible screening or hiring process' },
+                { label: 'Company Not Verifiable', weight: '+14', desc: 'Unknown or unverifiable company identity' },
               ].map((flag) => (
                 <div key={flag.label} className="flex items-center justify-between border-b border-risk-bg/10 pb-2 last:border-0">
                   <div>
@@ -58,10 +59,11 @@ export default function RiskScoringPage() {
             </h3>
             <div className="space-y-3">
               {[
-                { label: 'Verified Domain', weight: '-18', desc: 'Matches official company site' },
-                { label: 'LinkedIn Footprint', weight: '-15', desc: 'Active, high-authority profile' },
-                { label: 'Market Standard', weight: '-12', desc: 'Pay matches local economic data' },
-                { label: 'Physical Office', weight: '-10', desc: 'Verifiable on Google Maps' },
+                { label: 'Verified company presence', weight: '-12', desc: 'Company web presence or identity evidence is present' },
+                { label: 'Official application path', weight: '-12', desc: 'Application points to an official channel' },
+                { label: 'Professional process', weight: '-10', desc: 'Standard recruiter or hiring workflow' },
+                { label: 'Standard salary format', weight: '-8', desc: 'Pay is framed as a normal market monthly or annual range' },
+                { label: 'Specific location', weight: '-4', desc: 'Useful location context is provided' },
               ].map((flag) => (
                 <div key={flag.label} className="flex items-center justify-between border-b border-safe/10 pb-2 last:border-0">
                   <div>
@@ -74,6 +76,19 @@ export default function RiskScoringPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        {[
+          { title: 'Green-credit cap', body: 'Safety bonuses are capped at -28 so positives help without hiding serious fraud signals.' },
+          { title: 'Company check evidence', body: 'Company Check, Local Presence, and Comparable Jobs receipts can reduce risk by small amounts.' },
+          { title: 'Negative scam evidence', body: 'Evidence snippets mentioning scam, fraud, fake, impersonation, or phishing increase risk, capped at +16.' },
+        ].map((item) => (
+          <div key={item.title} className="rounded-2xl border border-border-soft bg-surface p-5">
+            <h3 className="text-sm font-black">{item.title}</h3>
+            <p className="mt-2 text-xs font-semibold leading-5 text-muted">{item.body}</p>
+          </div>
+        ))}
       </section>
 
       {/* Verdicts */}

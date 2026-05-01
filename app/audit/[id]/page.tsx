@@ -7,8 +7,9 @@ import type { Metadata } from 'next'
 
 export const runtime = 'nodejs'
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const report = await getReport(params.id)
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const report = await getReport(id)
   const verdict = report?.verdict?.toUpperCase() || 'UNKNOWN'
   const risk = report?.riskScore || 0
 
@@ -37,9 +38,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-export default async function AuditPermalinkPage({ params }: { params: { id: string } }) {
+export default async function AuditPermalinkPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   // Input validation: ensure ID only contains valid characters to guard against path traversal or injections
-  const safeId = typeof params.id === 'string' ? params.id.trim() : ''
+  const safeId = typeof id === 'string' ? id.trim() : ''
   if (!safeId || !/^report_[a-zA-Z0-9_-]+$/.test(safeId) || safeId.length > 100) {
     redirect('/audit')
   }

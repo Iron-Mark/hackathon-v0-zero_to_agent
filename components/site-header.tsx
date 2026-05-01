@@ -132,7 +132,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border-soft bg-background/92 backdrop-blur-md print:hidden">
+    <header className="sticky top-0 z-50 border-b border-border-soft bg-background/92 backdrop-blur-md print:hidden">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-6 md:px-12 lg:px-20 xl:px-32 py-2">
         <Link href="/" className="hireproof-focus flex min-w-0 items-center gap-3 rounded-sm group">
           <BrandMark className="h-9 w-9 shrink-0 transition-transform group-hover:scale-110 glitch-hover" />
@@ -183,7 +183,7 @@ export function SiteHeader() {
               {isMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-border-soft bg-surface p-3 text-sm font-semibold shadow-lg"
+                  className="absolute right-0 top-full z-[60] mt-2 w-72 rounded-2xl border border-border-soft bg-surface p-3 text-sm font-semibold shadow-lg"
                 >
                   {resourceGroups.map((group) => (
                     <div key={group.label} className="mb-3 last:mb-0">
@@ -214,7 +214,7 @@ export function SiteHeader() {
               {isMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-full mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-border-soft bg-surface p-3 text-sm font-semibold shadow-lg"
+                  className="absolute right-0 top-full z-[60] mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-border-soft bg-surface p-3 text-sm font-semibold shadow-lg"
                 >
                   <div className="mb-3">
                     <div className="px-3 pb-1 text-[10px] font-black uppercase tracking-normal text-muted">

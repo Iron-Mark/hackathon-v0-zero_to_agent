@@ -91,9 +91,33 @@ test('audit report CSV export includes claims, signals, evidence, and next steps
 
 test('chrome extension docs only claim local install until store listing exists', async () => {
   const source = await fs.readFile(new URL('../app/docs/chrome-extension/page.tsx', import.meta.url), 'utf8')
+  const overview = await fs.readFile(new URL('../app/docs/page.tsx', import.meta.url), 'utf8')
 
   assert.match(source, /load it locally/i)
+  assert.match(overview, /Local extension package/)
+  assert.match(overview, /load it locally/i)
   assert.doesNotMatch(source, /Chrome Web Store/)
+  assert.doesNotMatch(overview, /Click the toolbar icon on any job page to scan it in seconds/)
+})
+
+test('docs reflect current scoring and chat platform proof status', async () => {
+  const riskScoring = await fs.readFile(new URL('../app/docs/risk-scoring/page.tsx', import.meta.url), 'utf8')
+  const discordBot = await fs.readFile(new URL('../app/docs/discord-bot/page.tsx', import.meta.url), 'utf8')
+
+  assert.match(riskScoring, /capped green-credit/)
+  assert.match(riskScoring, /Company check evidence/)
+  assert.match(riskScoring, /Negative scam evidence/)
+  assert.match(riskScoring, /\+30/)
+  assert.match(riskScoring, /-12/)
+  assert.doesNotMatch(riskScoring, /Verified Domain/)
+  assert.doesNotMatch(riskScoring, /LinkedIn Footprint/)
+
+  assert.match(discordBot, /ChatSDK/)
+  assert.match(discordBot, /credential-gated/)
+  assert.match(discordBot, /Discord, Telegram, and WhatsApp/)
+  assert.match(discordBot, /\/api\/webhooks\/discord/)
+  assert.doesNotMatch(discordBot, /discord\.js/)
+  assert.doesNotMatch(discordBot, /client\.login/)
 })
 
 test('public README keeps export and extension claims honest', async () => {
@@ -228,6 +252,7 @@ test('pricing and audit copy keep business and privacy claims honest', async () 
 
 test('audit form supports clipboard text and screenshot paste', async () => {
   const auditForm = await fs.readFile(new URL('../components/audit-form.tsx', import.meta.url), 'utf8')
+  const auditClient = await fs.readFile(new URL('../app/audit/audit-client.tsx', import.meta.url), 'utf8')
 
   assert.match(auditForm, /ClipboardPaste/)
   assert.match(auditForm, /extractFirstUrl/)
@@ -249,6 +274,13 @@ test('audit form supports clipboard text and screenshot paste', async () => {
   assert.match(auditForm, /navigator\.clipboard\.read/)
   assert.match(auditForm, /navigator\.clipboard\.readText/)
   assert.match(auditForm, /clipboardData\.items/)
+  assert.match(auditForm, /isDraggingFile/)
+  assert.match(auditForm, /dragDepthRef/)
+  assert.match(auditForm, /document\.addEventListener\('dragenter'/)
+  assert.match(auditForm, /document\.addEventListener\('drop'/)
+  assert.match(auditForm, /dropEffect = 'copy'/)
+  assert.match(auditForm, /data-testid="audit-drop-overlay"/)
+  assert.match(auditForm, /Drop screenshot to attach/)
   assert.match(auditForm, /image\/jpeg/)
   assert.match(auditForm, /image\/png/)
   assert.match(auditForm, /image\/webp/)
@@ -257,12 +289,19 @@ test('audit form supports clipboard text and screenshot paste', async () => {
   assert.match(auditForm, /bg-safe/)
   assert.match(auditForm, /disabled:border-safe/)
   assert.doesNotMatch(auditForm, /bg-foreground py-3/)
+  assert.match(auditClient, /max-w-6xl/)
+  assert.match(auditClient, /lg:py-10/)
+  assert.match(auditForm, /lg:grid-cols-\[minmax\(0,1\.35fr\)_minmax\(20rem,0\.85fr\)\]/)
+  assert.match(auditForm, /lg:sticky/)
+  assert.match(auditForm, /lg:min-h-\[360px\]/)
 })
 
 test('history, result, and proof pages keep the audit journey polished', async () => {
   const historyPage = await fs.readFile(new URL('../app/history/page.tsx', import.meta.url), 'utf8')
   const resultScreen = await fs.readFile(new URL('../components/result-screen.tsx', import.meta.url), 'utf8')
   const proofPage = await fs.readFile(new URL('../app/proof/page.tsx', import.meta.url), 'utf8')
+  const siteHeader = await fs.readFile(new URL('../components/site-header.tsx', import.meta.url), 'utf8')
+  const docsLayout = await fs.readFile(new URL('../app/docs/layout.tsx', import.meta.url), 'utf8')
 
   assert.match(historyPage, /Open report/)
   assert.match(historyPage, /isLoaded/)
@@ -285,6 +324,10 @@ test('history, result, and proof pages keep the audit journey polished', async (
   assert.match(proofPage, /brandColor/)
   assert.match(proofPage, /Not claimed as live/)
   assert.match(proofPage, /Chrome Web Store/)
+
+  assert.match(siteHeader, /z-50/)
+  assert.match(siteHeader, /z-\[60\]/)
+  assert.match(docsLayout, /z-20/)
 })
 
 test('demo login response only returns public demo identity', async () => {

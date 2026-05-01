@@ -10,6 +10,14 @@ test('explore client fetches the intelligence reports endpoint', async () => {
   assert.doesNotMatch(source, /\/api\/reports/)
 })
 
+test('audit report permalinks await dynamic params before lookup', async () => {
+  const source = await fs.readFile(new URL('../app/audit/[id]/page.tsx', import.meta.url), 'utf8')
+
+  assert.match(source, /params:\s*Promise<\{\s*id:\s*string\s*\}>/)
+  assert.match(source, /const\s+\{\s*id\s*\}\s*=\s*await\s+params/)
+  assert.doesNotMatch(source, /params\.id/)
+})
+
 test('missing-user auth dummy hash uses the scrypt verifier format', async () => {
   const source = await fs.readFile(new URL('../lib/auth-store.ts', import.meta.url), 'utf8')
 

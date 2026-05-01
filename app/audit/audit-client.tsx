@@ -176,20 +176,20 @@ function AuditContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="mx-auto max-w-4xl py-12 lg:py-20"
+            className="mx-auto max-w-6xl py-8 lg:py-10"
           >
-            <div className="mb-12 text-center">
+            <div className="mb-6 text-center lg:mb-8">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-safe">
                 <Terminal className="h-4 w-4" />
                 Job Verification Portal
               </div>
-              <h1 className="text-4xl font-black tracking-tight sm:text-6xl">Check a Job <span className="text-safe">Post.</span></h1>
-              <p className="mt-4 text-lg font-medium text-muted">
+              <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Check a Job <span className="text-safe">Post.</span></h1>
+              <p className="mx-auto mt-3 max-w-2xl text-base font-medium text-muted sm:text-lg">
                 Paste the job details below. Our agents will cross-reference signals in real-time.
               </p>
             </div>
 
-            <div className="mb-6 inline-flex rounded-xl border border-border-soft bg-surface p-1 text-xs font-black">
+            <div className="mb-4 inline-flex rounded-xl border border-border-soft bg-surface p-1 text-xs font-black lg:mb-5">
               <button
                 type="button"
                 onClick={() => setLiveMode(true)}
