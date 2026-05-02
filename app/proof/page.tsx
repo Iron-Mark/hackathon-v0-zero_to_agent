@@ -224,7 +224,7 @@ export default function ProofPage() {
               <AlertTriangle className="h-5 w-5 text-caution-text" />
               <h2 className="text-xl font-black">Credential-gated, not live proof</h2>
             </div>
-            <p className="mb-4 text-sm font-semibold leading-6 text-muted">Not claimed as live until real provider events and screenshots are captured.</p>
+            <p className="mb-4 text-sm font-semibold leading-6 text-muted">Core production proof is ready; these optional provider expansions are not claimed as live until real provider events and screenshots are captured.</p>
             <ul className="space-y-3">
               {gatedSurfaces.map((item) => (
                 <li key={item.text} className="flex gap-3 rounded-xl border border-caution-bg bg-background/40 p-3 text-sm font-semibold leading-6 text-muted">

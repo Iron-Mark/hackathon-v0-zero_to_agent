@@ -1,10 +1,10 @@
 # HireProof Platform Proof Status
 
-Last checked: 2026-04-30
+Last checked: 2026-05-03
 
 ## Summary
 
-Option C is closed for production credential/readiness proof, WDK accepted-run proof, Slack screenshot proof, and production audit API smoke proof.
+Option C is closed for core production credential/readiness proof, WDK accepted-run proof, Slack screenshot proof, and production audit API smoke proof.
 
 Final submission status:
 
@@ -15,7 +15,7 @@ Final submission status:
 
 - Vercel Production has `WORKFLOW_SECRET`, `HIREPROOF_MODEL`, Redis REST storage, `REDIS_URL`, Slack credentials, AI Gateway credentials, `MODEL_PROVIDER_KEY`, and `SERPAPI_API_KEY` configured.
 - Production is served through the stable alias `https://hireproof-sigma.vercel.app`.
-- Production `/api/integrations/proof` returns `ready`: Slack credentials are present, Workflow is ready, and AI Gateway is ready.
+- Production `/api/integrations/proof` reports core readiness separately from optional platform proof: `status` / `coreStatus` are `ready` when Slack, Workflow, and AI Gateway are ready, while `optionalStatus` tracks Discord, Telegram, and WhatsApp/Zernio provider credentials.
 - Production WDK proof passed: `/api/workflows/audit` accepted a run and returned `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`.
 - Production ChatSDK reply proof passed through `/api/chat/hireproof` and returned a formatted HireProof verdict plus report link.
 - Multi-platform ChatSDK wiring now includes Discord, Telegram, and WhatsApp via Zernio behind their own credential gates. These new platforms are code-ready but still need live platform credentials/events before they can be claimed as live-tested.
@@ -57,7 +57,8 @@ Production route checks were run against `https://hireproof-sigma.vercel.app`.
 
 `/api/integrations/proof` returned:
 
-- Overall status: `ready`
+- Overall/core status: `ready`
+- Optional platform status: `credential-gated` until all optional chat provider credentials are configured.
 - Slack: `ready`
 - Discord: credential-gated unless `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_APPLICATION_ID`, and `REDIS_URL` are configured.
 - Telegram: credential-gated unless `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_BOT_USERNAME`, and `REDIS_URL` are configured.

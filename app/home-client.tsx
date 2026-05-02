@@ -192,11 +192,11 @@ export function HomeClient() {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] bg-[conic-gradient(from_0deg,transparent_0deg,rgba(16,185,129,0.1)_90deg,transparent_90deg)]"
           />
         </div>
-        <div className="mx-auto grid max-w-[1600px] gap-8 px-6 md:px-12 lg:px-20 xl:px-32 py-10 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:py-14 relative z-10">
+        <div className="relative z-10 mx-auto grid max-w-[1600px] gap-8 px-6 py-10 md:px-12 lg:px-20 lg:py-14 xl:grid-cols-[minmax(0,1fr)_460px] xl:items-center xl:px-32">
           <motion.div
             initial="hidden"
             animate="show"
-            className="max-w-2xl"
+            className="mx-auto max-w-4xl text-center xl:mx-0 xl:max-w-2xl xl:text-left"
           >
 
             <motion.div variants={fadeUp} custom={1} className="mb-5 inline-flex items-center gap-2 rounded-full border border-risk-bg bg-risk-bg px-3 py-1 text-sm font-bold text-risk-text">
@@ -208,7 +208,7 @@ export function HomeClient() {
               Paste a job post. See if it&apos;s safe, suspicious, or high-risk, with receipts.
             </motion.h1>
 
-            <motion.div variants={fadeUp} custom={3} className="mt-5 max-w-xl text-lg font-medium leading-8 text-muted">
+            <motion.div variants={fadeUp} custom={3} className="mx-auto mt-5 max-w-2xl text-lg font-medium leading-8 text-muted xl:mx-0 xl:max-w-xl">
               <p>Check a recruiter message, job listing, freelance gig, internship, or scholarship or training offer before you share personal details.</p>
               <div className="mt-3 rounded-xl border border-border-soft bg-surface/80 dark:bg-black p-4 font-mono text-xs shadow-2xl relative overflow-hidden group backdrop-blur-md">
                 <div className="absolute top-0 left-0 h-full w-1 bg-safe/50" />
@@ -225,7 +225,7 @@ export function HomeClient() {
               </div>
             </motion.div>
 
-            <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-col justify-center gap-3 sm:flex-row xl:justify-start">
               <Link href="/audit" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-5 py-2.5 font-bold text-background shadow-lg transition-colors hover:bg-safe">
                 Start investigation <ArrowRight className="h-4 w-4" />
               </Link>
@@ -237,7 +237,7 @@ export function HomeClient() {
               </Link>
             </motion.div>
 
-            <motion.div variants={staggerContainer} initial="hidden" animate="show" className="mt-6 grid gap-2 sm:grid-cols-3">
+            <motion.div variants={staggerContainer} initial="hidden" animate="show" className="mx-auto mt-6 grid max-w-3xl gap-2 sm:grid-cols-3 xl:mx-0">
               {pitchDemos.map((demo) => {
                 const Icon = demo.icon
                 return (
@@ -262,7 +262,7 @@ export function HomeClient() {
             initial={{ opacity: 0, scale: 0.9, rotateY: 10 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
             transition={{ duration: 1.2, ease: heroEase, delay: 0.4 }}
-            className="hidden lg:block"
+            className="hidden xl:block"
           >
             <div className="mb-6 flex gap-3">
               {['scam', 'legit'].map((mode) => {
@@ -535,15 +535,15 @@ export function HomeClient() {
       </section>
 
       {/* Spot the Bot Training Section */}
-      <section className="py-20 sm:py-32">
+      <section className="py-12 sm:py-16">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20 xl:px-32">
-          <div className="mb-12 sm:mb-20 text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-4 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-widest text-safe">
+          <div className="mb-6 text-center sm:mb-8">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-4 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-widest text-safe">
               <ZapIcon className="h-4 w-4" />
               Red Flag Training
             </div>
-            <h2 className="text-4xl font-black tracking-tight sm:text-6xl">Spot the <span className="text-safe">red flags.</span></h2>
-            <p className="mx-auto mt-6 max-w-2xl text-lg sm:text-xl font-medium text-muted">
+            <h2 className="text-3xl font-black tracking-tight sm:text-5xl">Spot the <span className="text-safe">red flags.</span></h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base font-medium text-muted sm:text-lg">
               Practice identifying suspicious job posts before you share personal details or apply.
             </p>
           </div>

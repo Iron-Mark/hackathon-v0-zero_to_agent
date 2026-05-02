@@ -189,18 +189,24 @@ function AuditContent() {
               </p>
             </div>
 
-            <div className="mb-4 inline-flex rounded-xl border border-border-soft bg-surface p-1 text-xs font-black lg:mb-5">
+            <div className="relative mb-4 grid w-full max-w-[17.25rem] grid-cols-2 overflow-hidden rounded-xl border border-safe/25 bg-safe/10 p-1 text-xs font-black shadow-sm shadow-safe/10 lg:mb-5">
+              <motion.div
+                aria-hidden="true"
+                animate={{ x: liveMode ? '0%' : '100%' }}
+                transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                className="absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg border border-safe/50 bg-safe shadow-lg shadow-safe/20"
+              />
               <button
                 type="button"
                 onClick={() => setLiveMode(true)}
-                className={`rounded-lg px-3 py-2 transition-colors ${liveMode ? 'bg-foreground text-background' : 'text-muted hover:text-foreground'}`}
+                className={`relative z-10 min-h-10 rounded-lg px-3 py-2 transition-colors ${liveMode ? 'text-background' : 'text-muted hover:text-safe'}`}
               >
                 Live evidence
               </button>
               <button
                 type="button"
                 onClick={() => setLiveMode(false)}
-                className={`rounded-lg px-3 py-2 transition-colors ${!liveMode ? 'bg-foreground text-background' : 'text-muted hover:text-foreground'}`}
+                className={`relative z-10 min-h-10 rounded-lg px-3 py-2 transition-colors ${!liveMode ? 'text-background' : 'text-muted hover:text-safe'}`}
               >
                 Demo fixtures
               </button>

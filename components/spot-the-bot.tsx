@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, CheckCircle2, AlertCircle, ArrowRight, Cpu, RefreshCcw, ChevronRight, Target, Zap, Bot, ShieldCheck, Share2 } from 'lucide-react'
+import { Sparkles, CheckCircle2, AlertCircle, ArrowRight, Cpu, ChevronRight, Zap, Bot, ShieldCheck, Share2 } from 'lucide-react'
 import Link from 'next/link'
 
 const quizItems = [
@@ -115,22 +115,22 @@ export function SpotTheBot() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-24">
-      <div className="rounded-[3rem] border border-border-soft bg-surface p-1 shadow-2xl overflow-hidden relative group">
+    <div className="mx-auto max-w-6xl">
+      <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-surface p-1 shadow-xl">
         <div className="absolute inset-0 bg-gradient-to-br from-evidence/5 to-transparent pointer-events-none" />
-        
+
         {currentStep < quizItems.length ? (
-          <div className="p-8 md:p-12">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border-soft pb-8 mb-8">
+          <div className="relative z-10 p-4 sm:p-5 lg:p-6">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-border-soft pb-4">
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground text-background shadow-lg">
-                  <Bot className="h-7 w-7" />
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-foreground text-background shadow-lg">
+                  <Bot className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black tracking-tight">Spot the Bot</h3>
+                  <h3 className="text-xl font-black tracking-tight sm:text-2xl">Spot the Bot</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Investigator Rank:</span>
-                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted">Rank:</span>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${
                       score >= 3 ? 'text-safe' : score >= 1 ? 'text-evidence' : 'text-muted'
                     }`}>
                       {score >= 3 ? 'Lead Reviewer' : score >= 1 ? 'Reviewer' : 'Rookie'}
@@ -138,143 +138,145 @@ export function SpotTheBot() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-8">
-                <div className="text-center">
-                  <div className="text-3xl font-black tabular-nums">{score}</div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Solved</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-xl border border-border-soft bg-background px-4 py-2 text-center">
+                  <div className="text-2xl font-black tabular-nums">{score}</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-muted">Solved</div>
                 </div>
-                <div className="text-center">
-                  <motion.div 
+                <div className="rounded-xl border border-border-soft bg-background px-4 py-2 text-center">
+                  <motion.div
                     key={streak}
                     initial={{ scale: 1.5, color: '#10b981' }}
                     animate={{ scale: 1, color: streak > 0 ? '#10b981' : '#64748b' }}
-                    className="text-3xl font-black tabular-nums"
+                    className="text-2xl font-black tabular-nums"
                   >
                     {streak}
                   </motion.div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Streak</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-muted">Streak</div>
                 </div>
               </div>
             </div>
 
-            <div className="mb-10 text-center max-w-2xl mx-auto">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mb-4 inline-flex items-center gap-2 rounded-full bg-evidence/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-evidence border border-evidence/20"
-              >
-                Case File #{currentItem.id}
-              </motion.div>
-              <h2 className="text-2xl font-black mb-4 tracking-tight">Can you spot the bot?</h2>
-              <p className="text-lg font-medium text-muted leading-relaxed">
-                Click on the job post that you think is AI-generated.
-              </p>
-            </div>
+            <div className="grid gap-5 md:grid-cols-[minmax(13rem,0.62fr)_minmax(0,1.38fr)] md:items-stretch">
+              <div className="rounded-2xl border border-border-soft bg-background p-5">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mb-4 inline-flex items-center gap-2 rounded-full border border-evidence/20 bg-evidence/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-evidence"
+                >
+                  Case File #{currentItem.id}
+                </motion.div>
+                <h2 className="text-2xl font-black tracking-tight">Can you spot the bot?</h2>
+                <p className="mt-3 text-sm font-semibold leading-6 text-muted">
+                  Pick the job post that looks AI-generated or scam-template generated.
+                </p>
+                <p className="mt-5 rounded-xl border border-border-soft bg-surface p-4 text-xs font-semibold leading-5 text-muted">
+                  {currentItem.description}
+                </p>
+              </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              {(['A', 'B'] as const).map((choice) => {
-                const isSelected = selection === choice
-                const isCorrect = choice === currentItem.correct
-                const isDisabled = !!selection
+              <div className="grid gap-4 md:grid-cols-2">
+                {(['A', 'B'] as const).map((choice) => {
+                  const isSelected = selection === choice
+                  const isCorrect = choice === currentItem.correct
+                  const isDisabled = !!selection
 
-                return (
-                  <motion.button
-                    key={choice}
-                    onClick={() => handleSelection(choice)}
-                    disabled={isDisabled}
-                    whileHover={!isDisabled ? { scale: 1.02, y: -4 } : {}}
-                    whileTap={!isDisabled ? { scale: 0.98 } : {}}
-                    className={`group relative w-full h-full flex flex-col text-left rounded-[2rem] border-2 p-6 sm:p-10 transition-all duration-300 ${
-                      isSelected
-                        ? isCorrect
-                          ? 'border-safe bg-safe/5 shadow-2xl shadow-safe/10'
-                          : 'border-risk-bg bg-risk-bg/5 shadow-2xl shadow-risk-bg/10'
-                        : isDisabled
-                        ? 'border-border-soft opacity-40 grayscale pointer-events-none'
-                        : 'border-border-soft bg-background hover:border-evidence hover:shadow-xl'
-                    }`}
-                  >
-                    <div className={`mb-6 flex h-10 w-10 items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest ${
-                      isSelected
-                        ? isCorrect
-                          ? 'bg-safe text-background'
-                          : 'bg-risk-bg text-risk-text'
-                        : 'bg-surface text-muted'
-                    }`}>
-                      {choice}
-                    </div>
-                    <p className="text-base font-bold leading-relaxed text-foreground italic">
-                      {currentItem.options[choice].text}
-                    </p>
-                    
-                    {isSelected && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className={`absolute -right-4 -top-4 flex h-12 w-12 items-center justify-center rounded-full border-4 border-surface shadow-2xl ${
-                          isCorrect ? 'bg-safe text-background' : 'bg-risk-bg text-risk-text'
-                        }`}
-                      >
-                        {isCorrect ? <CheckCircle2 className="h-6 w-6" /> : <AlertCircle className="h-6 w-6" />}
-                      </motion.div>
-                    )}
-                  </motion.button>
-                )
-              })}
+                  return (
+                    <motion.button
+                      key={choice}
+                      onClick={() => handleSelection(choice)}
+                      disabled={isDisabled}
+                      whileHover={!isDisabled ? { scale: 1.01, y: -2 } : {}}
+                      whileTap={!isDisabled ? { scale: 0.99 } : {}}
+                      className={`group relative flex min-h-[12rem] w-full flex-col text-left rounded-2xl border p-5 transition-all duration-200 ${
+                        isSelected
+                          ? isCorrect
+                            ? 'border-safe bg-safe/5 shadow-xl shadow-safe/10'
+                            : 'border-risk-bg bg-risk-bg/5 shadow-xl shadow-risk-bg/10'
+                          : isDisabled
+                          ? 'border-border-soft opacity-40 grayscale pointer-events-none'
+                          : 'border-border-soft bg-background hover:border-evidence hover:shadow-lg'
+                      }`}
+                    >
+                      <div className={`mb-4 flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black uppercase tracking-widest ${
+                        isSelected
+                          ? isCorrect
+                            ? 'bg-safe text-background'
+                            : 'bg-risk-bg text-risk-text'
+                          : 'bg-surface text-muted'
+                      }`}>
+                        {choice}
+                      </div>
+                      <p className="text-sm font-bold leading-6 text-foreground italic sm:text-base">
+                        {currentItem.options[choice].text}
+                      </p>
+
+                      {isSelected && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className={`absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full border-4 border-surface shadow-xl ${
+                            isCorrect ? 'bg-safe text-background' : 'bg-risk-bg text-risk-text'
+                          }`}
+                        >
+                          {isCorrect ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  )
+                })}
+              </div>
             </div>
 
             {selection && (
               <AnimatePresence mode="wait">
-                <motion.div 
+                <motion.div
                   key={selection}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-12 rounded-[2.5rem] border border-border-soft bg-background p-10 shadow-inner relative overflow-hidden"
+                  className="relative mt-5 overflow-hidden rounded-2xl border border-border-soft bg-background p-5 shadow-inner"
                 >
-                  <div className="absolute top-0 right-0 p-8 opacity-5">
-                    <RefreshCcw className="h-32 w-32 animate-spin-slow" />
-                  </div>
-                  
-                  <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-                    <h4 className="text-xl font-black uppercase tracking-tighter">{currentItem.options[selection].explanation}</h4>
+                  <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                    <h4 className="text-lg font-black">{currentItem.options[selection].explanation}</h4>
                     {selection === currentItem.correct && (
-                      <div className="flex items-center gap-2 rounded-full bg-safe/10 px-4 py-1 text-xs font-black uppercase tracking-widest text-safe border border-safe/20 animate-pulse">
-                        <Zap className="h-4 w-4" />
+                      <div className="flex items-center gap-2 rounded-full bg-safe/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-safe border border-safe/20">
+                        <Zap className="h-3.5 w-3.5" />
                         Red Flag Match
                       </div>
                     )}
                   </div>
-                  
-                  {/* Evidence Breakdown */}
-                  <div className="mb-10 rounded-2xl border border-border-soft bg-surface p-8 relative overflow-hidden group">
-                    <div className="bot-scan-line opacity-10" />
-                    <div className="relative z-10">
-                      <div className="flex items-center gap-3 mb-4">
-                        <Cpu className="h-5 w-5 text-evidence" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted">Signal reviewed: {currentItem.evidence.marker}</span>
+
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.78fr)]">
+                    <div className="relative overflow-hidden rounded-xl border border-border-soft bg-surface p-5">
+                      <div className="bot-scan-line opacity-10" />
+                      <div className="relative z-10">
+                        <div className="mb-3 flex items-center gap-3">
+                          <Cpu className="h-4 w-4 text-evidence" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-muted">Signal reviewed: {currentItem.evidence.marker}</span>
+                        </div>
+                        <p className="text-sm font-semibold leading-6 text-foreground">
+                          {currentItem.evidence.explanation}
+                        </p>
                       </div>
-                      <p className="text-lg font-medium leading-relaxed text-foreground italic">
-                        "{currentItem.evidence.explanation}"
-                      </p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                      {currentItem.options[selection].points.map((point, i) => (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.96 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.06 }}
+                          key={i}
+                          className="flex items-start gap-2 rounded-xl border border-border-soft bg-surface/50 p-3 text-xs font-black leading-5"
+                        >
+                          <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-evidence" />
+                          {point}
+                        </motion.div>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="mb-10 grid gap-6 sm:grid-cols-3">
-                    {currentItem.options[selection].points.map((point, i) => (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.1 }}
-                        key={i} 
-                        className="rounded-2xl border border-border-soft bg-surface/50 p-6 text-sm font-black shadow-sm group hover:border-evidence/50 transition-colors"
-                      >
-                        <ChevronRight className="h-4 w-4 text-evidence mb-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        {point}
-                      </motion.div>
-                    ))}
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row">
                     <button
                       onClick={() => {
                         if (currentStep < quizItems.length - 1) {
@@ -284,15 +286,15 @@ export function SpotTheBot() {
                           setCurrentStep(quizItems.length)
                         }
                       }}
-                      className="flex h-16 flex-1 items-center justify-center gap-3 rounded-[1.5rem] bg-foreground px-10 text-lg font-black text-background hover:bg-safe transition-all w-full shadow-2xl hover:shadow-safe/20"
+                      className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-foreground px-5 text-sm font-black text-background shadow-lg transition-all hover:bg-safe hover:shadow-safe/20 w-full"
                     >
-                      {currentStep < quizItems.length - 1 ? 'Next Intelligence Case' : 'Final Performance Audit'}
-                      <ArrowRight className="h-6 w-6" />
+                      {currentStep < quizItems.length - 1 ? 'Next Case' : 'Final Score'}
+                      <ArrowRight className="h-4 w-4" />
                     </button>
                     {selection === currentItem.correct && (
-                      <button className="flex h-16 items-center gap-3 rounded-[1.5rem] border border-border-soft bg-background px-8 text-sm font-black uppercase tracking-widest hover:bg-surface transition-all">
-                        <Share2 className="h-5 w-5" />
-                        Share Dossier
+                      <button className="flex min-h-12 items-center gap-2 rounded-xl border border-border-soft bg-background px-5 text-xs font-black uppercase tracking-widest transition-all hover:bg-surface w-full justify-center sm:w-auto">
+                        <Share2 className="h-4 w-4" />
+                        Share
                       </button>
                     )}
                   </div>
@@ -302,39 +304,38 @@ export function SpotTheBot() {
           </div>
         ) : (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-16 md:p-24 text-center"
+            className="relative z-10 p-6 text-center md:p-10"
           >
-            <div className="mx-auto mb-10 flex h-28 w-28 items-center justify-center rounded-[3rem] bg-safe text-background shadow-2xl shadow-safe/30 relative overflow-hidden">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-safe text-background shadow-xl shadow-safe/20 relative overflow-hidden">
                <div className="bot-scan-line opacity-20" />
-               <Sparkles className="h-14 w-14 relative z-10" />
+               <Sparkles className="h-10 w-10 relative z-10" />
             </div>
-            <h3 className="text-5xl font-black tracking-tighter">Training Complete</h3>
-            <div className="mt-6 flex items-center justify-center gap-4">
-              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-muted">Final Training Rank:</span>
-              <span className="text-2xl font-black text-safe uppercase tracking-widest">
+            <h3 className="text-3xl font-black tracking-tight sm:text-4xl">Training Complete</h3>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted">Final Rank:</span>
+              <span className="text-lg font-black text-safe uppercase tracking-widest">
                 {score === 3 ? 'Master Investigator' : score >= 1 ? 'Field Agent' : 'Rookie'}
               </span>
             </div>
-            <p className="mx-auto mt-8 max-w-md text-xl font-medium text-muted leading-relaxed">
-              You've identified <span className="text-foreground font-black underline decoration-safe underline-offset-8 decoration-4">{score} out of 3</span> suspicious recruitment patterns.
+            <p className="mx-auto mt-4 max-w-md text-base font-medium text-muted leading-relaxed">
+              You identified <span className="text-foreground font-black underline decoration-safe underline-offset-4 decoration-2">{score} out of 3</span> suspicious recruitment patterns.
             </p>
-            
-            {/* Investigator Badge Preview */}
-            <div className="mt-12 mb-16 rounded-[3rem] border border-border-soft bg-background p-12 relative overflow-hidden group shadow-2xl">
+
+            <div className="mx-auto my-8 max-w-md rounded-2xl border border-border-soft bg-background p-6 relative overflow-hidden shadow-xl">
                <div className="absolute inset-0 bg-gradient-to-br from-safe/10 to-transparent pointer-events-none" />
                <div className="bot-scan-line opacity-5" />
                <div className="relative z-10">
-                  <div className="mx-auto w-40 h-40 rounded-full bg-surface border-[6px] border-safe flex items-center justify-center mb-8 shadow-[0_0_60px_rgba(16,185,129,0.3)] group-hover:scale-110 transition-transform duration-500">
-                    <ShieldCheck className="h-20 w-20 text-safe" />
+                  <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full border-4 border-safe bg-surface shadow-[0_0_40px_rgba(16,185,129,0.22)] transition-transform duration-300">
+                    <ShieldCheck className="h-12 w-12 text-safe" />
                   </div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.8em] text-muted opacity-50">HireProof Red Flag Training</div>
-                  <div className="text-3xl font-black text-foreground mt-2 uppercase tracking-tighter">Level {score} Reviewer</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-muted opacity-70">HireProof Red Flag Training</div>
+                  <div className="text-2xl font-black text-foreground mt-2 uppercase tracking-tight">Level {score} Reviewer</div>
                </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 onClick={() => {
                   setCurrentStep(0)
@@ -342,16 +343,16 @@ export function SpotTheBot() {
                   setSelection(null)
                   setStreak(0)
                 }}
-                className="hireproof-focus h-16 rounded-[1.5rem] border-2 border-border px-12 text-lg font-black hover:bg-surface transition-all w-full sm:w-auto"
+                className="hireproof-focus h-12 rounded-xl border border-border px-6 text-sm font-black hover:bg-surface transition-all w-full sm:w-auto"
               >
                 Try Again
               </button>
               <Link
                 href="/audit"
-                className="hireproof-focus flex h-16 items-center justify-center gap-3 rounded-[1.5rem] bg-foreground px-12 text-lg font-black text-background hover:bg-safe transition-all w-full sm:w-auto shadow-2xl hover:shadow-safe/30"
+                className="hireproof-focus flex h-12 items-center justify-center gap-2 rounded-xl bg-foreground px-6 text-sm font-black text-background hover:bg-safe transition-all w-full sm:w-auto shadow-lg hover:shadow-safe/20"
               >
                 Start Live Audit
-                <ArrowRight className="h-6 w-6" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </motion.div>

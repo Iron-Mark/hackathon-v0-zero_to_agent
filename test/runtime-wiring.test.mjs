@@ -158,6 +158,8 @@ test('live chat proof script fails loudly but keeps controlled credential gates 
   assert.match(script, /live-chat-proof-check-strict-latest\.json/)
   assert.match(script, /assertPublicHttpBaseUrl/)
   assert.match(script, /collectValidationErrors/)
+  assert.match(script, /coreStatus/)
+  assert.match(script, /optionalStatus/)
   assert.match(script, /shared ChatSDK reply path did not return the expected high-risk production report/)
   assert.match(script, /live platform proof is still pending for/)
   assert.match(script, /HIREPROOF_PROOF_OUTPUT_PATH/)
@@ -244,6 +246,10 @@ test('platform proof endpoint exposes credential-aware ChatSDK and WDK e2e state
   assert.match(readiness, /AI_GATEWAY_API_KEY/)
   assert.match(readiness, /credential-gated/)
   assert.match(readiness, /ready/)
+  assert.match(readiness, /coreStatus/)
+  assert.match(readiness, /optionalStatus/)
+  assert.match(readiness, /requiredSurfaces/)
+  assert.doesNotMatch(readiness, /\[slack\.state,\s*discord\.state,\s*telegram\.state,\s*whatsapp\.state,\s*workflow\.state,\s*gateway\.state\]\.every/)
 })
 
 test('platform proof endpoint exposes readiness for all chat platforms', async () => {

@@ -78,9 +78,23 @@ export function getPlatformReadiness() {
     },
   }
 
+  const requiredSurfaces = ['slack', 'workflow', 'gateway'] as const
+  const optionalSurfaces = ['discord', 'telegram', 'whatsapp'] as const
+  const surfaces = { slack, discord, telegram, whatsapp, workflow, gateway }
+  const coreStatus = requiredSurfaces.every((key) => surfaces[key].state === 'ready')
+    ? 'ready'
+    : 'credential-gated'
+  const optionalStatus = optionalSurfaces.every((key) => surfaces[key].state === 'ready')
+    ? 'ready'
+    : 'credential-gated'
+
   return {
-    status: [slack.state, discord.state, telegram.state, whatsapp.state, workflow.state, gateway.state].every((state) => state === 'ready') ? 'ready' : 'credential-gated',
+    status: coreStatus,
+    coreStatus,
+    optionalStatus,
     checkedAt: new Date().toISOString(),
-    surfaces: { slack, discord, telegram, whatsapp, workflow, gateway },
+    requiredSurfaces,
+    optionalSurfaces,
+    surfaces,
   }
 }

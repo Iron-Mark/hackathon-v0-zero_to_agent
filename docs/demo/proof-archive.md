@@ -85,6 +85,8 @@ Latest controlled check artifact:
 
 Result:
 
+- Core status: `ready` when Slack, Workflow, and AI Gateway are ready.
+- Optional platform status: `credential-gated` until Discord, Telegram, and WhatsApp/Zernio provider credentials are added.
 - Slack: `ready`
 - Discord: `credential-gated`
 - Telegram: `credential-gated`

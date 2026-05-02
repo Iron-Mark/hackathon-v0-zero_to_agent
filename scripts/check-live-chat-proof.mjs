@@ -109,6 +109,14 @@ function collectValidationErrors(report) {
     errors.push(`readiness status expected ready or credential-gated, got ${report.status}`)
   }
 
+  if (!['ready', 'credential-gated'].includes(report.coreStatus)) {
+    errors.push(`core readiness status expected ready or credential-gated, got ${report.coreStatus}`)
+  }
+
+  if (!['ready', 'credential-gated'].includes(report.optionalStatus)) {
+    errors.push(`optional readiness status expected ready or credential-gated, got ${report.optionalStatus}`)
+  }
+
   if (report.platforms.slack.state !== 'ready') {
     errors.push(`Slack should remain ready for existing ChatSDK proof, got ${report.platforms.slack.state}`)
   }
@@ -156,6 +164,8 @@ const report = {
   checkedAt,
   base,
   status: readiness.body?.status || 'unknown',
+  coreStatus: readiness.body?.coreStatus || readiness.body?.status || 'unknown',
+  optionalStatus: readiness.body?.optionalStatus || 'unknown',
   health: {
     httpStatus: health.status,
     status: health.body?.status,
@@ -198,6 +208,8 @@ await fs.writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`)
 
 console.log(`Live chat proof check written to ${outputPath}`)
 console.log(`Production status: ${report.status}`)
+console.log(`core status: ${report.coreStatus}`)
+console.log(`optional platform status: ${report.optionalStatus}`)
 
 for (const key of ['slack', 'discord', 'telegram', 'whatsapp']) {
   const platform = report.platforms[key]

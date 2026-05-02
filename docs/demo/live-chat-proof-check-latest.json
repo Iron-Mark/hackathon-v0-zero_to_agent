@@ -1,7 +1,9 @@
 {
-  "checkedAt": "2026-04-30T02:14:19.179Z",
+  "checkedAt": "2026-05-02T17:23:24.584Z",
   "base": "https://hireproof-sigma.vercel.app",
-  "status": "credential-gated",
+  "status": "ready",
+  "coreStatus": "ready",
+  "optionalStatus": "credential-gated",
   "health": {
     "httpStatus": 200,
     "status": "ok",
@@ -46,7 +48,7 @@
     "httpStatus": 200,
     "status": "ChatSDK Agents verdict formatted.",
     "platform": "discord",
-    "reportUrl": "https://hireproof-sigma.vercel.app/audit/chat_1777515259804",
+    "reportUrl": "https://hireproof-sigma.vercel.app/audit/chat_1777742606344",
     "verdict": "high-risk",
     "riskScore": 92
   },

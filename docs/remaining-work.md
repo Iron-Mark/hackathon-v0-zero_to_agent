@@ -1,8 +1,8 @@
 # HireProof Current Status
 
-Last checked: 2026-04-30
+Last checked: 2026-05-03
 
-HireProof is demo-ready on the stable production URL:
+HireProof is core production-ready on the stable production URL:
 
 - Production URL: `https://hireproof-sigma.vercel.app`
 - Production deployments are verified through the stable alias; deployment-specific preview URLs are intentionally not treated as durable submission links.
@@ -28,7 +28,7 @@ HireProof is demo-ready on the stable production URL:
 ## Production Proof
 
 - `GET /api/health` returns `status: ok`, Redis storage, live search, model, AI Gateway, and OpenAI-compatible fallback ready.
-- `GET /api/integrations/proof` returns `status: ready` for Slack, Workflow, and AI Gateway.
+- `GET /api/integrations/proof` returns `status: ready` / `coreStatus: ready` when Slack, Workflow, and AI Gateway are ready. Discord, Telegram, and WhatsApp/Zernio are reported separately through `optionalStatus`.
 - `POST /api/v1/audit` with the public demo key returns a High-Risk demo report with score `92`.
 - `POST /api/audit` SSE returns a result event for the High-Risk demo.
 - `POST /api/chat/hireproof` returns a formatted ChatSDK verdict.
@@ -38,6 +38,7 @@ HireProof is demo-ready on the stable production URL:
 
 - Slack proof is represented by the captured screenshot at [`docs/demo/Screenshot 2026-04-30 024756.jpg`](demo/Screenshot%202026-04-30%20024756.jpg). Recent Vercel log searches for the original Slack webhook request returned no matching archived logs, so do not claim endpoint-level Slack logs unless a fresh Slack event is captured.
 - WDK proof is an accepted production workflow run, not a completed callback result. Use run ID `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`.
+- Discord, Telegram, and WhatsApp/Zernio are optional provider expansions. They are implemented and production-reachable, but live provider proof still requires third-party credentials, webhook registration, real messages, screenshots, and matching logs.
 - The Chrome extension has a store-ready package workflow, privacy disclosure, and listing draft. No public Chrome Web Store listing is claimed until Google review publishes one.
 - **Dockerized Packaging**: Fully implemented for production standalone deployment, with Compose orchestration, healthcheck, and local smoke script.
 
