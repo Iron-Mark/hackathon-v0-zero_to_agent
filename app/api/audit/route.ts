@@ -2,7 +2,6 @@ import { generateObject, generateText, tool, stepCountIs } from 'ai'
 import { z } from 'zod'
 import {
   AuditRequestSchema,
-  type AlternativeJob,
   type AuditReport,
   type AuditRequest,
   type ExtractedClaims,
@@ -163,24 +162,6 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
   }
 }
 
-function buildAlternativeJobs(evidence: AuditReport['evidence']): AlternativeJob[] {
-  const safeEvidence = Array.isArray(evidence) ? evidence : []
-  return safeEvidence
-    .filter(item => item && item.type === 'Comparable Jobs')
-    .slice(0, 3)
-    .map(item => {
-      const snippet = String(item?.snippet || '')
-      const [titleAndCompany = '', salary = 'Not specified'] = snippet.split(' - ')
-      const [title = 'Comparable role', company = item.source || 'Job Board'] = titleAndCompany.split(' at ')
-
-      return {
-        title,
-        company,
-        salary,
-      }
-    })
-}
-
 function buildNextSteps(verdict: AuditReport['verdict'], company: string) {
   if (verdict === 'high-risk') {
     return [
@@ -320,14 +301,20 @@ export async function POST(request: Request) {
   ;(async () => {
     try {
       if (serpApiOperationalStatus.status === 'circuit-open') {
-        sendEvent('log', { message: serpApiOperationalStatus.message })
+        sendEvent('log', { message: serpApiOperationalStatus.message, phase: 'guardrail', status: 'blocked', label: 'Search guardrail' })
       }
-      sendEvent('log', { message: 'Extracting role, pay, company, and contact claims...' })
+      sendEvent('log', { message: 'Preparing input and enrichment checks...', phase: 'intake', status: 'active', label: 'Intake' })
+      if (validated.image || validated.url) {
+        sendEvent('log', { message: 'Reviewing screenshot OCR or resolved job-page evidence...', phase: 'ocr', status: 'active', label: 'OCR / URL' })
+      }
+      sendEvent('log', { message: 'Extracting role, pay, company, and contact claims...', phase: 'extract', status: 'active', label: 'Claim extraction' })
 
       if (true) {
         const extractedClaims = await extractClaims(validated)
         const hasCompany = !extractedClaims.company.toLowerCase().includes('unknown')
         let evidence: EvidenceItem[] = []
+        sendEvent('log', { message: `Claims extracted for ${extractedClaims.company || 'unknown company'} and ${extractedClaims.role || 'unknown role'}.`, phase: 'extract', status: 'complete', label: 'Claim extraction' })
+        sendEvent('log', { message: 'Checking live audit throttles and provider health...', phase: 'guardrail', status: liveSearchAllowed ? 'complete' : 'blocked', label: 'Guardrails' })
 
         if (hasCompany && liveSearchAllowed && hasHireProofModelProvider()) {
           try {
@@ -335,17 +322,17 @@ export async function POST(request: Request) {
             const protocol = host.includes('localhost') ? 'http' : 'https'
             const baseUrl = process.env.APP_BASE_URL || `${protocol}://${host}`
             
-            sendEvent('log', { message: `Orchestrating agent to investigate ${extractedClaims.company}...` })
+            sendEvent('log', { message: `Orchestrating agent to investigate ${extractedClaims.company}...`, phase: 'company', status: 'active', label: 'Company check' })
             
             const result = await generateText({
               model: getHireProofModel(),
               stopWhen: stepCountIs(5),
               experimental_onToolCallStart: async ({ toolCall }: any) => {
                 const name = toolCall.toolName
-                if (name === 'search_company') sendEvent('log', { message: `Checking official web presence and domain...` })
-                if (name === 'news_check') sendEvent('log', { message: `Scanning news and media for scam reports...` })
-                if (name === 'jobs_compare') sendEvent('log', { message: `Benchmarking against legitimate comparable roles...` })
-                if (name === 'local_presence') sendEvent('log', { message: `Verifying local business registration and maps...` })
+                if (name === 'search_company') sendEvent('log', { message: `Checking official web presence and domain...`, phase: 'company', status: 'active', label: 'Company check' })
+                if (name === 'news_check') sendEvent('log', { message: `Scanning news and media for scam reports...`, phase: 'news', status: 'active', label: 'News check' })
+                if (name === 'jobs_compare') sendEvent('log', { message: `Benchmarking against legitimate comparable roles...`, phase: 'jobs', status: 'active', label: 'Job comparison' })
+                if (name === 'local_presence') sendEvent('log', { message: `Verifying local business registration and maps...`, phase: 'local', status: 'active', label: 'Local presence' })
               },
               tools: {
                 search_company: tool({
@@ -414,7 +401,7 @@ export async function POST(request: Request) {
   Once you have called the tools, provide a brief summary of your findings.`,
             })
 
-            sendEvent('log', { message: 'Agent finished research, compiling evidence...' })
+            sendEvent('log', { message: 'Agent finished research, compiling evidence...', phase: 'coverage', status: 'active', label: 'Evidence coverage' })
 
             for (const step of result.steps) {
               for (const toolCall of step.toolResults) {
@@ -427,22 +414,23 @@ export async function POST(request: Request) {
 
           } catch (agentError) {
             console.warn('[AI Agent] Execution loop failed or timed out. Falling back to concurrent direct execution.', agentError)
-            sendEvent('log', { message: 'Agent taking too long, switching to fast concurrent search...' })
+            sendEvent('log', { message: 'Agent taking too long, switching to fast concurrent search...', phase: 'coverage', status: 'active', label: 'Fast evidence fallback' })
             
             evidence = await runSmartSerpApiInvestigation(extractedClaims, { applicationUrl: validated.url || undefined })
           }
         } else if (liveSearchAllowed) {
-          sendEvent('log', { message: 'Checking company footprint concurrently...' })
+          sendEvent('log', { message: 'Checking company footprint concurrently...', phase: 'company', status: 'active', label: 'Concurrent evidence' })
 
           evidence = await runSmartSerpApiInvestigation(extractedClaims, { applicationUrl: validated.url || undefined })
         }
 
+        sendEvent('log', { message: 'Checking evidence coverage and source mix...', phase: 'coverage', status: 'active', label: 'Evidence coverage' })
         evidence = liveSearchAllowed ? await ensureSerpApiEvidenceCoverage(evidence, extractedClaims) : evidence
         if (serpApiOperationalStatus.status === 'circuit-open') {
           evidence.push(buildOperationalEvidence(serpApiOperationalStatus))
         }
 
-        sendEvent('log', { message: 'Calculating deterministic risk score...' })
+        sendEvent('log', { message: 'Calculating deterministic risk score...', phase: 'score', status: 'active', label: 'Risk scoring' })
 
         const routeRedFlags: string[] = []
         const enrichmentRedFlags = buildEnrichmentRedFlags(requestEnrichment)
@@ -473,6 +461,7 @@ export async function POST(request: Request) {
         })
 
         await persistReportSafely(report)
+        sendEvent('log', { message: 'Report assembled and ready to review.', phase: 'report', status: 'complete', label: 'Report ready' })
         sendEvent('result', { data: report })
         return
       }

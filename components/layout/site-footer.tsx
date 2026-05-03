@@ -302,7 +302,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-border-soft flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="mt-16 pt-8 border-t border-border-soft flex flex-col items-center gap-6 text-center">
           <div className="flex items-center gap-4">
             <Tooltip content="Live connection to the HireProof verification engine">
               <div className="flex items-center gap-2 rounded-full border border-safe/20 bg-safe/5 px-3 py-1 text-[10px] font-black text-safe uppercase tracking-widest cursor-default">
@@ -330,15 +330,27 @@ export function SiteFooter() {
               </div>
             </Tooltip>
           </div>
-          <p className="text-[10px] font-black text-muted uppercase tracking-widest">
-            © 2026 HireProof. Developed by M.Siazon. Built for Vercel Zero to
-            Agent ·{" "}
+          <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-2 text-center text-[10px] font-black text-muted uppercase tracking-widest">
+            <span>© 2026 HireProof.</span>
+            <span>Developed by</span>
+            <a
+              href="https://www.linkedin.com/in/mark-siazon/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex rounded-full border border-safe/20 bg-safe/5 px-2 py-0.5 text-safe shadow-sm shadow-safe/10 transition-colors hover:border-safe/40 hover:bg-safe/10 hover:text-safe-text"
+            >
+              M.Siazon
+            </a>
+            <span>.</span>
+            <span>Built for Vercel Zero to Agent</span>
+            <span>·</span>
             <a
               href="https://community.vercel.com/hackathons/zero-to-agent/showcase"
               target="_blank"
               rel="noreferrer"
-              className="text-foreground hover:text-safe underline underline-offset-4"
+              className="inline-flex items-center gap-1.5 text-foreground hover:text-safe underline underline-offset-4"
             >
+              <BrandMark className="h-3.5 w-3.5" />
               Submitted showcase
             </a>
             .

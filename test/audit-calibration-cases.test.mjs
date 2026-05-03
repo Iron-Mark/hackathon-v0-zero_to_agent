@@ -199,3 +199,63 @@ test('screenshot-only scam text calibrates to high risk after OCR-derived claim 
   assert.equal(verdict(score), 'high-risk')
 }
 )
+
+test('transparent RLHF coding contractor role is caution, not high-risk or fully safe', () => {
+  const claims = {
+    company: 'Outlier AI',
+    role: 'TypeScript Software Engineer for RLHF code review',
+    salary: '$30 - $70/hour',
+    location: 'Remote accepted countries only',
+    contactMethod: 'Official platform application',
+    applicationPath: 'Official platform application with identity verification',
+  }
+  const evidence = [
+    {
+      type: 'Job Post Source',
+      source: 'Official platform job page',
+      snippet: 'Trust: reputable-job-board | TypeScript Software Engineer remote contractor role. 1099 independent contractor. Hours are project-dependent and not guaranteed week to week. Payment weekly via PayPal or Stripe.',
+    },
+    {
+      type: 'Contract Transparency',
+      source: 'Resolved job page',
+      snippet: 'Accepted countries only. Not compatible with F-1 OPT, STEM OPT, W-2 employment, guaranteed hours, or employer sponsorship. Unable to provide offer letters or employment verification. Identity verification and valid contractor documentation required.',
+    },
+    {
+      type: 'Role Details',
+      source: 'Resolved job page',
+      snippet: 'Help train large language models through RLHF. Compare and rank multiple code snippets, repair AI-generated code, explain code review decisions, and convert feedback into reward signals.',
+    },
+  ]
+
+  const { score, signals } = scoreCase(claims, evidence)
+
+  assert.equal(verdict(score), 'caution')
+  assert.equal(score >= 35 && score < 65, true)
+  assert.ok(signals.some((signal) => signal.id === 'contractor.variable_hours_caution'))
+  assert.ok(signals.some((signal) => signal.id === 'contractor.transparent_limitations'))
+  assert.ok(signals.some((signal) => signal.id === 'role.rlhf_ai_training_context'))
+  assert.equal(signals.some((signal) => signal.id === 'contact.telegram_only'), false)
+  assert.equal(signals.some((signal) => signal.id === 'process.no_interview'), false)
+})
+
+test('RLHF contractor role becomes high risk when paired with Telegram and no interview scam signals', () => {
+  const claims = {
+    company: 'Unknown / Not Verifiable',
+    role: 'TypeScript Software Engineer RLHF Contractor',
+    salary: '$70/hour',
+    location: 'Remote',
+    contactMethod: 'Telegram',
+    applicationPath: 'No interview mentioned',
+  }
+  const evidence = [
+    {
+      type: 'Screenshot OCR',
+      source: 'Screenshot OCR: Google Vision',
+      snippet: 'RLHF coding contractor role. Contact recruiter only on Telegram. No interview required. Start today.',
+    },
+  ]
+
+  const { score } = scoreCase(claims, evidence)
+
+  assert.equal(verdict(score), 'high-risk')
+})

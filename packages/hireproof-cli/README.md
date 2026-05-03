@@ -2,7 +2,7 @@
 
 Command-line access to the HireProof job-post audit API.
 
-The CLI is for developers, power users, and automations that need a terminal-friendly way to audit a job post without opening the web app. Human output uses a branded terminal report by default, while `--json` stays clean for scripts and agents.
+The CLI is for developers, power users, and automations that need a terminal-friendly way to audit a job post without opening the web app. Running `hireproof` in an interactive terminal opens the branded HireProof console; direct commands still support rich reports, plain text, and clean JSON.
 
 ## Install
 
@@ -11,6 +11,7 @@ From the repo while developing:
 ```powershell
 npm install
 node packages\hireproof-cli\bin\hireproof.mjs --help
+node packages\hireproof-cli\bin\hireproof.mjs tui
 ```
 
 After publishing, the intended usage is:
@@ -20,6 +21,61 @@ npx @hireproof/cli audit --text "Remote frontend intern. PHP 80,000/week. No int
 ```
 
 ## Commands
+
+### Interactive Console
+
+```powershell
+hireproof
+hireproof tui
+```
+
+The interactive console includes:
+
+- Shield Sentinel ASCII mascot.
+- HireProof green and lime terminal accents.
+- Command console with Tab autocomplete.
+- Audit, paste-message, file, and URL workflows.
+- Health, config, help, recent reports, and local Ask HireProof screens.
+- Sanitized local report summaries saved at `~/.hireproof/reports.jsonl`.
+
+Non-interactive shells, CI, and piped output print help instead of opening the TUI. JSON mode is intentionally available only on direct commands such as `hireproof audit --json`.
+
+Example console frame:
+
+```text
+HIREPROOF
+Shield Sentinel terminal console
+Target https://hireproof-sigma.vercel.app  Mode demo  Key configured
+
+Shield Sentinel        > Audit - Run the guided audit workflow
+    .-=========-.        Paste message - Paste a recruiter message or job post
+  .'  HIREPROOF  '.      Audit file - Audit text from a local file path
+ /   .---------.   \     Audit URL - Audit a job URL with optional context
+|   /    HP     \   |    Recent reports - Review locally saved TUI report summaries
+|   |  [SCAN]   |   |    Ask HireProof - Ask local questions about the selected report
+|   \___________/   |    Health - Check API, search, and model readiness
+ '.   SENTINEL   .'      Config - Inspect base URL and API key status
+   '-._______ .-'        Help - Show shortcuts and command examples
+
+Command console  Tab autocomplete  Enter run
+> hea
+Tab -> health
+```
+
+Console commands and aliases:
+
+```text
+audit, scan, check
+paste, message, text
+file, path
+url, link
+reports, report, history, recent
+ask, chat, why
+health, status, ready
+config, settings, key
+help, ?
+exit, quit
+```
 
 ### Audit Inline Text
 
@@ -68,6 +124,16 @@ hireproof audit --file .\job-post.txt --verbose
 
 The rich layout uses HireProof's brand green accent for terminal headings and readiness states, plus verdict-specific colors for safe, caution, and high-risk results. The CLI disables color automatically when output is not a TTY or when `NO_COLOR` is set.
 
+## Local Report History
+
+The TUI saves compact report summaries only. It does not store API keys or the full pasted recruiter text by default.
+
+Path:
+
+```powershell
+~\.hireproof\reports.jsonl
+```
+
 ### Health
 
 ```powershell
@@ -104,4 +170,4 @@ Audit:
 
 ## Honest Status
 
-This package is repo-shipped and tested. It is not published to npm until the package owner runs the external publish flow.
+This package is repo-shipped, TUI-enabled, and tested. It is not published to npm until the package owner runs the external publish flow.

@@ -2,14 +2,24 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:http'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import React from 'react'
+import { render } from 'ink-testing-library'
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url))
 const cliPath = fileURLToPath(new URL('../packages/hireproof-cli/bin/hireproof.mjs', import.meta.url))
-const ansiPattern = /\u001b\[[0-9;]*m/
+const ansiPattern = /\u001b\[[0-9;]*m/g
+
+function stripAnsi(value) {
+  return String(value || '').replace(ansiPattern, '')
+}
+
+function waitForInk() {
+  return new Promise(resolve => setTimeout(resolve, 25))
+}
 
 function sampleReport(overrides = {}) {
   return {
@@ -256,4 +266,229 @@ test('HireProof CLI stores and reads local config', async () => {
   } finally {
     await rm(configHome, { recursive: true, force: true })
   }
+})
+
+test('HireProof CLI opens help instead of interactive TUI for non-TTY default launch', async () => {
+  const result = await runCli([])
+
+  assert.equal(result.code, 0)
+  assert.match(result.stdout, /HireProof CLI/)
+  assert.match(result.stdout, /hireproof audit/)
+  assert.doesNotMatch(result.stdout, /Shield Sentinel/)
+})
+
+test('HireProof TUI renders branded mascot launcher and menu', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+  }))
+
+  const frame = stripAnsi(result.lastFrame())
+  assert.match(frame, /HIREPROOF/)
+  assert.match(frame, /Shield Sentinel/)
+  assert.match(frame, /SENTINEL/)
+  assert.match(frame, /HIREPROOF/)
+  assert.match(frame, /Audit/)
+  assert.match(frame, /Paste message/)
+  assert.match(frame, /Audit file/)
+  assert.match(frame, /Audit URL/)
+  assert.match(frame, /Recent reports/)
+  assert.match(frame, /Ask HireProof/)
+  assert.match(frame, /Health/)
+  assert.match(frame, /Config/)
+  assert.match(frame, /Command console/)
+  assert.match(frame, /Tab autocomplete/)
+})
+
+test('HireProof TUI arrow navigation changes the active menu item', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+  }))
+
+  assert.match(stripAnsi(result.lastFrame()), /> Audit/)
+  result.stdin.write('\u001B[B')
+  await waitForInk()
+  assert.match(stripAnsi(result.lastFrame()), /> Paste message/)
+})
+
+test('HireProof TUI command console autocompletes with tab and opens a screen', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+    healthClient: async () => ({
+      status: 'ok',
+      liveSearch: true,
+      model: true,
+      modelProvider: { aiGateway: true },
+    }),
+  }))
+
+  result.stdin.write('hea')
+  result.stdin.write('\t')
+  await waitForInk()
+  assert.match(stripAnsi(result.lastFrame()), /> health/)
+
+  result.stdin.write('\r')
+  await waitForInk()
+  const frame = stripAnsi(result.lastFrame())
+  assert.match(frame, /Health/)
+  assert.match(frame, /API: ok/)
+})
+
+test('HireProof TUI command console understands report and ask aliases', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+    readReports: async () => [{
+      id: 'report_saved',
+      verdict: 'safe',
+      riskScore: 18,
+      summary: 'Looks normal.',
+    }],
+  }))
+
+  result.stdin.write('history')
+  result.stdin.write('\r')
+  await waitForInk()
+  assert.match(stripAnsi(result.lastFrame()), /report_saved/)
+
+  result.stdin.write('\u001B')
+  await waitForInk()
+  result.stdin.write('chat')
+  result.stdin.write('\r')
+  await waitForInk()
+  assert.match(stripAnsi(result.lastFrame()), /Ask HireProof/)
+})
+
+test('HireProof TUI renders local Ask HireProof answers from selected report', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+    initialScreen: 'ask',
+    initialReport: sampleReport({
+      summary: 'High-risk because the recruiter requires Telegram and no interview.',
+    }),
+  }))
+
+  result.stdin.write('why')
+  result.stdin.write('\r')
+  await waitForInk()
+
+  const frame = stripAnsi(result.lastFrame())
+  assert.match(frame, /Ask HireProof/)
+  assert.match(frame, /High-risk because the recruiter requires Telegram/)
+})
+
+test('HireProof TUI report history stores sanitized summaries only', async () => {
+  const { saveReportSummary, readReportSummaries } = await import('../packages/hireproof-cli/lib/report-history.mjs')
+  const historyHome = await mkdtemp(path.join(os.tmpdir(), 'hireproof-history-'))
+
+  try {
+    await saveReportSummary(sampleReport(), {
+      configHome: historyHome,
+      inputText: 'PRIVATE recruiter text should not be stored',
+    })
+    const reports = await readReportSummaries({ configHome: historyHome })
+    const raw = await readFile(path.join(historyHome, 'reports.jsonl'), 'utf8')
+
+    assert.equal(reports.length, 1)
+    assert.equal(reports[0].id, 'report_test')
+    assert.equal(reports[0].verdict, 'high-risk')
+    assert.doesNotMatch(raw, /PRIVATE recruiter text/)
+    assert.doesNotMatch(raw, /test_key/)
+  } finally {
+    await rm(historyHome, { recursive: true, force: true })
+  }
+})
+
+test('HireProof TUI paste audit flow runs audit client and shows report details', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  let receivedPayload = null
+  let savedReport = null
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+    initialScreen: 'paste',
+    auditClient: async (payload) => {
+      receivedPayload = payload
+      return sampleReport()
+    },
+    saveReport: async (report) => {
+      savedReport = report
+    },
+  }))
+
+  result.stdin.write('Remote job. Telegram only.')
+  result.stdin.write('\r')
+  await waitForInk()
+
+  const frame = stripAnsi(result.lastFrame())
+  assert.equal(receivedPayload.text, 'Remote job. Telegram only.')
+  assert.equal(receivedPayload.mode, 'demo')
+  assert.equal(savedReport.id, 'report_test')
+  assert.match(frame, /Verdict: High-Risk/)
+  assert.match(frame, /Telegram-only contact/)
+  assert.match(frame, /Evidence/)
+})
+
+test('HireProof TUI health screen loads live readiness data', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+    initialScreen: 'health',
+    healthClient: async () => ({
+      status: 'ok',
+      liveSearch: true,
+      model: true,
+      modelProvider: { aiGateway: true },
+    }),
+  }))
+
+  await waitForInk()
+
+  const frame = stripAnsi(result.lastFrame())
+  assert.match(frame, /Health/)
+  assert.match(frame, /API: ok/)
+  assert.match(frame, /Live search: ready/)
+  assert.match(frame, /AI Gateway: ready/)
+})
+
+test('HireProof TUI recent reports screen loads saved summaries', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+    initialScreen: 'reports',
+    readReports: async () => [{
+      id: 'report_saved',
+      verdict: 'caution',
+      riskScore: 44,
+      summary: 'Saved report summary.',
+      company: 'Example Co',
+      role: 'Assistant',
+    }],
+  }))
+
+  await waitForInk()
+
+  const frame = stripAnsi(result.lastFrame())
+  assert.match(frame, /Recent reports/)
+  assert.match(frame, /report_saved/)
+  assert.match(frame, /Caution/)
+  assert.match(frame, /Saved report summary/)
 })

@@ -12,7 +12,7 @@ export default function StreamingPage() {
       <section className="space-y-4">
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Real-Time Streaming</h1>
         <p className="text-xl font-medium leading-relaxed text-muted">
-          Watch the AI agent gather evidence in real time. HireProof uses Server-Sent Events (SSE) to show each job-verification step as it happens.
+          Watch live audit events arrive in the browser. HireProof uses Server-Sent Events (SSE) to show job-verification progress when live evidence mode runs.
         </p>
       </section>
 
@@ -23,7 +23,7 @@ export default function StreamingPage() {
           <h2 className="text-2xl font-black">SSE Implementation</h2>
         </div>
         <p className="font-medium text-muted leading-relaxed">
-          The primary <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/audit</code> endpoint does not return a static JSON response. Instead, it streams a sequence of events as the autonomous agent completes its steps.
+          The primary <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/audit</code> endpoint does not return a static JSON response. Instead, it streams log and result events while the audit runs. The result screen uses those stream messages for its visible timeline when they are available.
         </p>
         
         <div className="grid gap-4 sm:grid-cols-2">
@@ -33,7 +33,7 @@ export default function StreamingPage() {
             </div>
             <h3 className="font-bold text-sm">Thinking Events</h3>
             <p className="text-xs text-muted leading-relaxed mt-1">
-              Emitted every time the agent starts a new step or tool call. Provides immediate feedback on what the "investigator" is looking for.
+              Emitted as live checks progress. These messages are retained by the browser and rendered as the report timeline instead of fabricated timing labels.
             </p>
           </div>
           <div className="rounded-2xl border border-border-soft bg-surface p-5">
@@ -75,6 +75,18 @@ while (true) {
   }
 }`} 
           />
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-caution/30 bg-caution-bg/20 p-6">
+        <div className="flex items-start gap-4">
+          <ShieldCheck className="mt-1 h-5 w-5 text-caution-text" />
+          <div className="space-y-2">
+            <p className="text-sm font-black uppercase tracking-widest text-caution-text">Demo fixture boundary</p>
+            <p className="text-sm font-medium text-muted leading-relaxed">
+              Demo fixture mode does not emit live investigation events. It shows a visible fixture warning and a simple fixture timeline so users do not confuse examples with fresh source checks.
+            </p>
+          </div>
         </div>
       </section>
 

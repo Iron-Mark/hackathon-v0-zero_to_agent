@@ -58,6 +58,27 @@ async function loadIntelligenceModule() {
           }),
         }
       }
+      if (id === '@/lib/alternative-jobs') {
+        return {
+          buildVerifiedAlternativeJobs: (evidence = []) => evidence
+            .filter((item) => item.type === 'Comparable Jobs' && /^https?:\/\//i.test(item.url || ''))
+            .map((item) => {
+              const snippet = String(item.snippet || '')
+              const normalized = snippet.replace(/^Trust:\s*[^|]+\|\s*/i, '')
+              const [titleAndCompany = '', ...metadataParts] = normalized.split('|')
+              const metadata = metadataParts.join('|')
+              const [title = 'Comparable role', company = item.source || 'Job Board'] = titleAndCompany.trim().split(' at ')
+              return {
+                title: title.trim(),
+                company: company.trim(),
+                salary: metadata.match(/Salary:\s*([^|]+)/i)?.[1]?.trim() || 'Not specified',
+                url: item.url,
+                source: item.source,
+                verifiedSource: snippet.match(/^Trust:\s*([^|]+)\|/i)?.[1]?.trim() || item.source,
+              }
+            }),
+        }
+      }
       return {}
     },
     Date,
@@ -195,6 +216,42 @@ test('v2 intelligence ranks source quality, freshness, and salary ratio explanat
   assert.equal(report.intelligence.marketBenchmark.ratio, 2.5)
   assert.ok(report.intelligence.signals.some((signal) => /2\.5x/.test(signal.rationale)))
   assert.ok(report.intelligence.signals.some((signal) => signal.id === 'stale_evidence'))
+})
+
+test('v2 safer alternatives only include sourced comparable jobs', async () => {
+  const { buildAuditReportV2 } = await loadIntelligenceModule()
+
+  const report = buildAuditReportV2({
+    id: 'alt-proof',
+    extractedClaims: {
+      company: 'Unknown / Not Verifiable',
+      role: 'Frontend Developer',
+      salary: 'PHP 80,000 per week',
+      location: 'Manila, Philippines',
+      contactMethod: 'Telegram',
+      applicationPath: 'Direct message only',
+    },
+    evidence: [
+      {
+        source: 'SerpApi Google Jobs',
+        type: 'Comparable Jobs',
+        snippet: 'Trust: reputable-job-board | Frontend Developer at Real Careers PH | Location: Manila | Salary: PHP 70,000 per month',
+        url: 'https://www.linkedin.com/jobs/view/123',
+      },
+      {
+        source: 'Generic Jobs',
+        type: 'Comparable Jobs',
+        snippet: 'Trust: job-result | Fake Placeholder at No Source Inc | Location: Manila | Salary: PHP 90,000 per month',
+      },
+    ],
+  })
+
+  assert.equal(report.alternatives.length, 1)
+  assert.equal(report.alternatives[0].title, 'Frontend Developer')
+  assert.equal(report.alternatives[0].company, 'Real Careers PH')
+  assert.equal(report.alternatives[0].salary, 'PHP 70,000 per month')
+  assert.equal(report.alternatives[0].url, 'https://www.linkedin.com/jobs/view/123')
+  assert.equal(report.alternatives[0].verifiedSource, 'reputable-job-board')
 })
 
 test('remote startup mode does not punish missing local footprint when digital evidence is consistent', async () => {

@@ -30,6 +30,14 @@ export default function Page() {
         <Link href="/docs/authentication" className="underline">See Authentication →</Link>
       </div>
 
+      <section className="mb-10 rounded-2xl border border-caution/30 bg-caution-bg/20 p-5">
+        <h2 className="mb-2 text-lg font-black">Demo vs live mode</h2>
+        <p className="text-sm font-semibold leading-6 text-muted">
+          Demo requests return labeled fixtures for product walkthroughs and offline testing. They should not be treated as fresh employer, recruiter, review, or job-alternative verification.
+          Live mode uses configured model/search credentials and can return operational status when throttling, provider errors, or a SerpApi circuit breaker affects evidence gathering.
+        </p>
+      </section>
+
       {/* Sync mode */}
       <section className="mb-10">
         <h2 className="mb-3 text-2xl font-black">Synchronous Mode</h2>
@@ -77,13 +85,29 @@ export default function Page() {
 }`} />
       </section>
 
+      <section className="mb-10">
+        <h2 className="mb-3 text-2xl font-black">Supported Inputs</h2>
+        <p className="mb-4 text-sm font-semibold text-muted leading-6">
+          The same audit contract accepts raw text, a public job URL, an uploaded screenshot as a data URL, or any combination of those fields. When a screenshot is included, HireProof extracts readable text through the OCR path and marks the report as not publicly listed by default.
+        </p>
+        <CodeBlock title="Screenshot + URL request" code={`curl -X POST https://hireproof-sigma.vercel.app/api/v1/audit \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: hireproof_agent_demo_key" \\
+  -d '{
+    "url": "https://www.linkedin.com/jobs/view/example",
+    "image": "data:image/png;base64,...",
+    "location": "Philippines"
+  }'`} />
+      </section>
+
       {/* Operations */}
       <section className="mb-10">
-        <h2 className="mb-3 text-2xl font-black">Caching and Telemetry</h2>
+        <h2 className="mb-3 text-2xl font-black">Caching, Guardrails, and Telemetry</h2>
         <p className="mb-4 text-sm font-semibold text-muted leading-6">
           Live SerpApi evidence is cached by normalized search parameters and by similar audit context: company, role, location, and apply host.
           Configure <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">UPSTASH_REDIS_REST_URL</code> and <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">UPSTASH_REDIS_REST_TOKEN</code> to persist repeated SerpApi responses across cold starts and Vercel instances.
           Runtime cache telemetry is exposed from <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/health</code>, <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/audit</code>, and authenticated developer usage.
+          Expensive live audits also use per-user or per-IP queue throttling and a SerpApi circuit breaker so quota spikes and repeated failures become explicit operational states.
         </p>
         <CodeBlock title="Telemetry Shape" code={`{
   "serpapiCache": {
@@ -94,7 +118,9 @@ export default function Page() {
     "persistentHits": 4,
     "similarityHits": 2,
     "networkCalls": 7,
-    "creditsSaved": 30
+    "creditsSaved": 30,
+    "failures": 0,
+    "circuitTrips": 0
   }
 }`} />
       </section>

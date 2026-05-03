@@ -130,6 +130,10 @@ export const AlternativeJobSchema = z.object({
   title: z.string().max(200),
   company: z.string().max(200),
   salary: z.string().max(200).optional(),
+  location: z.string().max(200).optional(),
+  url: z.string().url().optional(),
+  source: z.string().max(200).optional(),
+  verifiedSource: z.string().max(200).optional(),
 })
 export type AlternativeJob = z.infer<typeof AlternativeJobSchema>
 

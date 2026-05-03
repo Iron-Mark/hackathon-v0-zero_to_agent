@@ -13,6 +13,7 @@ const docsSidebar = [
     title: 'Getting Started',
     items: [
       { label: 'Overview', href: '/docs' },
+      { label: 'How It Works', href: '/docs/how-it-works' },
       { label: 'Quickstart', href: '/docs/quickstart' },
       { label: 'Self-Hosting', href: '/docs/self-hosting' },
       { label: 'Verified Badge', href: '/docs/verified-badge' },

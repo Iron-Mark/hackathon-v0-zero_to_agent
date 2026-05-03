@@ -20,6 +20,9 @@ interface Result {
   riskScore: number
   confidence: string
   summary: string
+  mode?: 'live' | 'demo'
+  credentialMode?: string
+  source?: string
   extractedClaims: Record<string, string>
   redFlags: string[]
   greenFlags: string[]
@@ -37,6 +40,10 @@ interface Result {
     title: string
     company: string
     salary?: string
+    location?: string
+    url?: string
+    source?: string
+    verifiedSource?: string
   }>
   nextSteps: string[]
   intelligence?: {
@@ -75,6 +82,16 @@ interface Result {
 interface ResultScreenProps {
   result: Result
   onBackToAudit?: () => void
+  timelineEvents?: TimelineEvent[]
+}
+
+type TimelineEvent = string | {
+  step?: string
+  detail?: string
+  time?: string
+  message?: string
+  phase?: string
+  label?: string
 }
 
 function sanitizeUrl(url?: string): string | undefined {
@@ -152,6 +169,50 @@ function getEvidenceDisplaySnippet(item: ResultEvidence) {
   if (!isOcrEvidence(item)) return item.snippet
   if (isUnavailableOcr(item)) return getOcrSummary(item)
   return `${getOcrSummary(item)} Preview: ${getOcrPreview(item)}`
+}
+
+function normalizeTimelineEvents(result: Result, timelineEvents: TimelineEvent[]) {
+  const isDemo = result.mode === 'demo' || result.credentialMode === 'demo' || result.source === 'demo'
+  const provided = timelineEvents
+    .map((event, index) => {
+      if (typeof event === 'string') {
+        return {
+          step: isDemo ? 'Demo fixture' : `Live event ${index + 1}`,
+          detail: event,
+          time: `Event ${index + 1}`,
+        }
+      }
+
+      return {
+        step: event.step || event.label || event.phase || (isDemo ? 'Demo fixture' : `Live event ${index + 1}`),
+        detail: event.detail || event.message || 'Audit event recorded.',
+        time: event.time || `Event ${index + 1}`,
+      }
+    })
+    .filter(event => event.detail.trim().length > 0)
+
+  if (provided.length > 0) return provided
+
+  if (isDemo) {
+    return [{
+      step: 'Demo fixture',
+      detail: 'Prebuilt example report loaded. No live source checks, recruiter checks, or fresh job searches were run.',
+      time: 'Demo',
+    }]
+  }
+
+  return [
+    {
+      step: 'Report generated',
+      detail: `Review completed with ${result.evidence.length} evidence receipt${result.evidence.length === 1 ? '' : 's'} and ${result.redFlags.length + result.greenFlags.length} scored signal${result.redFlags.length + result.greenFlags.length === 1 ? '' : 's'}.`,
+      time: 'Report',
+    },
+    {
+      step: 'Final verdict',
+      detail: `Risk score assigned: ${result.riskScore}/100.`,
+      time: 'Verdict',
+    },
+  ]
 }
 
 const PNG_EXPORT_PALETTES = {
@@ -281,12 +342,14 @@ function preparePngExportClone(clonedDocument: Document, isDark: boolean) {
   })
 }
 
-export default function ResultScreen({ result, onBackToAudit }: ResultScreenProps) {
+export default function ResultScreen({ result, onBackToAudit, timelineEvents = [] }: ResultScreenProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [isExporting, setIsExporting] = useState(false)
   const [feedbackLoading, setFeedbackLoading] = useState<string | null>(null)
   const [feedbackReason, setFeedbackReason] = useState(result.userFeedbackReason || '')
   const [expandedOcr, setExpandedOcr] = useState(false)
+  const isDemoReport = result.mode === 'demo' || result.credentialMode === 'demo' || result.source === 'demo'
+  const normalizedTimelineEvents = normalizeTimelineEvents(result, timelineEvents)
 
   const [feedbackGiven, setFeedbackGiven] = useState<boolean>(Boolean(result.userFeedback))
   const { resolvedTheme } = useTheme()
@@ -547,6 +610,22 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
           </div>
         </motion.section>
 
+        {isDemoReport && (
+          <motion.section variants={itemVariants} className="rounded-2xl border border-caution/30 bg-caution-bg/30 p-4 text-caution-text">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-xs font-black uppercase tracking-widest">Demo fixture</div>
+                <p className="mt-1 text-sm font-semibold leading-6">
+                  This is a prebuilt example report. Use live evidence mode for fresh source checks.
+                </p>
+              </div>
+              <span className="inline-flex w-fit rounded-lg border border-caution/30 px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+                Not live verified
+              </span>
+            </div>
+          </motion.section>
+        )}
+
         {ocrReceipt && (
           <motion.section variants={itemVariants} data-testid="ocr-evidence-receipt" className="rounded-[2rem] border border-evidence/30 bg-evidence/5 p-5 shadow-sm sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -740,15 +819,13 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
             Investigation Timeline
           </h2>
           <div className="relative space-y-8 before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-[2px] before:bg-border-soft">
-            {[
-              { time: 'T+0.0s', step: 'Initialization', detail: 'Loading job verification checks.', icon: Bot, color: 'text-muted' },
-              { time: 'T+0.4s', step: 'Entity Extraction', detail: `Identified ${result.extractedClaims.company || 'company'} and ${result.extractedClaims.role || 'role'} from raw input.`, icon: FileText, color: 'text-evidence' },
-              { time: 'T+1.2s', step: 'Signal Verification', detail: `Reviewing ${result.redFlags.length + result.greenFlags.length} risk and safety signals from the report.`, icon: SearchCheck, color: 'text-caution' },
-              { time: 'T+2.1s', step: 'Final Verdict', detail: `Investigation complete. Risk score assigned: ${result.riskScore}/100.`, icon: UserCheck, color: 'text-safe' },
-            ].map((step, i) => (
+            {normalizedTimelineEvents.map((step, i) => {
+              const Icon = i === 0 ? Bot : i === normalizedTimelineEvents.length - 1 ? UserCheck : SearchCheck
+              const color = i === 0 ? 'text-muted' : i === normalizedTimelineEvents.length - 1 ? 'text-safe' : 'text-evidence'
+              return (
               <div key={i} className="relative pl-12 group">
-                <div className={`absolute left-0 top-1 h-9 w-9 rounded-full bg-background border border-border-soft flex items-center justify-center z-10 transition-colors group-hover:border-safe/50 ${step.color}`}>
-                  <step.icon className="h-4 w-4" />
+                <div className={`absolute left-0 top-1 h-9 w-9 rounded-full bg-background border border-border-soft flex items-center justify-center z-10 transition-colors group-hover:border-safe/50 ${color}`}>
+                  <Icon className="h-4 w-4" />
                 </div>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                   <div>
@@ -758,7 +835,7 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
                   <div className="font-mono text-[10px] font-bold text-muted bg-surface px-2 py-1 rounded-md border border-border-soft">{step.time}</div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </motion.section>
 
@@ -864,7 +941,27 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
                 >
                   <div className="font-black">{alt.title}</div>
                   <div className="text-sm font-semibold">{alt.company}</div>
-                  {alt.salary && <div className="mt-1 text-sm font-black">{alt.salary}</div>}
+                  <div className="mt-1 flex flex-wrap gap-2 text-sm font-black">
+                    {alt.salary && <span>{alt.salary}</span>}
+                    {alt.location && <span>{alt.location}</span>}
+                  </div>
+                  {(alt.url || alt.verifiedSource || alt.source) && (
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-normal">
+                      {alt.verifiedSource && <span>{alt.verifiedSource}</span>}
+                      {alt.source && <span>{alt.source}</span>}
+                      {alt.url && (
+                        <a
+                          href={alt.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hireproof-focus inline-flex items-center gap-1 rounded-lg border border-safe-text/30 px-2 py-1 hover:bg-safe-text hover:text-safe-bg"
+                        >
+                          <Link2 className="h-3 w-3" />
+                          Source
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </div>

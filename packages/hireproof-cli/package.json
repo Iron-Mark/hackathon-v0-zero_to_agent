@@ -8,6 +8,7 @@
   },
   "files": [
     "bin",
+    "lib",
     "README.md"
   ],
   "scripts": {
@@ -18,7 +19,7 @@
     "url": "https://github.com/Iron-Mark/hackathon-v0-zero_to_agent.git",
     "directory": "packages/hireproof-cli"
   },
-  "homepage": "https://hireproof-sigma.vercel.app/docs/automations",
+  "homepage": "https://hireproof-sigma.vercel.app/docs/cli",
   "keywords": [
     "hireproof",
     "cli",
@@ -30,5 +31,12 @@
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "ink": "^7.0.1",
+    "react": "^19.2.5"
+  },
+  "devDependencies": {
+    "ink-testing-library": "^4.0.0"
   }
 }

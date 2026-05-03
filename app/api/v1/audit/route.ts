@@ -4,7 +4,6 @@ import { promisify } from 'node:util'
 import { z } from 'zod'
 import {
   AuditRequestSchema,
-  type AlternativeJob,
   type AuditReport,
   type AuditRequest,
   type ExtractedClaims,
@@ -216,24 +215,6 @@ async function extractClaims(input: AuditRequest, modelProviderKey?: string): Pr
       applicationPath: 'Not specified',
     })
   }
-}
-
-function buildAlternativeJobs(evidence: AuditReport['evidence']): AlternativeJob[] {
-  const safeEvidence = Array.isArray(evidence) ? evidence : []
-  return safeEvidence
-    .filter(item => item && item.type === 'Comparable Jobs')
-    .slice(0, 3)
-    .map(item => {
-      const snippet = String(item?.snippet || '')
-      const [titleAndCompany = '', salary = 'Not specified'] = snippet.split(' - ')
-      const [title = 'Comparable role', company = item.source || 'Job Board'] = titleAndCompany.split(' at ')
-
-      return {
-        title,
-        company,
-        salary,
-      }
-    })
 }
 
 function buildNextSteps(verdict: AuditReport['verdict'], company: string) {

@@ -81,14 +81,29 @@ export default function RiskScoringPage() {
       <section className="grid gap-4 md:grid-cols-3">
         {[
           { title: 'Green-credit cap', body: 'Safety bonuses are capped at -28 so positives help without hiding serious fraud signals.' },
-          { title: 'Company check evidence', body: 'Company Check, Local Presence, and Comparable Jobs receipts can reduce risk by small amounts.' },
+          { title: 'Company check evidence', body: 'Company Check, Local Presence, and sourced Comparable Jobs receipts can reduce risk by small amounts.' },
           { title: 'Negative scam evidence', body: 'Evidence snippets mentioning scam, fraud, fake, impersonation, or phishing increase risk, capped at +16.' },
+          { title: 'OCR confidence', body: 'Google Vision OCR evidence receives higher confidence than Tesseract fallback. Unavailable OCR lowers confidence for image-only audits.' },
+          { title: 'Input conflicts', body: 'A mismatch between pasted text, screenshot text, and resolved job URL content creates a caution floor so copied or misleading reposts do not look safe.' },
+          { title: 'Critical scam floor', body: 'Unrealistic pay, off-platform contact, and no interview together force a high-risk floor even if one source appears reputable.' },
         ].map((item) => (
           <div key={item.title} className="rounded-2xl border border-border-soft bg-surface p-5">
             <h3 className="text-sm font-black">{item.title}</h3>
             <p className="mt-2 text-xs font-semibold leading-5 text-muted">{item.body}</p>
           </div>
         ))}
+      </section>
+
+      <section className="rounded-2xl border border-evidence/30 bg-evidence/5 p-6">
+        <div className="flex items-start gap-4">
+          <ShieldCheck className="mt-1 h-5 w-5 text-evidence" />
+          <div className="space-y-2">
+            <p className="text-sm font-black uppercase tracking-widest text-evidence">False-positive controls</p>
+            <p className="text-sm font-medium text-muted leading-relaxed">
+              Remote startup mode can neutralize missing local-office evidence when the digital footprint and apply path are consistent. Salary benchmarks combine country-aware seeded bands with live comparable jobs when enough sourced evidence exists.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="rounded-2xl border border-caution-bg/60 bg-caution-bg/20 p-6">
@@ -132,7 +147,7 @@ export default function RiskScoringPage() {
           <div className="space-y-2">
             <p className="text-sm font-black uppercase tracking-widest">Explainable AI</p>
             <p className="text-sm font-medium text-muted leading-relaxed">
-              Every point added or subtracted is linked to visible report evidence. This explainable reasoning is what makes HireProof more useful than a simple blacklist.
+              Every point added or subtracted is linked to visible report evidence where possible. Reports can include OCR receipts, source reliability, salary benchmark signals, apply-path checks, and score trace items so users can see why the verdict changed.
             </p>
           </div>
         </div>

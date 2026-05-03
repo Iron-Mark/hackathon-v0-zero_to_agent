@@ -85,6 +85,38 @@ export default function InvestigationEnginePage() {
         </div>
       </section>
 
+      <section className="space-y-6">
+        <div className="flex items-center gap-3 border-b border-border-soft pb-2">
+          <Microscope className="h-6 w-6 text-foreground" />
+          <h2 className="text-2xl font-black">Input Normalization</h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {[
+            {
+              title: 'Text, URL, and screenshot intake',
+              body: 'The browser form accepts pasted text, job URLs, uploaded screenshots, pasted screenshots, and voice dictation. Desktop users land directly in the main paste box so text or screenshots can be pasted immediately.',
+            },
+            {
+              title: 'Screenshot OCR path',
+              body: 'Screenshots are read with Google Vision OCR first. If that provider is unavailable or returns too little text, HireProof falls back to Tesseract OCR after image preprocessing for contrast, grayscale, sharpening, and OCR-friendly sizing.',
+            },
+            {
+              title: 'Job URL enrichment',
+              body: 'Public job URLs are resolved before claim extraction where possible. LinkedIn and other supported job pages are converted into readable job text and evidence receipts.',
+            },
+            {
+              title: 'Conflict detection',
+              body: 'If pasted text, OCR text, and resolved URL content disagree, the report treats that as evidence rather than blindly trusting the safest-looking source.',
+            },
+          ].map((item) => (
+            <div key={item.title} className="rounded-2xl border border-border-soft bg-surface p-5">
+              <h3 className="text-sm font-black">{item.title}</h3>
+              <p className="mt-2 text-xs font-semibold leading-5 text-muted">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Resilience */}
       <section className="rounded-2xl border border-border bg-surface p-6">
         <div className="flex items-start gap-4">
@@ -98,13 +130,37 @@ export default function InvestigationEnginePage() {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-evidence/30 bg-evidence/5 p-6">
+        <div className="flex items-start gap-4">
+          <ShieldCheck className="mt-1 h-5 w-5 text-evidence" />
+          <div className="space-y-2">
+            <p className="text-sm font-black uppercase tracking-widest text-evidence">Screenshot report privacy</p>
+            <p className="text-sm font-medium text-muted leading-relaxed">
+              The raw screenshot is not stored as a report evidence item. Screenshot-derived reports can still be opened from their direct report link, but they are excluded from Explore and Trends by default. Public report UI shows a short display-safe OCR preview instead of dumping full screenshot text.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-border bg-surface p-6">
         <div className="flex items-start gap-4">
           <Workflow className="mt-1 h-5 w-5 text-safe" />
           <div className="space-y-2">
             <p className="text-sm font-black uppercase tracking-widest">Durable workflow roadmap</p>
             <p className="text-sm font-medium text-muted leading-relaxed">
-              The current WDK proof is a production-accepted workflow run. The next milestone is a visible investigation timeline with intake, evidence checks, scoring, report creation, callback delivery, and retry history.
+              Browser audits now show a visible report timeline that uses the stream events captured during the audit. WDK proof remains accepted-run proof until completed callback and retry evidence are captured.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-caution/30 bg-caution-bg/20 p-6">
+        <div className="flex items-start gap-4">
+          <ShieldCheck className="mt-1 h-5 w-5 text-caution-text" />
+          <div className="space-y-2">
+            <p className="text-sm font-black uppercase tracking-widest text-caution-text">Demo and live boundaries</p>
+            <p className="text-sm font-medium text-muted leading-relaxed">
+              Demo fixture reports are explicitly labeled and do not claim live source checks. In live mode, the timeline uses the stream events emitted by the audit route, safer alternatives require sourced comparable-job evidence, and operational notes explain throttling or provider circuit breaker states.
             </p>
           </div>
         </div>

@@ -1,5 +1,4 @@
 import type {
-  AlternativeJob,
   AuditOperations,
   AuditReport,
   AuditReportV2,
@@ -9,6 +8,7 @@ import type {
   IntelligenceSummary,
   ScoreTraceItem,
 } from '@/lib/schemas'
+import { buildVerifiedAlternativeJobs } from '@/lib/alternative-jobs'
 import { buildHybridSalaryBenchmark } from '@/lib/salary-benchmarks'
 import {
   calculateRiskScore,
@@ -302,20 +302,6 @@ function deriveRecruiterIdentity(
   }
 
   return { status: 'unknown', evidenceIds }
-}
-
-function buildAlternativeJobs(evidence: EvidenceItem[]): AlternativeJob[] {
-  return evidence
-    .filter(item => item.type === 'Comparable Jobs')
-    .slice(0, 3)
-    .map(item => {
-      const snippet = String(item.snippet || '')
-      const normalized = snippet.replace(/^Trust:\s*[^|]+\|\s*/i, '')
-      const [titleAndCompany = '', rest = ''] = normalized.split('|')
-      const [title = 'Comparable role', company = item.source || 'Job Board'] = titleAndCompany.trim().split(' at ')
-      const salary = rest.match(/Salary:\s*([^|]+)/i)?.[1]?.trim()
-      return { title: title.trim(), company: company.trim(), salary: salary || 'Not specified' }
-    })
 }
 
 function addSignal(signals: IntelligenceSignal[], signal: IntelligenceSignal) {
@@ -755,7 +741,7 @@ export function buildAuditReportV2(input: BuildReportV2Input): AuditReportV2 {
     redFlags,
     greenFlags,
     evidence,
-    alternatives: buildAlternativeJobs(evidence),
+    alternatives: buildVerifiedAlternativeJobs(evidence),
     nextSteps: buildNextSteps(verdict, input.extractedClaims.company),
     timestamp: new Date().toISOString(),
     mode: 'live',

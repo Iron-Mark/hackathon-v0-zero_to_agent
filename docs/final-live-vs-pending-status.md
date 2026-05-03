@@ -10,6 +10,9 @@ This is the concise status boundary for submission, demos, and reviewer conversa
 | --- | --- | --- |
 | Stable production site | Live | `https://hireproof-sigma.vercel.app` |
 | Web audit flow | Implemented | `/audit` and demo scenarios |
+| Screenshot OCR audit path | Implemented and production-smoke-proven | Google Vision OCR evidence receipt, Tesseract fallback in repo |
+| Screenshot privacy default | Implemented | Screenshot reports are excluded from Explore/Trends by default |
+| Public job URL enrichment | Implemented | Supported job URLs are resolved before claim extraction |
 | Demo audit API | Live | `POST /api/v1/audit` with `hireproof_agent_demo_key` |
 | Live SerpApi audit path | Live and smoke-proven | `POST /api/v1/audit` with `mode=live`, clean Canva extraction, and live evidence |
 | MCP investigation tools | Implemented | `/api/mcp` and docs |
@@ -22,6 +25,9 @@ This is the concise status boundary for submission, demos, and reviewer conversa
 | Chrome extension ZIP | Live download fallback | `/downloads/hireproof-extension.zip` |
 | Docker packaging | Implemented | `Dockerfile`, `docker-compose.yml`, `npm run docker:*` |
 | PDF/PNG/CSV exports | Implemented | result screen and trends dashboard |
+| Verified-only safer alternatives | Implemented | Alternatives require sourced comparable-job evidence |
+| Demo fixture labeling | Implemented | Fixture snackbar, visible result warning, fixture evidence wording |
+| Live audit guardrails | Implemented | Queue throttling, SerpApi circuit breaker, cache telemetry |
 
 ## Pending External Proof
 
@@ -52,6 +58,27 @@ Checked after checkpoint `0b83430`:
 
 This proves the live search/model path is production-wired. It does not guarantee every audit will return every possible evidence class; comparable jobs and local/search coverage still depend on provider result availability.
 
+## Latest Screenshot OCR Smoke
+
+Checked after the OCR/privacy checkpoint:
+
+- Route: `POST https://hireproof-sigma.vercel.app/api/audit`
+- Input type: generated screenshot data URL
+- OCR source: `Screenshot OCR: Google Vision`
+- OCR type: `Screenshot OCR`
+- Verdict: `high-risk`
+- Risk score: `100`
+- Public listing flag: `false`
+
+This proves the production screenshot path can extract OCR evidence through Google Vision and that screenshot-derived reports are not publicly listed by default. It does not claim deepfake detection or specialist image forensics.
+
+## Current Trust Controls
+
+- Timeline uses captured stream events for live browser audits; demo fixture mode uses fixture events and does not claim fresh source checks.
+- Safer alternatives are verified-only: sourced comparable-job evidence is required before an alternative is shown.
+- Demo fixture mode uses seeded fixtures for deterministic demos and offline fallback. It should not be described as live evidence.
+- Live SerpApi checks are protected by queue throttling, cache reuse, similarity cache, and a SerpApi circuit breaker.
+
 ## Safe Submission Wording
 
 Use:
@@ -69,6 +96,14 @@ Avoid:
 Use instead:
 
 > The WDK route has production accepted-run proof; completed timeline and callback evidence are the next milestone.
+
+Use for demo fixtures:
+
+> Demo mode uses seeded fixtures for deterministic demos and offline fallback. Live evidence mode is separate.
+
+Use for alternatives:
+
+> Safer alternatives appear only when HireProof has sourced comparable-job evidence. If no sourced comparable jobs are available, the section is hidden.
 
 ## Final Pre-Submission Smoke
 

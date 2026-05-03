@@ -15,7 +15,7 @@ export default function CliDocsPage() {
         </div>
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">HireProof CLI</h1>
         <p className="max-w-3xl text-xl font-medium leading-relaxed text-muted">
-          A branded terminal command for running HireProof audits without opening the web app. It wraps the same headless API used by agents and automation tools, with rich human output by default and clean JSON when scripts need it.
+          A branded terminal console for running HireProof audits without opening the web app. Run <code className="rounded bg-background px-1.5 py-0.5">hireproof</code> to open the Shield Sentinel TUI, or use direct commands when scripts need clean JSON.
         </p>
       </section>
 
@@ -40,8 +40,41 @@ export default function CliDocsPage() {
           title="PowerShell"
           code={`npm install
 node packages\\hireproof-cli\\bin\\hireproof.mjs --help
+node packages\\hireproof-cli\\bin\\hireproof.mjs tui
 node packages\\hireproof-cli\\bin\\hireproof.mjs health
 node packages\\hireproof-cli\\bin\\hireproof.mjs audit --text "Remote frontend intern. PHP 80,000/week. No interview. Telegram only." --mode demo`}
+        />
+      </section>
+
+      <section className="space-y-6">
+        <div className="flex items-center gap-3 border-b border-border-soft pb-2">
+          <Terminal className="h-6 w-6 text-foreground" />
+          <h2 className="text-2xl font-black">Interactive Console</h2>
+        </div>
+        <p className="max-w-3xl text-sm font-semibold leading-relaxed text-muted">
+          In a real terminal, <code className="rounded bg-background px-1.5 py-0.5">hireproof</code> opens a full-screen-style Ink TUI with the Shield Sentinel mascot, menu navigation, command-console input with Tab autocomplete, audit flows, health/config tools, recent report summaries, and a local Ask HireProof panel.
+        </p>
+        <CodeBlock
+          title="Terminal"
+          code={`HIREPROOF
+Shield Sentinel terminal console
+Target https://hireproof-sigma.vercel.app  Mode demo  Key configured
+
+Shield Sentinel        > Audit - Run the guided audit workflow
+    .-=========-.        Paste message - Paste a recruiter message or job post
+  .'  HIREPROOF  '.      Audit file - Audit text from a local file path
+ /   .---------.   \\     Audit URL - Audit a job URL with optional context
+|   /    HP     \\   |    Recent reports - Review locally saved TUI report summaries
+|   |  [SCAN]   |   |    Ask HireProof - Ask local questions about the selected report
+|   \\___________/   |    Health - Check API, search, and model readiness
+ '.   SENTINEL   .'      Config - Inspect base URL and API key status
+   '-._______ .-'        Help - Show shortcuts and command examples
+
+Command console  Tab autocomplete  Enter run
+> hea
+Tab -> health
+
+Esc back/exit  q exit  Direct JSON commands remain unchanged.`}
         />
       </section>
 
@@ -124,7 +157,7 @@ hireproof config list`}
           <div className="rounded-3xl border border-border-soft bg-surface p-5">
             <h3 className="mb-2 text-sm font-black uppercase tracking-[0.18em] text-foreground">Rich</h3>
             <p className="text-sm font-semibold leading-relaxed text-muted">
-              Default mode for people reading in a terminal. Includes boxes, status labels, a risk bar, and truncated evidence.
+              Default direct-command mode for people reading in a terminal. Includes boxes, status labels, a risk bar, and truncated evidence.
             </p>
           </div>
           <div className="rounded-3xl border border-border-soft bg-surface p-5">
@@ -142,10 +175,22 @@ hireproof config list`}
         </div>
         <CodeBlock
           title="Terminal"
-          code={`hireproof audit --file .\\job-post.txt --plain
+          code={`hireproof
+hireproof tui
+hireproof audit --file .\\job-post.txt --plain
 hireproof audit --file .\\job-post.txt --no-color
 hireproof audit --file .\\job-post.txt --verbose`}
         />
+      </section>
+
+      <section className="space-y-6">
+        <div className="flex items-center gap-3 border-b border-border-soft pb-2">
+          <FileText className="h-6 w-6 text-foreground" />
+          <h2 className="text-2xl font-black">Local Report History</h2>
+        </div>
+        <p className="max-w-3xl text-sm font-semibold leading-relaxed text-muted">
+          TUI-run audits save compact report summaries at <code className="rounded bg-background px-1.5 py-0.5">~/.hireproof/reports.jsonl</code>. The CLI does not store API keys or the full pasted recruiter text in this history file by default.
+        </p>
       </section>
 
       <section className="space-y-6">

@@ -18,7 +18,7 @@ HireProof is a proof-backed AI agent that checks suspicious job posts, recruiter
 
 ### Short Description
 
-HireProof helps job seekers verify suspicious opportunities before they apply. Paste a job post, recruiter message, or apply URL, and the agent investigates company presence, recent news, similar legitimate jobs, and local business signals before returning a Safe, Caution, or High-Risk verdict with evidence.
+HireProof helps job seekers verify suspicious opportunities before they apply. Paste a job post, recruiter message, screenshot, or apply URL, and the agent investigates company presence, recent news, similar legitimate jobs, local business signals, and visible screenshot text before returning a Safe, Caution, or High-Risk verdict with evidence.
 
 HireProof intentionally starts with employment fraud because job scams combine urgency, financial risk, identity exposure, and fragmented evidence. The current version uses transparent evidence-weighted scoring so users can see why a verdict was reached. The roadmap expands this into adaptive scoring, richer screenshot analysis, and durable workflow investigations with retryable evidence collection.
 
@@ -26,7 +26,7 @@ HireProof intentionally starts with employment fraud because job scams combine u
 
 Job scams often look normal until a few details do not add up: unrealistic pay, no interview process, off-platform messaging, weak company footprint, or pressure to act quickly. Checking those signals manually means opening search, news, maps, job boards, and company pages while still guessing.
 
-HireProof turns that manual investigation into one proof-backed workflow. A user pastes a job post, recruiter pitch, or apply URL. The agent extracts the important claims, checks live evidence, compares the role against legitimate postings, and returns a structured report with a verdict, risk score, red flags, green flags, evidence cards, safer alternatives, and practical next steps.
+HireProof turns that manual investigation into one proof-backed workflow. A user pastes a job post, recruiter pitch, screenshot, or apply URL. The agent extracts the important claims, reads screenshots through OCR, resolves supported public job URLs, checks live evidence, compares the role against legitimate postings, and returns a structured report with a verdict, risk score, red flags, green flags, evidence cards, verified-only safer alternatives, and practical next steps.
 
 The product is built as a Vercel-hosted Next.js app with runtime MCP investigation tools, AI SDK model routing, SerpApi evidence search, ChatSDK surfaces, and a production-accepted Vercel Workflow path for longer-running investigations.
 
@@ -57,6 +57,8 @@ HireProof is not a generic chatbot. It performs a multi-step investigation:
 - Extracts structured claims from the job post.
 - Calls runtime investigation tools for company, news, job-market, and local footprint checks.
 - Uses live SerpApi-backed evidence when production credentials are configured.
+- Reads uploaded or pasted screenshots with Google Vision OCR first and Tesseract fallback when needed.
+- Resolves supported public job URLs and flags conflicts between pasted text, OCR text, and resolved job-page content.
 - Scores risk with transparent red-flag and green-flag policy.
 - Persists a report that can be opened, shared, exported, or called from API/chat/workflow surfaces.
 
@@ -93,6 +95,9 @@ Proof points:
 - Runtime MCP tools for company presence, news reputation, job comparison, and local business footprint.
 - Live evidence via SerpApi when configured.
 - Deterministic demo mode for reliable judging.
+- Demo fixture mode is clearly labeled and should not be described as live evidence.
+- Verified-only safer alternatives appear only when comparable job evidence has a real source.
+- Live audit guardrails include queue throttling, cache reuse, and a SerpApi circuit breaker.
 
 ### ChatSDK Agents
 
@@ -151,7 +156,7 @@ Everyone has seen a job post that feels too good to be true. HireProof checks it
 
 Job scams can look normal until you notice the gaps: unrealistic pay, no interview, off-platform messaging, or a company footprint that does not hold up.
 
-HireProof investigates those gaps for you. Paste a job post, recruiter pitch, or apply URL. The agent extracts the role, company, salary, location, and contact method, then checks live evidence across search, news, jobs, and local business signals. It returns a clear verdict, a risk score, evidence cards, red flags, green flags, and safer next steps.
+HireProof investigates those gaps for you. Paste a job post, recruiter pitch, screenshot, or apply URL. The agent extracts the role, company, salary, location, contact method, and apply path, then checks live evidence across search, news, jobs, local business signals, OCR text, and URL content. It returns a clear verdict, a risk score, evidence cards, red flags, green flags, and safer next steps.
 
 This is not another generic chatbot. It is a job-post investigator built with v0, deployed on Vercel, powered by runtime MCP tools, and extended through ChatSDK and Vercel Workflow surfaces.
 
@@ -162,7 +167,7 @@ Use this as the credible future direction without weakening the current submissi
 - Near-term proof: capture one real Discord message screenshot/log, configure Zernio if WhatsApp proof stays in scope, and recapture the Telegram report-link screenshot after the permalink fix.
 - Durable workflow: add a public investigation timeline that shows intake, evidence checks, scoring, report creation, callback delivery, and retry history for WDK runs.
 - Risk model: add calibrated learning from reviewed cases while keeping verdicts explainable through visible red flags, green flags, and evidence receipts.
-- Multimodal evidence: improve screenshot/OCR handling and integrate specialist image or deepfake forensics providers only when they add real evidence.
+- Multimodal evidence: current screenshot OCR uses Google Vision first with Tesseract fallback. Specialist image or deepfake forensics providers belong only where they add real evidence.
 
 ### 15-Second Vertical Video
 
@@ -259,7 +264,7 @@ Spanish:
 
 ### Fallback Demo Wording
 
-For reliability, I am switching to demo mode. This uses the same interface and report shape, but with seeded evidence so the full experience is visible even if live APIs are slow during judging.
+For reliability, I am switching to demo mode. Demo fixture mode is clearly labeled and uses the same interface and report shape, but with seeded fixture evidence so the flow is visible even if live APIs are slow during judging.
 
 The important part is the product flow: paste a suspicious post, watch the investigation steps, and get a proof-backed verdict with red flags and safer alternatives.
 
@@ -273,6 +278,8 @@ Use these only if asked:
 - Workflow: "The production Workflow route accepted a run. We are not claiming a completed long-running workflow transcript unless a completed result is captured."
 - Model: "The current scorer is a transparent evidence-weighted safety policy, not a claimed continuous-learning model."
 - Multimodal: "HireProof accepts screenshots, but it should not be described as an in-house deepfake detector."
+- Screenshot privacy: "The raw screenshot is not stored as a report evidence item. Screenshot-derived reports are excluded from Explore and Trends by default, while direct report links still work."
+- Demo fixtures: "Demo mode uses seeded examples for deterministic demos and should not be described as live evidence."
 - Browser extension: "The extension has a Chrome Web Store-ready package and listing draft; public listing publication still requires Google review."
 - Export: "The current reliable export path includes PNG screenshots, PDF dossiers, safety certificates for Safe listings, and JSON/CSV trend exports."
 - Verified badge: "Badge verification requires DNS TXT ownership and public embed tokens. It does not expose API keys."

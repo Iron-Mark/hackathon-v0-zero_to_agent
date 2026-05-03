@@ -10,13 +10,15 @@ import ResultScreen from '@/components/audit/result-screen'
 import { SiteHeader } from '@/components/layout/site-header'
 import { ErrorBoundary } from '@/components/system/error-boundary'
 import { AuditSkeleton } from '@/components/audit/audit-skeleton'
+import { AuditLiveProgress, type AuditProgressEvent } from '@/components/audit/audit-live-progress'
 import { useAuditHistory } from '@/hooks/useAuditHistory'
 import { getFixtureByVerdict } from '@/lib/fixtures'
 import { buildAuditReportV2 } from '@/lib/intelligence-v2'
 import type { AuditReport, AuditRequest } from '@/lib/schemas'
+import { showToast } from '@/components/system/toast'
 
 type StreamEvent =
-  | { type: 'log'; message: string }
+  | AuditProgressEvent
   | { type: 'result'; data: AuditReport }
   | { type: 'error'; message: string }
 
@@ -122,7 +124,7 @@ function chooseDemoVerdict(text: string): DemoVerdict {
   return 'safe'
 }
 
-async function readAuditStream(response: Response, onEvent: (event: StreamEvent) => void) {
+async function readAuditStream(response: Response, onEvent: (event: StreamEvent) => void, signal?: AbortSignal) {
   if (!response.body) throw new Error('Audit stream did not return a readable body.')
 
   const reader = response.body.getReader()
@@ -151,6 +153,7 @@ async function readAuditStream(response: Response, onEvent: (event: StreamEvent)
       }
 
       if (done) break
+      if (signal?.aborted) throw new Error('Audit view stopped by user.')
     }
   } finally {
     reader.releaseLock()
@@ -172,6 +175,8 @@ async function readErrorMessage(response: Response) {
   }
 }
 
+const STOPPED_AUDIT_MESSAGE = 'Stopped waiting for the live audit result. You can retry or switch to demo fixtures.'
+
 function AuditContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -181,8 +186,10 @@ function AuditContent() {
   const [isAuditing, setIsAuditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [streamLogs, setStreamLogs] = useState<string[]>([])
+  const [streamEvents, setStreamEvents] = useState<AuditProgressEvent[]>([])
   const [liveMode, setLiveMode] = useState(true)
   const loadedDemoRef = useRef<string | null>(null)
+  const activeAuditRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     const demo = searchParams.get('demo')
@@ -194,7 +201,9 @@ function AuditContent() {
     setLiveMode(false)
     setReport(demoReport)
     setError(null)
-    setStreamLogs(['Demo fixtures loaded for instant judging.'])
+    setStreamLogs(['Demo fixture loaded. No live source checks were run.'])
+    setStreamEvents([{ type: 'log', message: 'Demo fixture loaded. No live source checks were run.', phase: 'report', status: 'complete', label: 'Demo fixture' }])
+    showToast('Demo fixture loaded. Use live evidence mode for fresh source checks.', 'info')
     addReport(demoReport)
   }, [searchParams, addReport])
 
@@ -203,10 +212,16 @@ function AuditContent() {
     setReport(null)
     setError(null)
     setStreamLogs([])
+    setStreamEvents([{ type: 'log', message: 'Opening live evidence stream...', phase: 'intake', status: 'active', label: 'Intake' }])
+    const controller = new AbortController()
+    activeAuditRef.current = controller
 
     try {
       if (!liveMode) {
         const demoReport = buildDemoReport(chooseDemoVerdict(request.text))
+        setStreamLogs(['Demo fixture loaded. No live source checks were run.'])
+        setStreamEvents([{ type: 'log', message: 'Demo fixture loaded. No live source checks were run.', phase: 'report', status: 'complete', label: 'Demo fixture' }])
+        showToast('Demo fixture loaded. Use live evidence mode for fresh source checks.', 'info')
         setReport(demoReport)
         addReport(demoReport)
         return
@@ -216,7 +231,8 @@ function AuditContent() {
       const res = await fetch('/api/audit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...request, mode: liveMode ? 'live' : 'demo' })
+          body: JSON.stringify({ ...request, mode: liveMode ? 'live' : 'demo' }),
+          signal: controller.signal,
         })
         
         if (!res.ok) {
@@ -226,21 +242,36 @@ function AuditContent() {
         const finalReport = await readAuditStream(res, (event) => {
           if (event.type === 'log') {
             setStreamLogs((logs) => [...logs, event.message].slice(-8))
+            setStreamEvents((events) => [...events, event].slice(-16))
           }
-        })
+        }, controller.signal)
         setReport(finalReport)
         addReport(finalReport)
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred during job verification.')
+      if (controller.signal.aborted) {
+        setError(STOPPED_AUDIT_MESSAGE)
+      } else {
+        setError(err.message || 'An unexpected error occurred during job verification.')
+      }
     } finally {
       setIsAuditing(false)
+      activeAuditRef.current = null
     }
+  }
+
+  const handleStopWaiting = () => {
+    activeAuditRef.current?.abort()
+    setIsAuditing(false)
+    setError(STOPPED_AUDIT_MESSAGE)
+    showToast('Stopped waiting for the live audit view. No result was saved.', 'info')
   }
 
   const reset = () => {
     setReport(null)
     setError(null)
     setStreamLogs([])
+    setStreamEvents([])
+    activeAuditRef.current?.abort()
     router.push('/audit')
   }
 
@@ -344,26 +375,7 @@ function AuditContent() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <AuditSkeleton />
-            <div className="mx-auto -mt-4 max-w-4xl rounded-2xl border border-border-soft bg-surface p-5">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <span className="text-xs font-black uppercase tracking-widest text-safe">
-                  Live audit stream
-                </span>
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted">
-                  {streamLogs.length} events
-                </span>
-              </div>
-              <div className="space-y-2 font-mono text-xs text-muted">
-                {streamLogs.length > 0 ? streamLogs.map((log, index) => (
-                  <div key={`${log}-${index}`} className="rounded-lg bg-background px-3 py-2">
-                    {log}
-                  </div>
-                )) : (
-                  <div className="rounded-lg bg-background px-3 py-2">Submitting audit request...</div>
-                )}
-              </div>
-            </div>
+            <AuditLiveProgress events={streamEvents} onStopWaiting={handleStopWaiting} />
           </motion.div>
         )}
 
@@ -375,7 +387,7 @@ function AuditContent() {
             exit={{ opacity: 0, scale: 1.05 }}
             className="pb-20"
           >
-            <ResultScreen result={report} onBackToAudit={reset} />
+            <ResultScreen result={report} onBackToAudit={reset} timelineEvents={streamEvents} />
           </motion.div>
         )}
       </AnimatePresence>

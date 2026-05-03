@@ -24,41 +24,25 @@ export const DEMO_FIXTURES = {
     greenFlags: [],
     evidence: [
       {
-        source: 'Job Search Analysis',
-        snippet: 'Average intern salary for Southeast Asia is $500-$1,500/month, not $80,000/week',
+        source: 'Demo fixture: market signal',
+        snippet: 'Sample market signal: the advertised weekly pay is intentionally unrealistic for the demo scenario.',
         type: 'Market Data',
         url: undefined,
       },
       {
-        source: 'Company Verification',
-        snippet: 'No registered company found with provided name in business registries',
+        source: 'Demo fixture: company check',
+        snippet: 'Sample company check: no verifiable employer identity is provided in this demo scenario.',
         type: 'Company Check',
         url: undefined,
       },
       {
-        source: 'Scam Report Database',
-        snippet: 'Telegram recruitment scams commonly promise high pay with minimal work',
+        source: 'Demo fixture: scam pattern',
+        snippet: 'Sample scam pattern: off-platform chat plus urgent high-pay recruiting is treated as risky.',
         type: 'Reputation',
         url: undefined,
       },
     ],
-    alternatives: [
-      {
-        title: 'Frontend Engineer - Entry Level',
-        company: 'TechCorp PH',
-        salary: '₱50,000 - ₱80,000/month',
-      },
-      {
-        title: 'UI/UX Developer Intern',
-        company: 'Digital Solutions Inc',
-        salary: '₱25,000 - ₱35,000/month',
-      },
-      {
-        title: 'Junior Web Developer',
-        company: 'Acme Tech Solutions',
-        salary: '₱60,000 - ₱100,000/month',
-      },
-    ],
+    alternatives: [],
     nextSteps: [
       'Do not respond to the Telegram message or provide any personal information',
       'Report the account to Telegram for suspected fraud',
@@ -97,36 +81,25 @@ export const DEMO_FIXTURES = {
     ],
     evidence: [
       {
-        source: 'Company Website',
-        snippet: 'Company established 2019, 50-100 employees based in Manila',
+        source: 'Demo fixture: company website',
+        snippet: 'Sample company footprint: the demo employer has some public presence but not enough detail to clear all concerns.',
         type: 'Company Info',
-        url: 'https://techstartsolutions.ph',
+        url: undefined,
       },
       {
-        source: 'LinkedIn Search',
-        snippet: 'TechStart Solutions has 45 employees on LinkedIn with positive reviews',
+        source: 'Demo fixture: social proof',
+        snippet: 'Sample social proof: a public profile exists, but this fixture is not a fresh live verification.',
         type: 'Social Proof',
-        url: 'https://linkedin.com/company/techstart-solutions',
+        url: undefined,
       },
       {
-        source: 'Industry Review',
-        snippet: 'Mixed reviews on Glassdoor, average rating 3.5/5 stars',
+        source: 'Demo fixture: review signal',
+        snippet: 'Sample review signal: mixed employer reputation is represented for the demo only.',
         type: 'Company Reviews',
         url: undefined,
       },
     ],
-    alternatives: [
-      {
-        title: 'Senior Software Engineer',
-        company: 'GlobalTech Inc',
-        salary: '₱150,000 - ₱200,000/month',
-      },
-      {
-        title: 'Full Stack Developer',
-        company: 'Digital Innovation Labs',
-        salary: '₱120,000 - ₱160,000/month',
-      },
-    ],
+    alternatives: [],
     nextSteps: [
       'Research the company on Glassdoor and Indeed to read employee reviews',
       'Connect with current/former employees on LinkedIn',
@@ -161,36 +134,25 @@ export const DEMO_FIXTURES = {
     ],
     evidence: [
       {
-        source: 'Company Profile',
-        snippet: 'Microsoft, founded 1975, publicly traded, 220,000+ employees worldwide',
+        source: 'Demo fixture: company profile',
+        snippet: 'Sample established-company signal for a safe demo report. This is not a fresh live lookup.',
         type: 'Company Info',
-        url: 'https://microsoft.com/careers',
+        url: undefined,
       },
       {
-        source: 'Glassdoor Reviews',
-        snippet: 'Microsoft rated 4.5/5 stars, strong engineering culture, competitive pay',
+        source: 'Demo fixture: employer review signal',
+        snippet: 'Sample positive employer-review signal for demo presentation only.',
         type: 'Company Reviews',
-        url: 'https://glassdoor.com/microsoft',
+        url: undefined,
       },
       {
-        source: 'LinkedIn Recruiter Profile',
-        snippet: 'Sarah Chen, Verified Microsoft Recruiter, 500+ connections, 3+ years recruiting',
+        source: 'Demo fixture: recruiter signal',
+        snippet: 'Sample recruiter-channel signal. Live mode should verify the actual recruiter profile before trusting it.',
         type: 'Recruiter Verification',
-        url: 'https://linkedin.com/in/sarah-chen-microsoft',
+        url: undefined,
       },
     ],
-    alternatives: [
-      {
-        title: 'Principal Engineer',
-        company: 'Google',
-        salary: '$220,000 - $280,000 + stock',
-      },
-      {
-        title: 'Engineering Manager',
-        company: 'Amazon Web Services',
-        salary: '$210,000 - $260,000 + benefits',
-      },
-    ],
+    alternatives: [],
     nextSteps: [
       'Review the complete job description on the official careers portal',
       'Research the specific team and manager on LinkedIn',

@@ -46,7 +46,10 @@ HireProof is implemented as a production Next.js app with web UI, headless API, 
 
 What is complete in this repo:
 
-- Web audit flow with text, image, and voice input.
+- Web audit flow with text, job URL, screenshot upload, pasted screenshot, and voice input.
+- Screenshot OCR path with Google Vision first, Tesseract fallback, image preprocessing, and OCR evidence receipts.
+- Public job URL enrichment for supported LinkedIn, ATS, and public career pages before scoring.
+- Screenshot-derived reports excluded from Explore and Trends by default; direct report links still work.
 - Demo-mode seeded scenarios that work without API keys.
 - Live-mode investigation path using model and search provider credentials.
 - Headless `/api/v1/audit` endpoint with API-key auth and webhook support.
@@ -110,7 +113,9 @@ npm run dev
 
 Open <http://localhost:3002> and go to `/audit`.
 
-Demo mode works without keys. For live evidence, configure model and search credentials in `.env.local`.
+Demo fixture mode works without keys and is labeled as fixture data. For live evidence, configure model and search credentials in `.env.local`.
+
+For the current behavior boundary, see [`docs/current-audit-behavior.md`](docs/current-audit-behavior.md).
 
 ## Recommended Demo Script
 
@@ -137,18 +142,33 @@ curl -X POST https://hireproof-sigma.vercel.app/api/v1/audit \
 6. Mention the distribution surfaces: MCP tools, ChatSDK agents, WDK workflow, Docker self-hosting, and Chrome extension package.
 7. Be explicit about boundaries: Chrome Store publication and Docker runtime verification depend on external account/runtime access.
 
+### Current Trust Model
+
+- **Live evidence mode** runs the real evidence path when credentials are configured: claim extraction, job URL enrichment, OCR where needed, SerpApi-backed search/jobs/news/maps checks, scoring, and streamed report events.
+- **Demo fixture mode** is labeled and should not be described as live evidence. It shows deterministic fixture reports for walkthroughs and offline testing.
+- **Timeline honesty**: browser reports use captured stream events when live mode runs; demo reports show fixture events rather than precise fake timings.
+- **Verified-only safer alternatives**: alternatives appear only when comparable job evidence has a real source URL or provider-backed metadata.
+- **False-positive controls**: remote startup mode explains why missing local-office evidence may not hurt the score when digital footprint and apply-path signals are consistent.
+- **SerpApi circuit breaker and queue throttling**: expensive live audits are protected by per-user/per-IP throttling, cache reuse, similarity cache, and circuit-breaker status.
+
 ## Core Workflows
 
 ### Web Audit
 
 The main workflow lives at `/audit`.
 
-- Paste a job listing or recruiter message.
+- Paste a job listing or recruiter message. On desktop, the main paste box focuses when the audit page opens so users can paste text or a screenshot immediately.
 - Paste a public job URL when available; HireProof expands supported LinkedIn, ATS, and public careers pages before scoring.
-- Upload a screenshot.
+- Upload or paste a screenshot. Google Vision OCR runs first; Tesseract fallback runs after OCR-oriented image preprocessing when needed.
 - Use browser speech-to-text for voice input.
 - Watch the Server-Sent Events stream as the agent extracts claims and calls tools.
-- Review the verdict, risk score, flags, evidence, and recommended next steps.
+- Review the verdict, risk score, flags, OCR/source evidence receipts, and recommended next steps.
+
+Screenshot privacy behavior:
+
+- The raw screenshot is not stored as a report evidence item.
+- OCR text is used for analysis and shown as a short display-safe preview in report UI.
+- Screenshot-based reports are marked not publicly listed by default, so they are excluded from `/explore` and `/trends`.
 
 ### Headless API
 
@@ -229,6 +249,8 @@ Current upload/download copy:
 ```text
 public/downloads/hireproof-extension.zip
 ```
+
+The request body can include `text`, `url`, `image`, or a combination of these fields. `image` accepts a base64 data URL screenshot and uses the same OCR path as the web UI.
 
 Build output:
 
@@ -414,6 +436,10 @@ Three seeded audit scenarios are available without external keys:
 - **High-Risk**: Telegram-based PHP 80,000/week internship scam.
 - **Caution**: Ambiguous listing with incomplete company signals.
 - **Safe**: Credible listing with matching company, role, and evidence.
+
+These are intentional demo fixtures for deterministic judging and offline fallback. They should not be described as live evidence.
+
+Demo fixture mode is clearly labeled in the UI, shows a snackbar warning, removes fake source links, and hides demo safer alternatives unless they come from sourced comparable-job evidence.
 
 ## Architecture
 

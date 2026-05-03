@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { Zap, Code2, Webhook, ArrowRight, Download, Cpu, ShieldCheck } from 'lucide-react'
+import { Zap, Code2, Webhook, ArrowRight, Download, Cpu, ShieldCheck, SearchCheck } from 'lucide-react'
 import { CodeBlock } from '@/components/ui/code-block'
 
 export const metadata = { title: 'Documentation — HireProof' }
 
 const quickLinks = [
+  { icon: SearchCheck, title: 'How It Works', desc: 'Live vs demo behavior, evidence flow, trust controls, and guardrails', href: '/docs/how-it-works', color: 'hover:border-safe' },
   { icon: Zap, title: 'Quickstart', desc: 'Get running locally in under 2 minutes', href: '/docs/quickstart', color: 'hover:border-safe' },
   { icon: Code2, title: 'API Reference', desc: 'Full endpoint docs, params, and schemas', href: '/docs/api-reference', color: 'hover:border-evidence' },
   { icon: Cpu, title: 'Agent Skills', desc: 'Download MCP skills for your AI CLI', href: '/docs/skills', color: 'hover:border-caution' },
@@ -76,11 +77,15 @@ export default function DocsOverview() {
       <div className="mb-12 rounded-2xl border border-border-soft bg-safe/5 p-6">
         <ol className="space-y-4 text-sm font-semibold text-muted">
           {[
-            'User submits a job post via text, image upload, or voice dictation',
-            'AI extracts structured claims: company, role, salary, location, and contact method',
-            'An autonomous agent loop calls 4 MCP tools concurrently to gather live web evidence',
-            'A transparent evidence-weighted risk policy produces a 0-100 score and a verdict',
-            'Results stream to the browser in real-time, or return as JSON for headless clients',
+            'User submits a job post via text, URL, screenshot upload, pasted screenshot, or voice dictation',
+            'Screenshot text is extracted with Google Vision OCR first, then Tesseract fallback if needed',
+            'HireProof resolves public job URLs and compares them against pasted or OCR-derived text',
+            'AI extracts structured claims: company, role, salary, location, contact method, and apply path',
+            'Live evidence mode can call search, jobs, news, maps, OCR, and enrichment tools',
+            'A transparent evidence-weighted risk policy produces a 0-100 score, verdict, evidence receipts, and next steps',
+            'Verified-only alternatives appear only when comparable job evidence has a source',
+            'Demo fixture mode is labeled and does not claim fresh source checks',
+            'Results stream to the browser, or return as JSON for headless clients',
           ].map((step, i) => (
             <li key={i} className="flex gap-3">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-safe text-xs font-black text-background">{i + 1}</span>

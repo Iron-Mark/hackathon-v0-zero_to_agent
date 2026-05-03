@@ -13,6 +13,8 @@ function printHelp() {
   console.log(`HireProof CLI
 
 Usage:
+  hireproof
+  hireproof tui
   hireproof audit --text "Remote job..." [options]
   hireproof audit --file ./job.txt [options]
   hireproof audit ./job.txt [options]
@@ -20,6 +22,7 @@ Usage:
   hireproof config <set|get|list|unset> [key] [value]
 
 Commands:
+  tui        Open the interactive HireProof terminal UI
   audit      Run a HireProof job-post audit
   health     Check the HireProof API health endpoint
   config     Store local baseUrl and apiKey defaults
@@ -459,14 +462,43 @@ async function commandConfig(argv) {
   throw new Error(`Unknown config action: ${action}`)
 }
 
+async function commandTui(argv) {
+  const { flags } = parseArgs(argv)
+  if (flags.help) {
+    console.log('Usage: hireproof tui [--base-url <url>] [--api-key <key>] [--mode demo|live] [--no-color]')
+    return 0
+  }
+
+  const [{ default: React }, { render }, { HireProofTuiApp }] = await Promise.all([
+    import('react'),
+    import('ink'),
+    import('../lib/tui-app.mjs'),
+  ])
+  const { baseUrl, apiKey } = await getRuntimeOptions(flags)
+  render(React.createElement(HireProofTuiApp, {
+    baseUrl,
+    apiKey,
+    mode: flags.mode || 'demo',
+    color: shouldUseColor(flags),
+  }))
+  return 0
+}
+
 async function main() {
   const [command, ...argv] = process.argv.slice(2)
 
-  if (!command || command === '--help' || command === '-h') {
+  if (!command) {
+    if (process.stdout.isTTY && !process.env.CI) return commandTui([])
     printHelp()
     return 0
   }
 
+  if (command === '--help' || command === '-h') {
+    printHelp()
+    return 0
+  }
+
+  if (command === 'tui' || command === '--tui') return commandTui(argv)
   if (command === 'health') return commandHealth(argv)
   if (command === 'audit') return commandAudit(argv)
   if (command === 'config') return commandConfig(argv)
