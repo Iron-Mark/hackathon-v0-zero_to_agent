@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "HireProof is a proof-backed AI agent for checking suspicious job posts before someone applies. A user pastes a job post, recruiter message, or job URL, and the app investigates the opportunity with visible evidence before returning a verdict: **Safe**, **Caution**, or **High-Risk**.",
   "main": "index.js",
+  "workspaces": [
+    "sdk",
+    "integrations/n8n-nodes-hireproof",
+    "packages/hireproof-langchain"
+  ],
   "directories": {
     "doc": "docs"
   },
@@ -18,6 +23,9 @@
     "docker:build": "docker build -t hireproof:local .",
     "docker:run": "docker run --rm -p 3002:3002 --env APP_BASE_URL=http://localhost:3002 --env AGENT_API_KEY=hireproof_agent_demo_key hireproof:local",
     "docker:smoke": "node scripts/smoke-docker.mjs",
+    "integrations:build": "node scripts/validate-integrations.mjs --build",
+    "integrations:test": "node scripts/validate-integrations.mjs --test",
+    "integrations:package": "node scripts/package-integrations.mjs",
     "proof:chat-live": "node scripts/check-live-chat-proof.mjs",
     "proof:chat-live:strict": "node scripts/check-live-chat-proof.mjs --require-live"
   },

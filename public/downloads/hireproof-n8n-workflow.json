@@ -1,0 +1,192 @@
+{
+  "name": "HireProof Job Safety Check",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hireproof-job-check",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "08ad8c56-66a5-447e-b8c1-702f804269a0",
+      "name": "Incoming Job",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hireproof-sigma.vercel.app/api/v1/audit",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.HIREPROOF_API_KEY || 'hireproof_agent_demo_key' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.body?.text || $json.body?.jobDescription || $json.text || $json.jobDescription || 'Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.', location: $json.body?.location || $json.location || 'Philippines', mode: $json.body?.mode || $json.mode || 'demo' }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "c39d3b57-7425-4c13-8f50-c715bd0165a5",
+      "name": "HireProof Audit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "0f5bb7bd-cdca-4e26-888d-3f24031f1870",
+              "leftValue": "={{ $json.verdict }}",
+              "rightValue": "safe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "db8a0db4-784a-4f49-aab0-0e76a3884e7b",
+              "leftValue": "={{ Number($json.riskScore || 0) }}",
+              "rightValue": 40,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5746dab1-d7e3-4966-a323-d94219857197",
+      "name": "Safe Enough?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'continue', message: 'HireProof marked this opportunity safe enough for the next workflow step.', verdict: $json.verdict, riskScore: $json.riskScore, reportId: $json.id, summary: $json.summary } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "171149b9-86ff-4a48-8f71-dc8d0438d995",
+      "name": "Continue",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        40,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'blocked', message: 'HireProof flagged this opportunity for human review before applying.', verdict: $json.verdict, riskScore: $json.riskScore, reportId: $json.id, summary: $json.summary, redFlags: $json.redFlags, nextSteps: $json.nextSteps } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "32245634-3afc-441f-93c2-c665c49af152",
+      "name": "Block and Review",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        40,
+        140
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Incoming Job": {
+      "main": [
+        [
+          {
+            "node": "HireProof Audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HireProof Audit": {
+      "main": [
+        [
+          {
+            "node": "Safe Enough?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Safe Enough?": {
+      "main": [
+        [
+          {
+            "node": "Continue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Block and Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3fc84573-3d11-410a-8a96-35f3af6b2b0f",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "hireproof"
+    },
+    {
+      "name": "job-safety"
+    }
+  ]
+}

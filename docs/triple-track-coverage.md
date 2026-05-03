@@ -12,6 +12,7 @@ The tracks are delivery layers for the same agent, not separate product directio
 - Other agents call the same checks through MCP or API.
 - Chat communities can ask the same agent to review suspicious posts in Slack, Telegram, Discord, or WhatsApp-backed channels.
 - Longer investigations can run asynchronously and notify users when the report is ready.
+- Automation builders can install or adapt repo-shipped n8n, Make, and LangChain integration packs around the same audit API.
 
 ## Track Map
 
@@ -62,6 +63,17 @@ Implemented and accepted in production.
 Submission line:
 
 > HireProof uses durable workflows to run longer job-post investigations in the background and notify users when evidence-backed reports are ready.
+
+### Native Automation Integrations
+
+Implemented and source-packaged in the repo.
+
+- `integrations/n8n-nodes-hireproof` provides a community-node package named `n8n-nodes-hireproof` with `Run audit` and `Run async audit` operations.
+- `integrations/make-hireproof` provides Make Custom App source with API-key connection, sync audit, async audit, and health modules.
+- `packages/hireproof-langchain` provides `@hireproof/langchain` source with `createHireProofAuditTool`, schema validation, and typed result helpers.
+- `public/downloads/hireproof-native-integrations.zip` bundles the source packs for download.
+- Portable HTTP templates remain available for n8n workflow import, Make HTTP setup, LangChain standalone use, and curl smoke checks.
+- Marketplace publication is not claimed yet; npm publish, n8n approval, and Make review require external account actions.
 
 ## Demo Strategy
 

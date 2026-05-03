@@ -1,0 +1,30 @@
+{
+  "name": "hireproof-api",
+  "label": "HireProof API",
+  "type": "apiKey",
+  "baseUrl": "https://hireproof-sigma.vercel.app",
+  "parameters": [
+    {
+      "name": "apiKey",
+      "label": "API Key",
+      "type": "password",
+      "required": true,
+      "help": "Use hireproof_agent_demo_key for demo fixtures, or a real HireProof API key for live/provider-backed audits."
+    },
+    {
+      "name": "baseUrl",
+      "label": "Base URL",
+      "type": "url",
+      "required": true,
+      "default": "https://hireproof-sigma.vercel.app"
+    }
+  ],
+  "headers": {
+    "x-api-key": "{{connection.apiKey}}",
+    "Content-Type": "application/json"
+  },
+  "test": {
+    "method": "GET",
+    "url": "{{connection.baseUrl}}/api/health"
+  }
+}

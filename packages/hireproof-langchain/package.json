@@ -1,0 +1,47 @@
+{
+  "name": "@hireproof/langchain",
+  "version": "1.0.0",
+  "description": "LangChain tool package for gating job-application agents with HireProof audits.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "examples",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node test-smoke.mjs",
+    "test": "node test-smoke.mjs",
+    "prepublishOnly": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Iron-Mark/hackathon-v0-zero_to_agent.git",
+    "directory": "packages/hireproof-langchain"
+  },
+  "peerDependencies": {
+    "@langchain/core": ">=0.3.0",
+    "zod": ">=3.22.0 || >=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@langchain/core": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "keywords": [
+    "hireproof",
+    "langchain",
+    "tool",
+    "job-safety",
+    "job-scams",
+    "recruitment-fraud"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

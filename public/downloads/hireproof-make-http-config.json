@@ -1,0 +1,32 @@
+{
+  "name": "HireProof Make.com HTTP module config",
+  "module": "HTTP > Make a request",
+  "method": "POST",
+  "url": "https://hireproof-sigma.vercel.app/api/v1/audit",
+  "headers": [
+    {
+      "name": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "name": "x-api-key",
+      "value": "{{HIREPROOF_API_KEY}}"
+    }
+  ],
+  "bodyType": "raw",
+  "contentType": "application/json",
+  "body": {
+    "text": "{{jobDescription}}",
+    "location": "{{jobLocation}}",
+    "mode": "demo"
+  },
+  "routing": {
+    "continueWhen": "verdict == safe AND riskScore < 40",
+    "reviewWhen": "verdict != safe OR riskScore >= 40"
+  },
+  "notes": [
+    "Use hireproof_agent_demo_key for deterministic demo fixtures.",
+    "Use mode=live only when the target deployment or account has live provider credentials.",
+    "For async delivery, add webhook_url to the JSON body and receive the completed AuditReport by signed POST callback."
+  ]
+}

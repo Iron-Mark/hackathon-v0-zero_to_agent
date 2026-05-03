@@ -1,0 +1,4 @@
+packages:
+  - sdk
+  - integrations/n8n-nodes-hireproof
+  - packages/hireproof-langchain

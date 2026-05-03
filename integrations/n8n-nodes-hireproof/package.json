@@ -1,0 +1,46 @@
+{
+  "name": "n8n-nodes-hireproof",
+  "version": "1.0.0",
+  "description": "n8n community node for running HireProof job-safety audits before automated apply workflows continue.",
+  "license": "MIT",
+  "homepage": "https://hireproof-sigma.vercel.app/docs/automations",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Iron-Mark/hackathon-v0-zero_to_agent.git",
+    "directory": "integrations/n8n-nodes-hireproof"
+  },
+  "main": "index.js",
+  "files": [
+    "credentials",
+    "nodes",
+    "lib",
+    "index.js",
+    "README.md",
+    "SUBMISSION.md"
+  ],
+  "scripts": {
+    "build": "node test/request.test.mjs",
+    "test": "node test/request.test.mjs",
+    "prepublishOnly": "npm run test"
+  },
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "hireproof",
+    "job-safety",
+    "job-scams",
+    "recruitment-fraud",
+    "trust-and-safety"
+  ],
+  "n8n": {
+    "credentials": [
+      "credentials/HireProofApi.credentials.js"
+    ],
+    "nodes": [
+      "nodes/HireProof/HireProof.node.js"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

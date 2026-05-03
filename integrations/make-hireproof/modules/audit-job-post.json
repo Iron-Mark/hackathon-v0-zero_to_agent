@@ -1,0 +1,64 @@
+{
+  "name": "audit-job-post",
+  "label": "Audit job post",
+  "type": "action",
+  "description": "Run a synchronous HireProof audit and return the completed AuditReport.",
+  "connection": "hireproof-api",
+  "request": {
+    "method": "POST",
+    "url": "{{connection.baseUrl}}/api/v1/audit",
+    "headers": {
+      "x-api-key": "{{connection.apiKey}}",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "text": "{{parameters.text}}",
+      "location": "{{parameters.location}}",
+      "mode": "{{parameters.mode}}"
+    }
+  },
+  "parameters": [
+    {
+      "name": "text",
+      "label": "Job post or recruiter message",
+      "type": "text",
+      "required": true,
+      "mappable": true
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "type": "text",
+      "required": false,
+      "mappable": true
+    },
+    {
+      "name": "mode",
+      "label": "Mode",
+      "type": "select",
+      "required": true,
+      "default": "demo",
+      "options": [
+        {
+          "label": "Demo",
+          "value": "demo"
+        },
+        {
+          "label": "Live",
+          "value": "live"
+        }
+      ]
+    }
+  ],
+  "output": [
+    "id",
+    "verdict",
+    "riskScore",
+    "confidence",
+    "summary",
+    "redFlags",
+    "greenFlags",
+    "evidence",
+    "nextSteps"
+  ]
+}

@@ -18,12 +18,14 @@ HireProof is core production-ready on the stable production URL:
 - WDK package wiring exists for `startAuditWorkflow` through `/api/workflows/audit`.
 - BYOK settings are relabelled as local verification only and do not imply hosted audits use browser-stored keys.
 - Webhook sandbox payloads use the same `buildHireProofWebhookHeaders` HMAC helper as production webhooks.
+- Native automation integration source packs now exist for n8n, Make, and LangChain, with portable HTTP templates and a downloadable source bundle documented at `/docs/automations`.
 - Verified badge flow has account-level domains, DNS TXT ownership checks, public embed tokens, status/script endpoints, and developer portal controls.
 - Production audit failures from whitespace-padded Redis env values are fixed by trimming Redis env values before client creation.
 - Audit and ChatSDK responses no longer fail solely because report persistence has a transient storage issue.
 - **Forensic PDF Engine**: Wired `generatePdfDossier` and `generateCertificate` to the `ResultScreen` UI. Investigators can now download full dossiers and safety certificates.
 - **CSV Data Export**: Implemented `buildTrendsCsvExport` and added a dedicated CSV download button to the Trends dashboard.
 - **Docker Orchestration**: Validated the `Dockerfile` and `docker-compose.yml` (ports 3002:3002) as production-ready.
+- **Automation Integrations**: `pnpm integrations:build`, `pnpm integrations:test`, and `pnpm integrations:package` validate native package metadata, Make source JSON, LangChain tool helpers, demo API smoke, and the generated source bundle.
 
 ## Production Proof
 
@@ -42,6 +44,7 @@ HireProof is core production-ready on the stable production URL:
 - WhatsApp/Zernio is implemented and production-reachable, but remains credential-gated until `ZERNIO_API_KEY` and `ZERNIO_WEBHOOK_SECRET` are configured.
 - The Chrome extension has a store-ready package workflow, privacy disclosure, and listing draft. No public Chrome Web Store listing is claimed until Google review publishes one.
 - **Dockerized Packaging**: Fully implemented for production standalone deployment, with Compose orchestration, healthcheck, and local smoke script.
+- n8n, Make, and LangChain are implemented as repo-shipped integration packs, not approved marketplace listings. npm publish, n8n community approval, and Make review still require external account actions.
 
 ## Final Submission Checklist
 
@@ -50,6 +53,9 @@ Run these immediately before submitting:
 ```powershell
 npm run lint
 npm run build
+pnpm integrations:build
+pnpm integrations:test
+pnpm integrations:package
 
 $base='https://hireproof-sigma.vercel.app'
 Invoke-RestMethod -Uri "$base/api/health"

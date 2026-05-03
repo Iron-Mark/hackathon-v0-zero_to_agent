@@ -1,0 +1,21 @@
+{
+  "name": "get-api-health",
+  "label": "Get API health",
+  "type": "action",
+  "description": "Check the target HireProof deployment health and provider readiness.",
+  "connection": "hireproof-api",
+  "request": {
+    "method": "GET",
+    "url": "{{connection.baseUrl}}/api/health",
+    "headers": {
+      "x-api-key": "{{connection.apiKey}}"
+    }
+  },
+  "parameters": [],
+  "output": [
+    "status",
+    "storage",
+    "liveSearch",
+    "model"
+  ]
+}

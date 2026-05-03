@@ -20,7 +20,7 @@ The result is a structured risk report with a clear Safe, Caution, or High-Risk 
 
 HireProof can be presented across the hackathon tracks as one employment-fraud trust-and-safety agent with multiple surfaces: a v0-built web app, runtime MCP tools for evidence gathering, live-tested ChatSDK Slack and Telegram delivery for job communities, and a production-accepted WDK workflow path for longer-running investigations.
 
-HireProof intentionally starts with employment fraud because job scams combine urgency, financial risk, identity exposure, and fragmented evidence. The focused domain is the wedge, not the ceiling: the same evidence core already runs through web, API, MCP, ChatSDK, and workflow surfaces.
+HireProof intentionally starts with employment fraud because job scams combine urgency, financial risk, identity exposure, and fragmented evidence. The focused domain is the wedge, not the ceiling: the same evidence core already runs through web, API, MCP, ChatSDK, workflow, and automation integration surfaces.
 
 ## Tags
 
@@ -40,6 +40,7 @@ For submission, lead with the strongest working web flow, then show ChatSDK scre
 
 - Near-term proof: capture Discord live-provider proof, configure WhatsApp/Zernio if it remains in scope, and recapture the Telegram report-link screenshot.
 - Durable workflow: add a WDK investigation timeline with intake, evidence checks, scoring, report creation, callback delivery, and retry history.
+- Integration publishing: submit the repo-shipped n8n community node, Make Custom App source, and LangChain package to their external marketplaces after account-backed review steps are complete.
 - Risk model: add calibrated learning from reviewed cases while preserving explainable red flags, green flags, and evidence receipts.
 - Multimodal evidence: improve screenshot/OCR handling and integrate specialist image or deepfake forensics providers only where they add trustworthy evidence.
 
@@ -110,7 +111,7 @@ Paste a job post, recruiter message, or suspicious listing, and it investigates 
 
 It returns a Safe, Caution, or High-Risk verdict with red flags, proof links, and safer alternatives.
 
-Built with v0, Vercel, MCP, AI SDK, and SerpApi, with Forensic PDF Dossier exports, live-tested ChatSDK Slack/Telegram proof and a production-accepted Vercel Workflow run.
+Built with v0, Vercel, MCP, AI SDK, and SerpApi, with Forensic PDF Dossier exports, live-tested ChatSDK Slack/Telegram proof, a production-accepted Vercel Workflow run, and repo-shipped n8n, Make, and LangChain integration packs.
 
 ### Short Video Caption
 
