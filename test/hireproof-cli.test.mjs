@@ -342,6 +342,58 @@ test('HireProof TUI command console autocompletes with tab and opens a screen', 
   assert.match(frame, /API: ok/)
 })
 
+test('HireProof TUI slash focuses command palette and shortcuts open screens', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+    healthClient: async () => ({
+      status: 'ok',
+      liveSearch: true,
+      model: true,
+      modelProvider: { aiGateway: true },
+    }),
+  }))
+
+  result.stdin.write('/')
+  await waitForInk()
+  assert.match(stripAnsi(result.lastFrame()), /> \//)
+
+  result.stdin.write('status')
+  result.stdin.write('\r')
+  await waitForInk()
+  assert.match(stripAnsi(result.lastFrame()), /Health/)
+  assert.match(stripAnsi(result.lastFrame()), /API: ok/)
+
+  result.stdin.write('\u001B')
+  await waitForInk()
+  result.stdin.write('a')
+  await waitForInk()
+  assert.match(stripAnsi(result.lastFrame()), /Audit/)
+  assert.match(stripAnsi(result.lastFrame()), /Job text:/)
+})
+
+test('HireProof TUI renders persistent status bar and richer help shortcuts', async () => {
+  const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
+  const result = render(React.createElement(HireProofTuiApp, {
+    baseUrl: 'https://hireproof.test',
+    apiKey: 'test_key',
+    color: false,
+    initialReport: sampleReport({ verdict: 'caution', riskScore: 44 }),
+  }))
+
+  assert.match(stripAnsi(result.lastFrame()), /API not checked \| mode demo \| key configured \| latest Caution 44\/100/)
+
+  result.stdin.write('?')
+  await waitForInk()
+  const frame = stripAnsi(result.lastFrame())
+  assert.match(frame, /Keyboard shortcuts/)
+  assert.match(frame, /\/ focus command palette/)
+  assert.match(frame, /a audit/)
+  assert.match(frame, /h health/)
+})
+
 test('HireProof TUI command console understands report and ask aliases', async () => {
   const { HireProofTuiApp } = await import('../packages/hireproof-cli/lib/tui-app.mjs')
   const result = render(React.createElement(HireProofTuiApp, {
@@ -432,6 +484,9 @@ test('HireProof TUI paste audit flow runs audit client and shows report details'
 
   result.stdin.write('Remote job. Telegram only.')
   result.stdin.write('\r')
+  await waitForInk()
+  assert.match(stripAnsi(result.lastFrame()), /Reading input/)
+  assert.match(stripAnsi(result.lastFrame()), /Calling HireProof API/)
   await waitForInk()
 
   const frame = stripAnsi(result.lastFrame())

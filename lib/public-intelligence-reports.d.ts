@@ -1,0 +1,14 @@
+import type { AuditReport } from './schemas'
+
+export function isDemoFixtureReport(report: unknown): boolean
+export function isPublicIntelligenceReport(report: unknown): boolean
+export function filterPublicIntelligenceReports<T extends AuditReport>(reports: T[]): T[]
+export function uniquePublicTrendReports<T extends AuditReport>(reports: T[]): T[]
+export function buildPublicReportTrends(reports: AuditReport[]): {
+  totalReports: number
+  verdicts: { safe: number; caution: number; 'high-risk': number }
+  topLocations: Array<{ label: string; count: number }>
+  topRoles: Array<{ label: string; count: number }>
+  topContactMethods: Array<{ label: string; count: number }>
+  recentReports: AuditReport[]
+}

@@ -1,30 +1,39 @@
 import { Metadata } from 'next'
 import { CodeBlock } from '@/components/ui/code-block'
+import Link from 'next/link'
 import { MessageSquareWarning, ShieldCheck, Webhook } from 'lucide-react'
 
 const DISCORD_INSTALL_URL = 'https://discord.com/oauth2/authorize?client_id=1500240100804530336&scope=bot%20applications.commands&permissions=0'
 
 export const metadata: Metadata = {
-  title: 'ChatSDK Community Bots | HireProof Docs',
-  description: 'Use HireProof through ChatSDK-backed Slack, Discord, Telegram, and WhatsApp community workflows.',
+  title: 'Discord Bot | HireProof Docs',
+  description: 'Use HireProof through the ChatSDK-backed Discord slash command and webhook workflow.',
 }
 
 export default function DiscordBotPage() {
   return (
     <div className="space-y-12 pb-24">
       <section className="space-y-4">
-        <h1 className="text-4xl font-black tracking-tight lg:text-5xl">ChatSDK Community Bots</h1>
+        <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Discord Bot</h1>
         <p className="text-xl font-medium leading-relaxed text-muted">
-          HireProof routes community checks through the shared ChatSDK adapter surface. Slack has screenshot proof, Telegram has live delivery proof, Discord is credential-ready pending a real event capture, and WhatsApp/Zernio remains credential-gated.
+          HireProof routes Discord slash commands through the shared ChatSDK adapter surface. Discord is credential-ready pending a real event capture; Slack and Telegram have separate live-tested docs pages.
         </p>
-        <a
-          href={DISCORD_INSTALL_URL}
-          className="inline-flex w-fit rounded-full border border-evidence/30 bg-evidence/10 px-4 py-2 text-sm font-black text-evidence transition hover:-translate-y-0.5 hover:bg-evidence/15"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Install HireProof on Discord
-        </a>
+        <div className="flex flex-wrap gap-3">
+          <a
+            href={DISCORD_INSTALL_URL}
+            className="inline-flex w-fit rounded-full border border-evidence/30 bg-evidence/10 px-4 py-2 text-sm font-black text-evidence transition hover:-translate-y-0.5 hover:bg-evidence/15"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Install HireProof on Discord
+          </a>
+          <Link
+            href="/docs/chat-sdk-agents"
+            className="inline-flex w-fit rounded-full border border-border-soft bg-surface px-4 py-2 text-sm font-black text-foreground transition hover:-translate-y-0.5 hover:bg-surface-elevated"
+          >
+            View all ChatSDK agents
+          </Link>
+        </div>
         <p className="max-w-2xl text-sm font-semibold leading-6 text-muted">
           Discord commands are available as <code className="rounded bg-surface px-1.5 py-0.5 text-foreground">/verify job_post:&lt;text-or-link&gt;</code> and <code className="rounded bg-surface px-1.5 py-0.5 text-foreground">/help</code> after command registration. Supported public job URLs are expanded before auditing.
         </p>
@@ -71,7 +80,7 @@ const result = await response.json();`}
             <strong className="text-sm font-black uppercase tracking-wider text-safe">Verified Status</strong>
           </div>
           <p className="text-sm font-semibold leading-6 text-muted">
-            The proof page separates Slack and Telegram evidence from remaining provider boundaries so judges can see what is live-tested and what still needs captures or credentials.
+            The proof page separates Slack and Telegram evidence from Discord's remaining provider boundary so judges can see what is live-tested and what still needs a real capture.
           </p>
         </div>
 
@@ -81,7 +90,7 @@ const result = await response.json();`}
             <strong className="text-sm font-black uppercase tracking-wider text-evidence">Webhook Surface</strong>
           </div>
           <p className="text-sm font-semibold leading-6 text-evidence-text">
-            Use <code className="rounded bg-evidence/20 px-1.5 py-0.5 text-evidence font-bold">/api/webhooks/discord</code> for Discord events and the matching Telegram, Slack, and WhatsApp/Zernio routes for other providers.
+            Use <code className="rounded bg-evidence/20 px-1.5 py-0.5 text-evidence font-bold">/api/webhooks/discord</code> for Discord events. Slack uses <code className="rounded bg-evidence/20 px-1.5 py-0.5 text-evidence font-bold">/api/webhooks/slack</code>, and Telegram uses <code className="rounded bg-evidence/20 px-1.5 py-0.5 text-evidence font-bold">/api/webhooks/telegram</code>.
           </p>
         </div>
       </section>

@@ -3,6 +3,7 @@ import path from 'path'
 import crypto from 'crypto'
 import { AuditReport, AuditReportSchema } from './schemas'
 import { Redis } from '@upstash/redis'
+import { buildPublicReportTrends } from './public-intelligence-reports.mjs'
 
 const dataDir = path.join(process.cwd(), 'data')
 const dbFile = path.join(dataDir, 'reports.json')
@@ -138,36 +139,7 @@ export async function listReports(limit = 100): Promise<AuditReport[]> {
 }
 
 export async function getReportTrends() {
-  const reports = (await listReports(500)).filter((report) => report.publiclyListed !== false)
-  const verdicts = { safe: 0, caution: 0, 'high-risk': 0 }
-  const locations: Record<string, number> = {}
-  const roles: Record<string, number> = {}
-  const contactMethods: Record<string, number> = {}
-
-  for (const report of reports) {
-    verdicts[report.verdict] += 1
-    const location = report.extractedClaims.location || 'Unknown'
-    const role = report.extractedClaims.role || 'Unknown'
-    const contact = report.extractedClaims.contactMethod || 'Unknown'
-    locations[location] = (locations[location] || 0) + 1
-    roles[role] = (roles[role] || 0) + 1
-    contactMethods[contact] = (contactMethods[contact] || 0) + 1
-  }
-
-  const topEntries = (items: Record<string, number>) =>
-    Object.entries(items)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([label, count]) => ({ label, count }))
-
-  return {
-    totalReports: reports.length,
-    verdicts,
-    topLocations: topEntries(locations),
-    topRoles: topEntries(roles),
-    topContactMethods: topEntries(contactMethods),
-    recentReports: reports.slice(0, 10),
-  }
+  return buildPublicReportTrends(await listReports(500))
 }
 
 export async function getReport(id: string): Promise<AuditReport | null> {

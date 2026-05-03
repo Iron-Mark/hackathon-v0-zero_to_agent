@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { listReports } from '@/lib/db'
+import { filterPublicIntelligenceReports } from '@/lib/public-intelligence-reports.mjs'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('q')?.trim().toLowerCase() || ''
   const verdict = searchParams.get('verdict') || 'all'
-  const reports = (await listReports(200)).filter((report) => report.publiclyListed !== false)
+  const reports = filterPublicIntelligenceReports(await listReports(200))
 
   const filtered = reports.filter((report) => {
     const haystack = [

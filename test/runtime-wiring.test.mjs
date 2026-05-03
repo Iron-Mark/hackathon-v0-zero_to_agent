@@ -69,6 +69,79 @@ test('trends view model maps stored audit API shape into UI sections', () => {
   assert.equal(viewModel.modeLabel, 'Stored audits')
 })
 
+test('public intelligence listings exclude demo fixture reports by default', async () => {
+  const { filterPublicIntelligenceReports } = await import('../lib/public-intelligence-reports.mjs')
+  const liveReport = {
+    id: 'report_live',
+    mode: 'live',
+    credentialMode: 'platform-env',
+    source: 'api',
+    publiclyListed: true,
+    evidence: [{ source: 'SerpApi Google Search' }],
+  }
+
+  const reports = [
+    liveReport,
+    { ...liveReport, id: 'report_private', publiclyListed: false },
+    { ...liveReport, id: 'report_demo_mode', mode: 'demo' },
+    { ...liveReport, id: 'report_demo_credentials', credentialMode: 'demo' },
+    { ...liveReport, id: 'report_demo_source', source: 'demo' },
+    {
+      ...liveReport,
+      id: 'report_demo_fixture_evidence',
+      evidence: [{ source: 'Demo fixture: market signal' }],
+    },
+  ]
+
+  assert.deepEqual(filterPublicIntelligenceReports(reports).map((report) => report.id), ['report_live'])
+})
+
+test('trend intelligence collapses repeated demo-run signatures', async () => {
+  const { buildPublicReportTrends } = await import('../lib/public-intelligence-reports.mjs')
+  const first = {
+    id: 'report_first',
+    verdict: 'high-risk',
+    riskScore: 94,
+    mode: 'live',
+    credentialMode: 'platform-env',
+    source: 'api',
+    publiclyListed: true,
+    timestamp: '2026-05-04T00:00:00.000Z',
+    extractedClaims: {
+      company: 'Apex Hiring',
+      role: 'Frontend Intern',
+      location: 'Philippines',
+      contactMethod: 'Telegram',
+    },
+    evidence: [{ source: 'SerpApi Google Search' }],
+  }
+  const duplicate = {
+    ...first,
+    id: 'report_duplicate',
+    timestamp: '2026-05-04T00:01:00.000Z',
+  }
+  const distinct = {
+    ...first,
+    id: 'report_distinct',
+    verdict: 'safe',
+    extractedClaims: {
+      company: 'Microsoft Corporation',
+      role: 'Senior Software Engineer',
+      location: 'Seattle, WA',
+      contactMethod: 'LinkedIn Recruiter',
+    },
+  }
+
+  const trends = buildPublicReportTrends([first, duplicate, distinct])
+
+  assert.equal(trends.totalReports, 2)
+  assert.deepEqual(trends.verdicts, { safe: 1, caution: 0, 'high-risk': 1 })
+  assert.deepEqual(trends.topRoles, [
+    { label: 'Frontend Intern', count: 1 },
+    { label: 'Senior Software Engineer', count: 1 },
+  ])
+})
+
 test('triple-track coverage has an app docs page and sidebar link', async () => {
   const docsPage = await fs.readFile(new URL('../app/docs/triple-track-coverage/page.tsx', import.meta.url), 'utf8')
   const docsLayout = await fs.readFile(new URL('../app/docs/layout.tsx', import.meta.url), 'utf8')
@@ -492,12 +565,14 @@ test('screenshot audits are excluded from public explore and trends listings by 
   const v1Route = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
   const reportsRoute = await fs.readFile(new URL('../app/api/intelligence/reports/route.ts', import.meta.url), 'utf8')
   const db = await fs.readFile(new URL('../lib/db.ts', import.meta.url), 'utf8')
+  const publicReports = await fs.readFile(new URL('../lib/public-intelligence-reports.mjs', import.meta.url), 'utf8')
   const omniDocs = await fs.readFile(new URL('../app/docs/omni-modal/page.tsx', import.meta.url), 'utf8')
 
   assert.match(uiRoute, /publiclyListed:\s*!validated\.image/)
   assert.match(v1Route, /publiclyListed:\s*!validated\.image/)
-  assert.match(reportsRoute, /publiclyListed !== false/)
-  assert.match(db, /publiclyListed !== false/)
+  assert.match(reportsRoute, /filterPublicIntelligenceReports/)
+  assert.match(db, /buildPublicReportTrends/)
+  assert.match(publicReports, /publiclyListed !== false/)
   assert.match(omniDocs, /Google Vision OCR \+ Tesseract fallback/)
   assert.match(omniDocs, /excluded from Explore and Trends by default/)
 })

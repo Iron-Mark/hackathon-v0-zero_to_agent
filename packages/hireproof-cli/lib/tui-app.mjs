@@ -62,13 +62,13 @@ function riskBar(score) {
 }
 
 function commandMatch(input) {
-  const normalized = String(input || '').trim().toLowerCase()
+  const normalized = String(input || '').trim().toLowerCase().replace(/^\/+/, '')
   if (!normalized) return null
   return COMMANDS.find(item => item.command === normalized || item.aliases.includes(normalized)) || null
 }
 
 function commandCompletion(input) {
-  const normalized = String(input || '').trim().toLowerCase()
+  const normalized = String(input || '').trim().toLowerCase().replace(/^\/+/, '')
   if (!normalized) return ''
   const candidates = COMMANDS.flatMap(item => [item.command, ...item.aliases.map(alias => `${alias}:${item.command}`)])
   const match = candidates.find(candidate => candidate.split(':')[0].startsWith(normalized))
