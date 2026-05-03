@@ -76,6 +76,53 @@ test('repairAuditReportForDisplay cleans archived LinkedIn UI artifacts without 
   assert.ok(changedFields.includes('extractedClaims.applicationPath'))
 })
 
+test('repairAuditReportForDisplay recovers LinkedIn title and location from archived evidence', () => {
+  const { report, changedFields } = repairAuditReportForDisplay({
+    ...baseReport,
+    id: 'chat_1777850197131',
+    timestamp: '2026-05-04T01:00:00.000Z',
+    extractedClaims: {
+      company: 'Dexian Asia Pacific',
+      role: 'Unspecified Role',
+      salary: 'Not specified',
+      location: 'Not specified',
+      contactMethod: 'LinkedIn',
+      applicationPath: 'LinkedIn job page',
+      recruiterPhone: '4405077596',
+    },
+    redFlags: ['No local presence found', 'No supporting evidence found'],
+    evidence: [
+      {
+        source: 'LinkedIn public job page',
+        type: 'Job Post Source',
+        url: 'https://www.linkedin.com/jobs/view/4405077596/',
+        snippet: [
+          'Resolved LinkedIn public job page content:',
+          'Quality Assurance Automation Engineer',
+          'Dexian Asia Pacific',
+          'Manila, National Capital Region, Philippines · 1 week ago · 33 applicants',
+          'On-site Contract Easy Apply',
+          'People you can reach out to Prerana Jogur Malaysia and Singapore Markets Job poster',
+        ].join(' '),
+      },
+    ],
+  })
+
+  assert.equal(report.id, 'chat_1777850197131')
+  assert.equal(report.timestamp, '2026-05-04T01:00:00.000Z')
+  assert.equal(report.extractedClaims.role, 'Quality Assurance Automation Engineer')
+  assert.equal(report.extractedClaims.location, 'Manila, National Capital Region, Philippines')
+  assert.equal(report.extractedClaims.applicationPath, 'LinkedIn Easy Apply')
+  assert.equal(report.extractedClaims.recruiterPhone, undefined)
+  assert.deepEqual(report.redFlags, ['No local presence found'])
+  assert.match(report.summary, /limited independent evidence/i)
+  assert.ok(changedFields.includes('extractedClaims.role'))
+  assert.ok(changedFields.includes('extractedClaims.location'))
+  assert.ok(changedFields.includes('extractedClaims.recruiterPhone'))
+  assert.ok(changedFields.includes('redFlags'))
+  assert.ok(changedFields.includes('summary'))
+})
+
 test('developer report repair endpoint is authenticated, same-origin guarded, and dry-run capable', async () => {
   const source = await fs.readFile(new URL('../app/api/developer/repair-reports/route.ts', import.meta.url), 'utf8')
 

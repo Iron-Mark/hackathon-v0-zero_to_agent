@@ -363,6 +363,36 @@ test('v2 intelligence explains sparse evidence coverage instead of looking fully
   assert.ok(report.intelligence.signals.some((signal) => signal.id === 'limited_evidence_coverage'))
 })
 
+test('v2 intelligence does not claim no supporting evidence when a trusted job page exists', async () => {
+  const { buildAuditReportV2 } = await loadIntelligenceModule()
+  const report = buildAuditReportV2({
+    id: 'report_trusted_job_page_only',
+    extractedClaims: {
+      company: 'Dexian Asia Pacific',
+      role: 'Quality Assurance Automation Engineer',
+      salary: 'Not specified',
+      location: 'Manila, National Capital Region, Philippines',
+      contactMethod: 'LinkedIn',
+      applicationPath: 'LinkedIn Easy Apply',
+    },
+    evidence: [
+      {
+        source: 'LinkedIn public job page',
+        type: 'Job Post Source',
+        url: 'https://www.linkedin.com/jobs/view/4405077596/',
+        snippet: 'Resolved LinkedIn public job page content: Quality Assurance Automation Engineer Dexian Asia Pacific Manila, National Capital Region, Philippines Easy Apply',
+      },
+    ],
+    enrichmentRedFlags: ['No supporting evidence found from live search'],
+    ownerId: 'web',
+    source: 'web',
+  })
+
+  assert.ok(report.redFlags.every((flag) => !/no supporting evidence/i.test(flag)))
+  assert.match(report.operations?.coverageBackfill?.message || '', /Limited evidence coverage/i)
+  assert.doesNotMatch(report.summary, /No supporting evidence/i)
+})
+
 test('remote recruiter free-mail identity remains risky even with a real company footprint', async () => {
   const { buildAuditReportV2 } = await loadIntelligenceModule()
   const report = buildAuditReportV2({

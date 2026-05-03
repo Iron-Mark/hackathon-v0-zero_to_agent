@@ -149,6 +149,89 @@ test('recoverObviousClaims strips common job-board chrome from company names', (
   assert.equal(claims.applicationPath, 'Greenhouse job page')
 })
 
+test('recoverObviousClaims parses LinkedIn QA job blocks without treating job ids as recruiter phones', () => {
+  const claims = recoverObviousClaims({
+    text: [
+      'Resolved LinkedIn public job page content:',
+      'Quality Assurance Automation Engineer',
+      'Dexian Asia Pacific',
+      'Manila, National Capital Region, Philippines · 1 week ago · 33 applicants',
+      'Promoted by hirer · Actively reviewing applicants',
+      'On-site',
+      'Contract',
+      'Easy Apply',
+      'People you can reach out to',
+      'Meet the hiring team',
+      'Prerana Jogur',
+      'Malaysia and Singapore Markets',
+      'Job poster',
+      'About the company',
+      'Dexian Asia Pacific',
+      '105,228 followers',
+    ].join('\n'),
+    url: 'https://www.linkedin.com/jobs/view/4405077596/',
+  }, {
+    company: 'Dexian Asia Pacific',
+    role: 'Unspecified role',
+    salary: 'Not specified',
+    location: 'Not specified',
+    contactMethod: 'LinkedIn',
+    applicationPath: 'LinkedIn job page',
+    recruiterPhone: '4405077596',
+  })
+
+  assert.equal(claims.company, 'Dexian Asia Pacific')
+  assert.equal(claims.role, 'Quality Assurance Automation Engineer')
+  assert.equal(claims.location, 'Manila, National Capital Region, Philippines')
+  assert.equal(claims.applicationPath, 'LinkedIn Easy Apply')
+  assert.equal(claims.recruiterName, 'Prerana Jogur')
+  assert.equal(claims.recruiterPhone, undefined)
+})
+
+test('recoverObviousClaims detects QA and SDET role titles from unstructured text', () => {
+  const qaClaims = recoverObviousClaims({
+    text: 'We are hiring a QA Automation Engineer for a Manila hybrid contract role.',
+    location: 'Philippines',
+  }, {
+    company: 'Unknown / Not Verifiable',
+    role: 'Unspecified role',
+    salary: 'Not specified',
+    location: 'Philippines',
+    contactMethod: 'Not specified',
+    applicationPath: 'Not specified',
+  })
+  const sdetClaims = recoverObviousClaims({
+    text: 'Looking for SDET II with Playwright experience. Location: Remote Philippines.',
+    location: 'Remote Philippines',
+  }, {
+    company: 'Unknown / Not Verifiable',
+    role: 'Unspecified role',
+    salary: 'Not specified',
+    location: 'Remote Philippines',
+    contactMethod: 'Not specified',
+    applicationPath: 'Not specified',
+  })
+
+  assert.equal(qaClaims.role, 'QA Automation Engineer')
+  assert.equal(sdetClaims.role, 'SDET II')
+})
+
+test('recoverObviousClaims only extracts labeled recruiter phones', () => {
+  const claims = recoverObviousClaims({
+    text: 'LinkedIn job id 4405077596 has 33 applicants. Contact number: +63 917 123 4567.',
+    location: 'Philippines',
+  }, {
+    company: 'Unknown / Not Verifiable',
+    role: 'Unspecified role',
+    salary: 'Not specified',
+    location: 'Philippines',
+    contactMethod: 'LinkedIn',
+    applicationPath: 'LinkedIn job page',
+  })
+
+  assert.equal(claims.recruiterPhone, '+63 917 123 4567')
+})
+
 test('enrichJobUrlInput expands LinkedIn collection URLs through the guest job endpoint', async () => {
   let requestedUrl = ''
   const enrichment = await enrichJobUrlInput(

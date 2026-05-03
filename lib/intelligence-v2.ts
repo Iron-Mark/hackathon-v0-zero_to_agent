@@ -186,6 +186,26 @@ function attachEvidenceMetadata(evidence: EvidenceItem[]) {
   })
 }
 
+function hasTrustedJobPageEvidence(evidence: EvidenceItem[]) {
+  return evidence.some(item => {
+    const text = normalizeText(`${item.source} ${item.type} ${item.snippet} ${item.url || ''}`)
+    return (
+      item.sourceQuality === 'reputable' ||
+      text.includes('linkedin') ||
+      text.includes('indeed') ||
+      text.includes('jobstreet') ||
+      text.includes('greenhouse') ||
+      text.includes('lever') ||
+      text.includes('ashby') ||
+      text.includes('smartrecruiters') ||
+      text.includes('workday') ||
+      text.includes('public job page') ||
+      text.includes('job post source') ||
+      text.includes('resolved job page')
+    )
+  })
+}
+
 export function normalizeCompensation(value: string): NormalizedCompensation | null {
   const text = String(value || '').trim()
   if (!text || /not specified/i.test(text)) return null
@@ -730,10 +750,14 @@ function deriveIntelligence(
 
 export function buildAuditReportV2(input: BuildReportV2Input): AuditReportV2 {
   const evidence = attachEvidenceMetadata([...(input.enrichmentEvidence || []), ...(input.evidence || [])])
+  const trustedJobPageEvidence = hasTrustedJobPageEvidence(evidence)
   let redFlags = [
     ...extractRedFlags(input.extractedClaims, evidence),
     ...(input.enrichmentRedFlags || []),
   ]
+  if (trustedJobPageEvidence) {
+    redFlags = redFlags.filter(flag => !/no supporting evidence/i.test(flag))
+  }
   const greenFlags = extractGreenFlags(input.extractedClaims, evidence)
   const preliminaryProfileMode = inferCompanyProfileMode(
     input.extractedClaims,
