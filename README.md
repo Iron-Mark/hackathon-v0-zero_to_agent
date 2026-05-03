@@ -53,7 +53,7 @@ What is complete in this repo:
 - MCP endpoint and investigation tools.
 - ChatSDK webhook adapters for Slack, Discord, Telegram, and WhatsApp-via-Zernio.
 - Public Discord server install link for adding the HireProof app: <https://discord.com/oauth2/authorize?client_id=1500240100804530336&scope=bot%20applications.commands&permissions=0>.
-- Discord slash commands: `/verify job_post:<text>` checks a suspicious job post, and `/help` explains how to use HireProof in Discord.
+- Discord slash commands: `/verify job_post:<text-or-link>` checks a suspicious job post, expands supported public job URLs, and `/help` explains how to use HireProof in Discord.
 - Vercel Workflow / WDK audit start route.
 - Native automation packs for n8n, Make, and LangChain, plus portable HTTP templates.
 - Shareable audit reports, history, trends, PDF dossier, CSV export, PNG export, and safe-report certificate.
@@ -144,6 +144,7 @@ curl -X POST https://hireproof-sigma.vercel.app/api/v1/audit \
 The main workflow lives at `/audit`.
 
 - Paste a job listing or recruiter message.
+- Paste a public job URL when available; HireProof expands supported LinkedIn, ATS, and public careers pages before scoring.
 - Upload a screenshot.
 - Use browser speech-to-text for voice input.
 - Watch the Server-Sent Events stream as the agent extracts claims and calls tools.
@@ -223,7 +224,13 @@ Create the Chrome Web Store upload package:
 npm run package:extension
 ```
 
-Output:
+Current upload/download copy:
+
+```text
+public/downloads/hireproof-extension.zip
+```
+
+Build output:
 
 ```text
 dist/chrome/hireproof-extension.zip
@@ -495,7 +502,8 @@ scripts/
 
 ## Documentation
 
-- [`DEPLOYMENT.md`](DEPLOYMENT.md): deployment and production status.`n- [`docs/assets-index.md`](docs/assets-index.md): current logo, social, platform, Chrome Web Store, and review asset index.
+- [`DEPLOYMENT.md`](DEPLOYMENT.md): deployment and production status.
+- [`docs/assets-index.md`](docs/assets-index.md): current logo, social, platform, Chrome Web Store, and review asset index.
 - [`docs/remaining-work.md`](docs/remaining-work.md): current proof status and honest boundaries.
 - [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md): Chrome listing copy and upload assets.
 - [`docs/credentials-setup.md`](docs/credentials-setup.md): platform credential setup notes.

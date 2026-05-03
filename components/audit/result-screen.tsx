@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, AlertCircle, Loader2, Link2, FileText, Bot, UserCheck, ShieldCheck, SearchCheck, Table } from 'lucide-react'
+import { ArrowLeft, Download, Share2, AlertTriangle, Zap, CheckCircle2, Clock, AlertCircle, Loader2, Link2, FileText, Bot, UserCheck, ShieldCheck, SearchCheck, Table, Camera, Eye, EyeOff } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import html2canvas from 'html2canvas'
@@ -15,6 +15,7 @@ import { buildLegalAbuseReportMailto, buildReportCsvExport } from '@/lib/report-
 interface Result {
   id?: string
   userFeedback?: 'helpful' | 'incorrect'
+  userFeedbackReason?: string
   verdict: 'safe' | 'caution' | 'high-risk'
   riskScore: number
   confidence: string
@@ -23,10 +24,14 @@ interface Result {
   redFlags: string[]
   greenFlags: string[]
   evidence: Array<{
+    id?: string
     source: string
     snippet: string
     url?: string
     type: string
+    sourceType?: string
+    trustLevel?: string
+    matchConfidence?: number
   }>
   alternatives: Array<{
     title: string
@@ -34,6 +39,37 @@ interface Result {
     salary?: string
   }>
   nextSteps: string[]
+  intelligence?: {
+    coverage: Record<string, string>
+    companyProfileMode?: string
+    companyIdentity: { status: string; officialDomain?: string; evidenceIds: string[] }
+    recruiterIdentity?: { status: string; recruiterName?: string; recruiterEmailDomain?: string; evidenceIds: string[] }
+    localPresence: { status: string; evidenceIds: string[] }
+    marketBenchmark: {
+      status: string
+      claimedMonthlyAmount?: number
+      comparableMonthlyAmount?: number
+      currency?: string
+      ratio?: number
+      evidenceIds: string[]
+    }
+    applyPath: { status: string; submittedHost?: string; officialHost?: string; evidenceIds: string[] }
+    signals: Array<{
+      id: string
+      label: string
+      direction: 'risk' | 'trust' | 'neutral'
+      severity: 'low' | 'medium' | 'high'
+      weight: number
+      evidenceIds: string[]
+      rationale: string
+    }>
+    scoreTrace: Array<{ step: string; delta: number; scoreAfter: number; reason: string }>
+  }
+  operations?: {
+    liveSearch?: { status?: string; message?: string; retryAfterSec?: number }
+    salaryBenchmark?: { source?: string; country?: string; currency?: string; message?: string }
+    falsePositiveControl?: { profileModeExplanation?: string }
+  }
 }
 
 interface ResultScreenProps {
@@ -54,10 +90,203 @@ function sanitizeUrl(url?: string): string | undefined {
   }
 }
 
+type ResultEvidence = Result['evidence'][number]
+
+function isOcrEvidence(item: ResultEvidence) {
+  const type = item.type.toLowerCase()
+  const source = item.source.toLowerCase()
+  return type.includes('screenshot ocr') || source.includes('screenshot ocr')
+}
+
+function isUnavailableOcr(item: ResultEvidence) {
+  return item.type.toLowerCase().includes('unavailable') || item.source.toLowerCase().includes('unavailable')
+}
+
+function getOcrProviderLabel(item: ResultEvidence) {
+  const source = item.source.toLowerCase()
+  if (source.includes('google vision')) return 'Google Vision OCR'
+  if (source.includes('tesseract')) return 'Tesseract fallback OCR'
+  return 'Screenshot OCR'
+}
+
+function getOcrConfidenceLabel(item: ResultEvidence) {
+  if (isUnavailableOcr(item)) return 'Low confidence'
+  if (item.source.toLowerCase().includes('google vision')) return 'High confidence'
+  return 'Medium confidence'
+}
+
+function getOcrSummary(item: ResultEvidence) {
+  if (isUnavailableOcr(item)) {
+    return 'Screenshot text could not be extracted. HireProof lowered confidence for this image-only evidence.'
+  }
+  if (item.source.toLowerCase().includes('tesseract')) {
+    return 'Screenshot analyzed with fallback OCR. Text may be less accurate, so HireProof weighted this evidence lower.'
+  }
+  return 'Text extracted from the uploaded screenshot using Google Vision and included in the evidence review.'
+}
+
+function redactSensitiveDisplayText(value: string) {
+  return String(value || '')
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email redacted]')
+    .replace(/\b(?:\+?\d[\d\s().-]{7,}\d)\b/g, '[phone redacted]')
+    .replace(/https?:\/\/\S+/gi, '[link redacted]')
+    .replace(/\b(?:token|code|otp|password|passcode)\s*[:=-]?\s*[A-Za-z0-9_-]{4,}\b/gi, '[private code redacted]')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function shortenDisplayText(value: string, limit = 420) {
+  const text = redactSensitiveDisplayText(value)
+  if (text.length <= limit) return text
+  return `${text.slice(0, limit).trim()}...`
+}
+
+function getOcrPreview(item: ResultEvidence) {
+  return shortenDisplayText(item.snippet
+    .replace(/^Extracted screenshot text using Screenshot OCR:\s*(Google Vision|Tesseract fallback)\.\s*/i, '')
+    .replace(/^Screenshot text could not be extracted\.\s*/i, '')
+    .trim())
+}
+
+function getEvidenceDisplaySnippet(item: ResultEvidence) {
+  if (!isOcrEvidence(item)) return item.snippet
+  if (isUnavailableOcr(item)) return getOcrSummary(item)
+  return `${getOcrSummary(item)} Preview: ${getOcrPreview(item)}`
+}
+
+const PNG_EXPORT_PALETTES = {
+  dark: {
+    background: '#0c0f14',
+    surface: '#121821',
+    surfaceSoft: '#18212d',
+    foreground: '#f8fafc',
+    muted: '#a3adba',
+    border: '#2a3442',
+    safe: '#55f06f',
+    safeBg: '#10351f',
+    caution: '#facc15',
+    cautionBg: '#3b2f0a',
+    risk: '#ff5f57',
+    riskBg: '#3a1415',
+    evidence: '#7dd3fc',
+    evidenceBg: '#0e2a3a',
+  },
+  light: {
+    background: '#f8faf7',
+    surface: '#ffffff',
+    surfaceSoft: '#edf5ef',
+    foreground: '#0b1210',
+    muted: '#52615c',
+    border: '#d8e2dc',
+    safe: '#12864f',
+    safeBg: '#dff8e7',
+    caution: '#9a6b00',
+    cautionBg: '#fff3c4',
+    risk: '#c92a2a',
+    riskBg: '#ffe2e2',
+    evidence: '#0f6f9f',
+    evidenceBg: '#dff4ff',
+  },
+} as const
+
+function hasClass(element: HTMLElement, prefix: string) {
+  return Array.from(element.classList).some((className) => className === prefix || className.startsWith(`${prefix}/`))
+}
+
+function preparePngExportClone(clonedDocument: Document, isDark: boolean) {
+  const root = clonedDocument.getElementById('result-content')
+  if (!(root instanceof HTMLElement)) return
+
+  const palette = isDark ? PNG_EXPORT_PALETTES.dark : PNG_EXPORT_PALETTES.light
+  root.dataset.hireproofPngExport = 'true'
+
+  const style = clonedDocument.createElement('style')
+  style.textContent = `
+    [data-hireproof-png-export],
+    [data-hireproof-png-export] * {
+      animation: none !important;
+      transition: none !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      color-scheme: ${isDark ? 'dark' : 'light'} !important;
+    }
+  `
+  clonedDocument.head.appendChild(style)
+
+  const elements = [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))]
+  elements.forEach((element) => {
+    element.style.boxShadow = 'none'
+    element.style.textShadow = 'none'
+    element.style.filter = 'none'
+    element.style.backdropFilter = 'none'
+    element.style.backgroundColor = 'transparent'
+    element.style.backgroundImage = 'none'
+    element.style.color = palette.foreground
+    element.style.caretColor = palette.safe
+    element.style.textDecorationColor = palette.safe
+    element.style.borderColor = palette.border
+    element.style.outlineColor = palette.safe
+
+    if (element === root || hasClass(element, 'bg-background')) {
+      element.style.backgroundColor = palette.background
+    } else if (hasClass(element, 'bg-foreground') || hasClass(element, 'bg-white')) {
+      element.style.backgroundColor = palette.foreground
+    } else if (hasClass(element, 'bg-border') || hasClass(element, 'bg-border-soft')) {
+      element.style.backgroundColor = palette.border
+    } else if (hasClass(element, 'bg-surface') || hasClass(element, 'bg-card')) {
+      element.style.backgroundColor = palette.surface
+    } else if (hasClass(element, 'bg-surface-elevated')) {
+      element.style.backgroundColor = palette.surfaceSoft
+    } else if (hasClass(element, 'bg-safe') || hasClass(element, 'bg-safe-bg')) {
+      element.style.backgroundColor = palette.safeBg
+    } else if (hasClass(element, 'bg-caution') || hasClass(element, 'bg-caution-bg')) {
+      element.style.backgroundColor = palette.cautionBg
+    } else if (hasClass(element, 'bg-risk') || hasClass(element, 'bg-risk-bg')) {
+      element.style.backgroundColor = palette.riskBg
+    } else if (hasClass(element, 'bg-evidence') || hasClass(element, 'bg-evidence-bg')) {
+      element.style.backgroundColor = palette.evidenceBg
+    }
+
+    if (hasClass(element, 'text-muted')) {
+      element.style.color = palette.muted
+    } else if (hasClass(element, 'text-background')) {
+      element.style.color = palette.background
+    } else if (hasClass(element, 'text-white')) {
+      element.style.color = '#ffffff'
+    } else if (hasClass(element, 'text-border') || hasClass(element, 'text-border-soft')) {
+      element.style.color = palette.border
+    } else if (hasClass(element, 'text-safe') || hasClass(element, 'text-safe-text')) {
+      element.style.color = palette.safe
+    } else if (hasClass(element, 'text-caution') || hasClass(element, 'text-caution-text')) {
+      element.style.color = palette.caution
+    } else if (hasClass(element, 'text-risk') || hasClass(element, 'text-risk-text')) {
+      element.style.color = palette.risk
+    } else if (hasClass(element, 'text-evidence')) {
+      element.style.color = palette.evidence
+    } else if (hasClass(element, 'text-foreground') || element === root) {
+      element.style.color = palette.foreground
+    }
+
+    if (hasClass(element, 'border-safe') || hasClass(element, 'border-safe-bg')) {
+      element.style.borderColor = palette.safe
+    } else if (hasClass(element, 'border-caution') || hasClass(element, 'border-caution-bg')) {
+      element.style.borderColor = palette.caution
+    } else if (hasClass(element, 'border-risk') || hasClass(element, 'border-risk-bg')) {
+      element.style.borderColor = palette.risk
+    } else if (hasClass(element, 'border-evidence')) {
+      element.style.borderColor = palette.evidence
+    }
+  })
+}
+
 export default function ResultScreen({ result, onBackToAudit }: ResultScreenProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [isExporting, setIsExporting] = useState(false)
   const [feedbackLoading, setFeedbackLoading] = useState<string | null>(null)
+  const [feedbackReason, setFeedbackReason] = useState(result.userFeedbackReason || '')
+  const [expandedOcr, setExpandedOcr] = useState(false)
 
   const [feedbackGiven, setFeedbackGiven] = useState<boolean>(Boolean(result.userFeedback))
   const { resolvedTheme } = useTheme()
@@ -109,13 +338,22 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
 
   const handleDownload = async () => {
     if (!contentRef.current) return
+    const isDarkExport = resolvedTheme === 'dark'
     try {
       setIsExporting(true)
-      const canvas = await html2canvas(contentRef.current, { scale: 2, useCORS: true, backgroundColor: resolvedTheme === 'dark' ? '#0c0f14' : '#f8faf7' })
+      const canvas = await html2canvas(contentRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: isDarkExport ? PNG_EXPORT_PALETTES.dark.background : PNG_EXPORT_PALETTES.light.background,
+        onclone: (clonedDocument) => preparePngExportClone(clonedDocument, isDarkExport),
+      })
       const link = document.createElement('a')
       link.href = canvas.toDataURL('image/png')
       link.download = `hireproof-verdict-${result.verdict}.png`
       link.click()
+    } catch (error) {
+      console.error('HireProof PNG export failed', error)
+      showToast('PNG export failed. PDF and CSV exports are still available.', 'error')
     } finally {
       setIsExporting(false)
     }
@@ -134,6 +372,16 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
 
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }
   const itemVariants = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } } }
+  const intelligence = result.intelligence
+  const coverageEntries = intelligence
+    ? Object.entries(intelligence.coverage)
+    : []
+  const ocrReceipt = (result.evidence || []).find(isOcrEvidence)
+  const ocrPreview = ocrReceipt ? getOcrPreview(ocrReceipt) : ''
+  const formatMoney = (amount?: number, currency = '') => {
+    if (typeof amount !== 'number') return 'Not enough data'
+    return `${currency ? `${currency} ` : ''}${amount.toLocaleString()} / month`
+  }
 
   const submitFeedback = async (vote: 'helpful' | 'incorrect') => {
     if (feedbackGiven || !result.id) return
@@ -143,7 +391,7 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
       const res = await fetch('/api/intelligence/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: result.id, feedback: vote }),
+        body: JSON.stringify({ id: result.id, feedback: vote, reason: feedbackReason || undefined }),
       })
       if (res.ok) showToast('Thanks for your feedback!', 'success')
     } finally {
@@ -299,6 +547,58 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
           </div>
         </motion.section>
 
+        {ocrReceipt && (
+          <motion.section variants={itemVariants} data-testid="ocr-evidence-receipt" className="rounded-[2rem] border border-evidence/30 bg-evidence/5 p-5 shadow-sm sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex gap-4">
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${
+                  isUnavailableOcr(ocrReceipt)
+                    ? 'border-caution-bg bg-caution-bg text-caution-text'
+                    : 'border-evidence/25 bg-background text-evidence'
+                }`}>
+                  {isUnavailableOcr(ocrReceipt) ? <AlertCircle className="h-5 w-5" /> : <Camera className="h-5 w-5" />}
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-xl font-black">Screenshot analyzed</h2>
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${
+                      isUnavailableOcr(ocrReceipt)
+                        ? 'bg-caution-bg text-caution-text'
+                        : ocrReceipt.source.toLowerCase().includes('google vision')
+                          ? 'bg-safe-bg text-safe-text'
+                          : 'bg-evidence-bg text-evidence'
+                    }`}>
+                      {getOcrConfidenceLabel(ocrReceipt)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs font-black uppercase tracking-[0.18em] text-muted">{getOcrProviderLabel(ocrReceipt)}</p>
+                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-muted">{getOcrSummary(ocrReceipt)}</p>
+                </div>
+              </div>
+              {ocrPreview && !isUnavailableOcr(ocrReceipt) && (
+                <button
+                  type="button"
+                  aria-expanded={expandedOcr}
+                  aria-controls="ocr-extracted-text"
+                  onClick={() => setExpandedOcr((value) => !value)}
+                  className="hireproof-focus inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-evidence/25 bg-background px-4 py-2 text-sm font-black text-evidence transition-colors hover:bg-evidence-bg"
+                >
+                  {expandedOcr ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {expandedOcr ? 'Hide extracted text' : 'Show extracted text'}
+                </button>
+              )}
+            </div>
+            {ocrPreview && !isUnavailableOcr(ocrReceipt) && expandedOcr && (
+              <div id="ocr-extracted-text" className="mt-5 rounded-2xl border border-border-soft bg-background p-4">
+                <div className="mb-2 text-[10px] font-black uppercase tracking-widest text-muted">Extracted text preview</div>
+                <p className="max-h-40 overflow-auto whitespace-pre-wrap break-words font-mono text-xs font-semibold leading-6 text-muted">
+                  {ocrPreview}
+                </p>
+              </div>
+            )}
+          </motion.section>
+        )}
+
         <motion.section variants={itemVariants} className="rounded-[2.5rem] border border-border-soft bg-surface p-8 shadow-sm">
           <div className="mb-8">
             <h2 className="text-2xl font-black mb-2">Risk Breakdown</h2>
@@ -313,84 +613,92 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
           />
         </motion.section>
 
-        {/* Automation Signal Component */}
         <motion.section variants={itemVariants} className="overflow-hidden rounded-[2.5rem] border border-border-soft bg-background shadow-2xl relative">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.05),transparent_50%)]" />
           <div className="flex flex-col md:flex-row relative z-10">
             <div className="flex-1 p-8 lg:p-10">
               <div className="mb-6 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-risk-bg/20 text-risk-text flex items-center justify-center">
-                  <Bot className="h-5 w-5" />
+                <div className="h-10 w-10 rounded-xl bg-evidence-bg text-evidence flex items-center justify-center">
+                  <SearchCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black">Recruitment Signal Analysis</h2>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Job post risk patterns</p>
+                  <h2 className="text-xl font-black">Evidence Coverage</h2>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">V2 intelligence report</p>
                 </div>
               </div>
               <p className="mb-8 text-base font-medium leading-relaxed text-muted">
-                HireProof checks whether the post shows common recruitment-scam patterns, including vague company details, unrealistic pay, and off-platform contact.
+                HireProof checks company identity, apply path, local footprint, reputation, and market salary against visible evidence. The verdict is based on these receipts, not hidden model guesses.
               </p>
+              {result.operations?.liveSearch?.status && result.operations.liveSearch.status !== 'ok' && result.operations.liveSearch.status !== 'not-live' && (
+                <div className="mb-4 rounded-xl border border-caution/30 bg-caution/10 p-4 text-xs font-bold leading-6 text-caution-text">
+                  {result.operations.liveSearch.message}
+                </div>
+              )}
+              {result.operations?.falsePositiveControl?.profileModeExplanation && (
+                <div className="mb-4 rounded-xl border border-safe/25 bg-safe/10 p-4 text-xs font-bold leading-6 text-safe-text">
+                  {result.operations.falsePositiveControl.profileModeExplanation}
+                </div>
+              )}
+              {result.operations?.salaryBenchmark?.message && (
+                <div className="mb-4 rounded-xl border border-border-soft bg-background p-4 text-xs font-bold leading-6 text-muted">
+                  {result.operations.salaryBenchmark.message}
+                </div>
+              )}
               
-              <div className="space-y-8">
-                <div>
-                  <div className="mb-3 flex items-center justify-between text-sm font-black">
-                    <span className="flex items-center gap-2 uppercase tracking-widest text-muted"><Bot className="h-4 w-4" /> Bot Probability</span>
-                    <span className={`text-lg ${result.riskScore > 60 ? 'text-risk-text' : 'text-muted'}`}>
-                      {result.riskScore > 60 ? Math.min(result.riskScore + 12, 99) : Math.max(result.riskScore - 30, 2)}%
-                    </span>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {coverageEntries.length > 0 ? coverageEntries.map(([key, value]) => (
+                  <div key={key} className="rounded-xl border border-border-soft bg-surface p-4">
+                    <div className="text-[10px] font-black uppercase tracking-normal text-muted">
+                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                    </div>
+                    <div className={`mt-1 text-sm font-black capitalize ${
+                      value === 'verified' || value === 'clear' || value === 'normal' || value === 'official'
+                        ? 'text-safe-text'
+                        : value === 'risk' || value === 'anomalous' || value === 'mismatch'
+                          ? 'text-risk-text'
+                          : 'text-caution-text'
+                    }`}>
+                      {value.replace('-', ' ')}
+                    </div>
                   </div>
-                  <div className="h-3 rounded-full bg-surface shadow-inner overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${result.riskScore > 60 ? Math.min(result.riskScore + 12, 99) : Math.max(result.riskScore - 30, 2)}%` }}
-                      transition={{ duration: 1.2, delay: 0.5, ease: "easeOut" }}
-                      className={`h-full rounded-full ${result.riskScore > 60 ? 'bg-risk-text' : 'bg-muted'} relative`}
-                    >
-                      <motion.div animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-white/20" />
-                    </motion.div>
+                )) : (
+                  <div className="rounded-xl border border-border-soft bg-surface p-4 sm:col-span-2">
+                    <div className="text-sm font-bold text-muted">Legacy report: structured v2 coverage was not included in this result.</div>
                   </div>
-                </div>
-                
-                <div>
-                  <div className="mb-3 flex items-center justify-between text-sm font-black">
-                    <span className="flex items-center gap-2 uppercase tracking-widest text-muted"><UserCheck className="h-4 w-4" /> Human Footprint</span>
-                    <span className={`text-lg ${result.riskScore < 40 ? 'text-safe' : 'text-muted'}`}>
-                      {result.riskScore < 40 ? 100 - result.riskScore : Math.max(40 - result.riskScore, 0)}%
-                    </span>
-                  </div>
-                  <div className="h-3 rounded-full bg-surface shadow-inner overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${result.riskScore < 40 ? 100 - result.riskScore : Math.max(40 - result.riskScore, 0)}%` }}
-                      transition={{ duration: 1.2, delay: 0.7, ease: "easeOut" }}
-                      className={`h-full rounded-full ${result.riskScore < 40 ? 'bg-safe' : 'bg-muted'} relative`}
-                    >
-                      <motion.div animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-white/20" />
-                    </motion.div>
-                  </div>
-                </div>
+                )}
               </div>
 
-              {/* Signal Detail Grid */}
-              <div className="mt-10 grid grid-cols-2 gap-6 border-t border-border-soft pt-8">
-                <div className="space-y-1.5">
-                  <div className="text-[10px] font-black uppercase text-muted tracking-widest opacity-60">Linguistic Entropy</div>
-                  <div className="font-mono text-xs font-bold text-foreground">{result.riskScore > 60 ? 'Low (Automated)' : 'High (Human)'}</div>
+              <div className="mt-6 grid gap-3 border-t border-border-soft pt-6 sm:grid-cols-4">
+                <div className="rounded-xl border border-border-soft bg-surface p-4">
+                  <div className="text-[10px] font-black uppercase tracking-normal text-muted">Profile Mode</div>
+                  <div className="mt-1 text-sm font-black capitalize">{(intelligence?.companyProfileMode || 'Legacy').replace('_', ' ')}</div>
                 </div>
-                <div className="space-y-1.5">
-                  <div className="text-[10px] font-black uppercase text-muted tracking-widest opacity-60">Message Pattern</div>
-                  <div className="font-mono text-xs font-bold text-foreground">{result.riskScore > 60 ? 'Suspicious' : 'Low concern'}</div>
+                <div className="rounded-xl border border-border-soft bg-surface p-4">
+                  <div className="text-[10px] font-black uppercase tracking-normal text-muted">Company Identity</div>
+                  <div className="mt-1 text-sm font-black capitalize">{intelligence?.companyIdentity.status || 'Legacy'}</div>
+                  {intelligence?.companyIdentity.officialDomain && <div className="mt-1 truncate text-xs font-semibold text-muted">{intelligence.companyIdentity.officialDomain}</div>}
                 </div>
-                <div className="space-y-1.5">
-                  <div className="text-[10px] font-black uppercase text-muted tracking-widest opacity-60">Contact Path</div>
-                  <div className={`font-mono text-xs font-bold ${result.riskScore > 80 ? 'text-risk-text' : 'text-foreground'}`}>
-                    {result.riskScore > 80 ? 'High-risk channel' : 'Review evidence'}
+                <div className="rounded-xl border border-border-soft bg-surface p-4">
+                  <div className="text-[10px] font-black uppercase tracking-normal text-muted">Recruiter Identity</div>
+                  <div className={`mt-1 text-sm font-black capitalize ${intelligence?.recruiterIdentity?.status === 'risky' ? 'text-risk-text' : ''}`}>
+                    {intelligence?.recruiterIdentity?.status || 'Legacy'}
                   </div>
+                  {intelligence?.recruiterIdentity?.recruiterEmailDomain && <div className="mt-1 truncate text-xs font-semibold text-muted">{intelligence.recruiterIdentity.recruiterEmailDomain}</div>}
                 </div>
-                <div className="space-y-1.5">
-                  <div className="text-[10px] font-black uppercase text-muted tracking-widest opacity-60">Hiring Evidence</div>
-                  <div className={`font-mono text-xs font-bold ${result.riskScore < 30 ? 'text-safe' : 'text-foreground'}`}>
-                    {result.riskScore < 30 ? 'Consistent' : 'Needs review'}
+                <div className="rounded-xl border border-border-soft bg-surface p-4">
+                  <div className="text-[10px] font-black uppercase tracking-normal text-muted">Apply Path</div>
+                  <div className={`mt-1 text-sm font-black capitalize ${intelligence?.applyPath.status === 'mismatch' ? 'text-risk-text' : ''}`}>
+                    {intelligence?.applyPath.status || 'Legacy'}
+                  </div>
+                  {intelligence?.applyPath.submittedHost && <div className="mt-1 truncate text-xs font-semibold text-muted">{intelligence.applyPath.submittedHost}</div>}
+                </div>
+                <div className="rounded-xl border border-border-soft bg-surface p-4 sm:col-span-2">
+                  <div className="text-[10px] font-black uppercase tracking-normal text-muted">Market Salary</div>
+                  <div className={`mt-1 text-sm font-black capitalize ${intelligence?.marketBenchmark.status === 'anomalous' ? 'text-risk-text' : ''}`}>
+                    {intelligence?.marketBenchmark.status || 'Legacy'}
+                  </div>
+                  <div className="mt-1 text-xs font-semibold text-muted">
+                    {formatMoney(intelligence?.marketBenchmark.claimedMonthlyAmount, intelligence?.marketBenchmark.currency)}
                   </div>
                 </div>
               </div>
@@ -398,17 +706,25 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
             
             <div className={`flex w-full flex-col items-center justify-center p-10 md:w-80 relative overflow-hidden border-t md:border-t-0 md:border-l border-border-soft ${result.riskScore > 60 ? 'bg-risk-bg/5' : 'bg-safe/5'}`}>
               <div className="bot-scan-line opacity-20" />
-              <div className="mb-4 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-muted">Analysis Verdict</div>
+              <div className="mb-4 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-muted">Score Trace</div>
               <div className={`text-center text-3xl font-black leading-tight tracking-tighter ${result.riskScore > 60 ? 'text-risk-text' : 'text-safe'}`}>
-                {result.riskScore > 60 ? 'RISK SIGNALS FOUND' : 'LOW RISK SIGNALS'}
+                {result.riskScore}/100
               </div>
-              <div className="mt-6 text-center text-xs font-bold leading-relaxed text-muted/80 max-w-[180px]">
-                {result.riskScore > 60 
-                  ? 'Review the red flags and evidence before sharing personal details.' 
-                  : 'Available evidence points to a more conventional hiring path.'}
+              <div className="mt-6 w-full space-y-2">
+                {(intelligence?.scoreTrace || []).slice(-4).map((trace, index) => (
+                  <div key={`${trace.step}-${index}`} className="rounded-xl border border-border-soft bg-background p-3 text-left">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-normal text-muted">{trace.step}</span>
+                      <span className={`text-xs font-black ${trace.delta > 0 ? 'text-risk-text' : trace.delta < 0 ? 'text-safe-text' : 'text-muted'}`}>
+                        {trace.delta > 0 ? '+' : ''}{trace.delta}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-xs font-semibold leading-5 text-muted">{trace.reason}</div>
+                  </div>
+                ))}
               </div>
               <div className="mt-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-background border border-border-soft shadow-inner">
-                {result.riskScore > 60 ? <Bot className="h-8 w-8 text-risk-text" /> : <UserCheck className="h-8 w-8 text-safe" />}
+                {result.riskScore > 60 ? <AlertTriangle className="h-8 w-8 text-risk-text" /> : <ShieldCheck className="h-8 w-8 text-safe" />}
               </div>
             </div>
           </div>
@@ -522,7 +838,7 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
                     <div className="text-sm font-black">{ev.source}</div>
                     <span className="rounded-full bg-evidence-bg px-2 py-1 text-xs font-black text-evidence">{ev.type}</span>
                   </div>
-                  <p className="mb-3 text-sm font-medium leading-6 text-muted">{ev.snippet}</p>
+                  <p className="mb-3 text-sm font-medium leading-6 text-muted">{getEvidenceDisplaySnippet(ev)}</p>
                   {sanitizeUrl(ev.url) && (
                     <a href={sanitizeUrl(ev.url)} target="_blank" rel="noopener noreferrer" className="hireproof-focus text-xs font-black text-evidence hover:text-safe">
                       Open source
@@ -596,6 +912,23 @@ export default function ResultScreen({ result, onBackToAudit }: ResultScreenProp
             <p className="mb-4 text-xs font-black uppercase tracking-wider text-muted">
               {feedbackGiven ? 'Thank you for your feedback!' : 'Was this investigation accurate?'}
             </p>
+            {!feedbackGiven && (
+              <select
+                value={feedbackReason}
+                onChange={(event) => setFeedbackReason(event.target.value)}
+                className="mb-4 w-full max-w-sm rounded-xl border border-border-soft bg-background px-3 py-2 text-xs font-bold text-foreground outline-none focus:border-safe"
+                aria-label="Feedback reason"
+              >
+                <option value="">Optional reason</option>
+                <option value="false_positive">False positive</option>
+                <option value="missed_risk">Missed risk</option>
+                <option value="stale_evidence">Stale evidence</option>
+                <option value="salary_wrong">Salary benchmark wrong</option>
+                <option value="company_match_wrong">Company match wrong</option>
+                <option value="recruiter_match_wrong">Recruiter match wrong</option>
+                <option value="other">Other</option>
+              </select>
+            )}
             <div className="flex justify-center gap-4">
               <button 
                 onClick={() => submitFeedback('helpful')}

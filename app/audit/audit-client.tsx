@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { AlertTriangle, CheckCircle2, Play, Zap, Search, TrendingUp, Terminal, ShieldAlert, Network, ArrowRight, Download } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Play, Zap, Search, TrendingUp, Terminal, ShieldAlert, Network, ArrowRight, Download, HelpCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AuditForm from '@/components/audit/audit-form'
 import ResultScreen from '@/components/audit/result-screen'
@@ -12,6 +12,7 @@ import { ErrorBoundary } from '@/components/system/error-boundary'
 import { AuditSkeleton } from '@/components/audit/audit-skeleton'
 import { useAuditHistory } from '@/hooks/useAuditHistory'
 import { getFixtureByVerdict } from '@/lib/fixtures'
+import { buildAuditReportV2 } from '@/lib/intelligence-v2'
 import type { AuditReport, AuditRequest } from '@/lib/schemas'
 
 type StreamEvent =
@@ -23,15 +24,90 @@ type DemoVerdict = 'safe' | 'caution' | 'high-risk'
 
 const DEMO_VERDICTS: DemoVerdict[] = ['high-risk', 'caution', 'safe']
 
+function ModeTooltip({
+  children,
+  content,
+  align = 'center',
+}: {
+  children: React.ReactNode
+  content: string
+  align?: 'left' | 'center' | 'right'
+}) {
+  const [isVisible, setIsVisible] = useState(false)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showWithDelay = () => {
+    timeoutRef.current = setTimeout(() => setIsVisible(true), 220)
+  }
+
+  const showImmediately = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setIsVisible(true)
+  }
+
+  const hide = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setIsVisible(false)
+  }
+
+  const alignmentClass = align === 'left'
+    ? 'left-0'
+    : align === 'right'
+      ? 'right-0'
+      : 'left-1/2 -translate-x-1/2'
+  const arrowClass = align === 'left'
+    ? 'left-6'
+    : align === 'right'
+      ? 'right-6'
+      : 'left-1/2 -translate-x-1/2'
+
+  return (
+    <span
+      className="relative inline-flex w-full"
+      onMouseEnter={showWithDelay}
+      onMouseLeave={hide}
+      onFocus={showImmediately}
+      onBlur={hide}
+    >
+      {children}
+      <AnimatePresence>
+        {isVisible && (
+          <motion.span
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+            className={`pointer-events-none absolute bottom-[calc(100%+0.65rem)] z-50 w-64 rounded-xl border border-border-soft bg-surface/95 px-4 py-3 text-center text-[10px] font-black uppercase leading-5 tracking-widest text-foreground shadow-2xl ring-1 ring-white/10 backdrop-blur-md ${alignmentClass}`}
+            role="tooltip"
+          >
+            {content}
+            <span className={`absolute top-full -mt-1 border-4 border-transparent border-t-border-soft ${arrowClass}`} />
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </span>
+  )
+}
+
 function isDemoVerdict(value: string | null): value is DemoVerdict {
   return Boolean(value && DEMO_VERDICTS.includes(value as DemoVerdict))
 }
 
 function buildDemoReport(verdict: DemoVerdict): AuditReport {
-  return {
+  const fixture = getFixtureByVerdict(verdict)
+  const report = buildAuditReportV2({
     id: `demo_${verdict}_${Date.now()}`,
-    ...getFixtureByVerdict(verdict),
-    timestamp: new Date().toISOString(),
+    extractedClaims: fixture.extractedClaims,
+    evidence: fixture.evidence,
+    ownerId: 'demo',
+    source: 'demo',
+  })
+
+  return {
+    ...report,
+    ...fixture,
+    version: '2',
+    intelligence: report.intelligence,
     mode: 'demo',
     credentialMode: 'demo',
     source: 'demo',
@@ -190,27 +266,35 @@ function AuditContent() {
               </p>
             </div>
 
-            <div className="relative mb-4 grid w-full max-w-[17.25rem] grid-cols-2 overflow-hidden rounded-xl border border-safe/25 bg-safe/10 p-1 text-xs font-black shadow-sm shadow-safe/10 lg:mb-5">
+            <div className="relative mb-4 grid w-full max-w-[17.25rem] grid-cols-2 overflow-visible rounded-xl border border-safe/25 bg-safe/10 p-1 text-xs font-black shadow-sm shadow-safe/10 lg:mb-5">
               <motion.div
                 aria-hidden="true"
                 animate={{ x: liveMode ? '0%' : '100%' }}
                 transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                 className="absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg border border-safe/50 bg-safe shadow-lg shadow-safe/20"
               />
-              <button
-                type="button"
-                onClick={() => setLiveMode(true)}
-                className={`relative z-10 min-h-10 rounded-lg px-3 py-2 transition-colors ${liveMode ? 'text-background' : 'text-muted hover:text-safe'}`}
-              >
-                Live evidence
-              </button>
-              <button
-                type="button"
-                onClick={() => setLiveMode(false)}
-                className={`relative z-10 min-h-10 rounded-lg px-3 py-2 transition-colors ${!liveMode ? 'text-background' : 'text-muted hover:text-safe'}`}
-              >
-                Demo fixtures
-              </button>
+              <ModeTooltip align="left" content="Runs the real audit using configured evidence search, OCR, and model providers.">
+                <button
+                  type="button"
+                  onClick={() => setLiveMode(true)}
+                  aria-label="Use live evidence mode. Runs the real audit flow using configured evidence search, OCR, and model providers."
+                  className={`relative z-10 min-h-10 w-full rounded-lg px-3 py-2 transition-colors ${liveMode ? 'text-background' : 'text-muted hover:text-safe'}`}
+                >
+                  <span>Live evidence</span>
+                  <HelpCircle className="absolute right-1 top-1 h-3 w-3 opacity-70" aria-hidden="true" />
+                </button>
+              </ModeTooltip>
+              <ModeTooltip align="right" content="Loads prebuilt example reports instantly for demos or credential-offline testing.">
+                <button
+                  type="button"
+                  onClick={() => setLiveMode(false)}
+                  aria-label="Use demo fixtures mode. Loads prebuilt example reports instantly for demos when live credentials are unavailable."
+                  className={`relative z-10 min-h-10 w-full rounded-lg px-3 py-2 transition-colors ${!liveMode ? 'text-background' : 'text-muted hover:text-safe'}`}
+                >
+                  <span>Demo fixtures</span>
+                  <HelpCircle className="absolute right-1 top-1 h-3 w-3 opacity-70" aria-hidden="true" />
+                </button>
+              </ModeTooltip>
             </div>
             
             <AuditForm onInvestigate={handleAudit} loading={isAuditing} />
@@ -232,7 +316,7 @@ function AuditContent() {
                   <Link href="/docs/automations" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-black text-background transition-colors hover:bg-safe">
                     Automation docs <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <a href="/downloads/hireproof-native-integrations.zip" download className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-2.5 text-sm font-black text-foreground transition-colors hover:bg-surface-elevated">
+                  <a href="/api/downloads/hireproof-native-integrations.zip" download className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-2.5 text-sm font-black text-foreground transition-colors hover:bg-surface-elevated">
                     Source pack <Download className="h-4 w-4" />
                   </a>
                 </div>

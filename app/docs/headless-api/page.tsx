@@ -19,6 +19,7 @@ export default function Page() {
           The main <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/audit</code> endpoint streams Server-Sent Events for the browser UI.
           External agents need a simpler <strong>request → JSON response</strong> flow.
           The headless API at <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/v1/audit</code> provides exactly that, plus optional webhook support for async processing.
+          Use <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/v2/audit</code> when you want the richer intelligence contract with evidence coverage, weighted signals, and score trace.
         </p>
       </section>
 
@@ -42,15 +43,59 @@ export default function Page() {
   -d '{"text": "Remote frontend intern. PHP 80,000/week. Message us on Telegram."}'`} />
         <CodeBlock title="Response (200 OK)" code={`{
   "id": "report_1714300000000",
+  "version": "2",
   "verdict": "high-risk",
   "riskScore": 85,
   "confidence": "Very High",
   "summary": "This opportunity has multiple red flags...",
+  "intelligence": {
+    "coverage": {
+      "company": "verified",
+      "local": "missing",
+      "reputation": "risk",
+      "market": "anomalous",
+      "applyPath": "mismatch"
+    },
+    "signals": [
+      {
+        "id": "salary_anomaly",
+        "direction": "risk",
+        "weight": 22,
+        "evidenceIds": ["ev_3"]
+      }
+    ],
+    "scoreTrace": [
+      { "step": "Baseline", "delta": 0, "scoreAfter": 25 },
+      { "step": "Market salary", "delta": 22, "scoreAfter": 47 }
+    ]
+  },
   "redFlags": ["Unrealistically high salary", "Telegram-only contact"],
   "greenFlags": [],
-  "evidence": [{ "source": "Google", "snippet": "...", "url": "..." }],
+  "evidence": [{ "id": "ev_1", "source": "Google", "trustLevel": "risk", "snippet": "...", "url": "..." }],
   "nextSteps": ["Do not send money, IDs, or bank details"],
   "timestamp": "2026-04-29T00:00:00.000Z"
+}`} />
+      </section>
+
+      {/* Operations */}
+      <section className="mb-10">
+        <h2 className="mb-3 text-2xl font-black">Caching and Telemetry</h2>
+        <p className="mb-4 text-sm font-semibold text-muted leading-6">
+          Live SerpApi evidence is cached by normalized search parameters and by similar audit context: company, role, location, and apply host.
+          Configure <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">UPSTASH_REDIS_REST_URL</code> and <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">UPSTASH_REDIS_REST_TOKEN</code> to persist repeated SerpApi responses across cold starts and Vercel instances.
+          Runtime cache telemetry is exposed from <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/health</code>, <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">/api/audit</code>, and authenticated developer usage.
+        </p>
+        <CodeBlock title="Telemetry Shape" code={`{
+  "serpapiCache": {
+    "memoryEntries": 12,
+    "similarityEntries": 3,
+    "hits": 18,
+    "misses": 7,
+    "persistentHits": 4,
+    "similarityHits": 2,
+    "networkCalls": 7,
+    "creditsSaved": 30
+  }
 }`} />
       </section>
 

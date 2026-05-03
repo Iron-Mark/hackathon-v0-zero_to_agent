@@ -17,10 +17,12 @@ type HireProofBot = Chat<Record<string, Adapter>>
 
 const CHAT_TEXT_LIMIT = 10_000
 const DEFAULT_PRODUCTION_BASE_URL = 'https://hireproof-sigma.vercel.app'
+const CHAT_URL_PATTERN = /https?:\/\/[^\s<>"')]+/i
 const DISCORD_INTERACTION_PING_TYPE = 1
 const DISCORD_INTERACTION_APPLICATION_COMMAND_TYPE = 2
 const DISCORD_INTERACTION_CALLBACK_PONG_TYPE = 1
 const DISCORD_INTERACTION_CALLBACK_CHANNEL_MESSAGE_TYPE = 4
+const DISCORD_INTERACTION_CALLBACK_DEFERRED_CHANNEL_MESSAGE_TYPE = 5
 const ED25519_SPKI_DER_PREFIX = '302a300506032b6570032100'
 const requiredEnvironmentByPlatform: Record<WebhookPlatform, string[]> = {
   slack: ['SLACK_BOT_TOKEN', 'SLACK_SIGNING_SECRET', 'REDIS_URL'],
@@ -311,6 +313,27 @@ function createDiscordInteractionResponse(content: string) {
   })
 }
 
+function createDeferredDiscordInteractionResponse() {
+  return Response.json({
+    type: DISCORD_INTERACTION_CALLBACK_DEFERRED_CHANNEL_MESSAGE_TYPE,
+  })
+}
+
+function truncateDiscordMessage(content: string) {
+  return content.length > 1900 ? `${content.slice(0, 1897)}...` : content
+}
+
+async function updateDiscordInteraction(applicationId: string, token: string, content: string) {
+  await fetch(`https://discord.com/api/v10/webhooks/${applicationId}/${token}/messages/@original`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      content: truncateDiscordMessage(content),
+      allowed_mentions: { parse: [] },
+    }),
+  })
+}
+
 function extractDiscordCommandText(payload: {
   data?: {
     options?: Array<{
@@ -324,6 +347,8 @@ function extractDiscordCommandText(payload: {
 }
 
 async function handleDiscordApplicationCommand(payload: {
+  application_id?: string
+  token?: string
   data?: {
     name?: string
     options?: Array<{
@@ -333,7 +358,7 @@ async function handleDiscordApplicationCommand(payload: {
   }
   channel_id?: string
   guild_id?: string
-}) {
+}, options?: WebhookOptions) {
   const command = payload.data?.name
 
   if (command === 'help') {
@@ -352,13 +377,34 @@ async function handleDiscordApplicationCommand(payload: {
     )
   }
 
-  const baseUrl = getChatReplyBaseUrl()
-  const { verdict } = await createChatReply(text, baseUrl, 'discord', {
-    threadId: payload.guild_id ? `discord:${payload.guild_id}` : undefined,
-    channelId: payload.channel_id,
-  })
+  const runVerify = async () => {
+    const baseUrl = getChatReplyBaseUrl()
+    const { verdict } = await createDiscordAuditReply(text, baseUrl, {
+      threadId: payload.guild_id ? `discord:${payload.guild_id}` : undefined,
+      channelId: payload.channel_id,
+    })
 
-  return createDiscordInteractionResponse(verdict.text)
+    if (payload.application_id && payload.token) {
+      await updateDiscordInteraction(payload.application_id, payload.token, verdict.text)
+    }
+
+    return verdict.text
+  }
+
+  if (payload.application_id && payload.token && options?.waitUntil) {
+    options.waitUntil(runVerify().catch(async (error) => {
+      console.error('[Discord] verify command failed:', error instanceof Error ? error.message : 'Unknown command error')
+      await updateDiscordInteraction(
+        payload.application_id as string,
+        payload.token as string,
+        'HireProof could not complete this Discord audit. If this was a job URL, paste the visible job title, company, pay, location, and application process into `/verify`.',
+      )
+    }))
+
+    return createDeferredDiscordInteractionResponse()
+  }
+
+  return createDiscordInteractionResponse(await runVerify())
 }
 
 function cloneRequestWithBody(request: Request, body: string) {
@@ -506,6 +552,54 @@ export async function createChatReply(text: string, baseUrl: string, platform: C
   return { report, verdict }
 }
 
+export async function createDiscordAuditReply(text: string, baseUrl: string, metadata?: {
+  threadId?: string
+  channelId?: string
+}) {
+  const safeText = normalizeChatText(text)
+  const inputUrl = safeText.match(CHAT_URL_PATTERN)?.[0]?.replace(/[),.;]+$/, '')
+
+  const auditBaseUrl = baseUrl || DEFAULT_PRODUCTION_BASE_URL
+  const apiKey = process.env.AGENT_API_KEY?.trim() || 'hireproof_agent_demo_key'
+  const response = await fetch(`${auditBaseUrl}/api/v1/audit`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+    },
+    body: JSON.stringify({
+      text: safeText,
+      url: inputUrl || undefined,
+      mode: 'live',
+    }),
+  })
+
+  if (!response.ok) {
+    const details = await response.text().catch(() => '')
+    throw new Error(`Discord audit API returned HTTP ${response.status}: ${details.slice(0, 300)}`)
+  }
+
+  const now = Date.now()
+  const apiReport = await response.json() as AuditReport
+  const report: AuditReport = {
+    ...apiReport,
+    id: `chat_${now}`,
+    timestamp: new Date(now).toISOString(),
+    source: 'chat',
+    chatPlatform: 'discord',
+    chatThreadId: metadata?.threadId,
+    chatChannelId: metadata?.channelId,
+  }
+
+  try {
+    await saveReport(report)
+  } catch (error) {
+    console.error('[Discord] Report persistence failed:', error instanceof Error ? error.message : 'Unknown persistence error')
+  }
+
+  return { report, verdict: formatChatVerdict(report, auditBaseUrl) }
+}
+
 async function replyToThread(thread: Thread, message: Message, platform: ChatPlatform) {
   const text = normalizeChatText(message.text || '')
   if (!text) return
@@ -624,6 +718,8 @@ export async function handleDiscordWebhook(request: Request, options?: WebhookOp
   try {
     const payload = JSON.parse(body) as {
       type?: number
+      application_id?: string
+      token?: string
       data?: {
         name?: string
         options?: Array<{
@@ -648,7 +744,7 @@ export async function handleDiscordWebhook(request: Request, options?: WebhookOp
         return new Response('invalid request signature', { status: 401 })
       }
 
-      const commandResponse = await handleDiscordApplicationCommand(payload)
+      const commandResponse = await handleDiscordApplicationCommand(payload, options)
       if (commandResponse) return commandResponse
     }
   } catch {

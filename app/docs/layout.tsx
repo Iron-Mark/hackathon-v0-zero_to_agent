@@ -45,6 +45,7 @@ const docsSidebar = [
     items: [
       { label: 'Overview', href: '/docs/sdk' },
       { label: 'Quickstart', href: '/docs/sdk-quickstart' },
+      { label: 'CLI', href: '/docs/cli' },
     ],
   },
   {

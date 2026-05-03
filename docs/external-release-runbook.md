@@ -18,6 +18,7 @@ Use this status language until each external proof gate is completed:
 | WhatsApp/Zernio | Implemented and credential-gated | Zernio credentials, real WhatsApp/Zernio event, reply screenshot, and webhook log |
 | WDK workflow | Production accepted-run proven | Completed durable run transcript plus callback proof |
 | LangChain package | Source package implemented and smoke-tested | npm package published from owner account |
+| HireProof CLI | Source package implemented and locally tested | npm package published from owner account |
 | n8n node | Source package implemented and build-validated | n8n community node submission and approval |
 | Make app | Source pack implemented and static-validated | Make custom app submission and review approval |
 
@@ -271,6 +272,32 @@ Capture:
 - npm package page URL
 - publish command output
 - install/import smoke screenshot or terminal output
+
+### HireProof CLI npm Package
+
+Owner steps:
+
+```powershell
+node --test test\hireproof-cli.test.mjs
+npm pack --workspace @hireproof/cli --dry-run
+npm pack --workspace @hireproof/cli
+npm login
+npm publish --workspace @hireproof/cli --access public
+```
+
+After publish, verify:
+
+```powershell
+npx @hireproof/cli health
+npx @hireproof/cli audit --text "Remote frontend intern. PHP 80,000/week. No interview. Telegram only." --mode demo
+```
+
+Capture:
+
+- npm package page URL
+- publish command output
+- `npx @hireproof/cli health` output
+- one demo audit output
 
 ### n8n Community Node
 

@@ -11,6 +11,7 @@ This is the concise status boundary for submission, demos, and reviewer conversa
 | Stable production site | Live | `https://hireproof-sigma.vercel.app` |
 | Web audit flow | Implemented | `/audit` and demo scenarios |
 | Demo audit API | Live | `POST /api/v1/audit` with `hireproof_agent_demo_key` |
+| Live SerpApi audit path | Live and smoke-proven | `POST /api/v1/audit` with `mode=live`, clean Canva extraction, and live evidence |
 | MCP investigation tools | Implemented | `/api/mcp` and docs |
 | ChatSDK shared bot path | Implemented | `/api/chat/hireproof`, `/api/webhooks/*` |
 | Slack proof | Screenshot-proven | `docs/demo/Screenshot 2026-04-30 024756.jpg` |
@@ -33,6 +34,23 @@ This is the concise status boundary for submission, demos, and reviewer conversa
 | n8n community node | Community listing approval | Requires n8n review after local install screenshots |
 | Make Custom App | Make review approval | Requires Make developer account and review flow |
 | WDK completed transcript | Completed durable run with callback proof | Current proof is accepted-run only |
+
+## Latest Live SerpApi Smoke
+
+Checked after checkpoint `0b83430`:
+
+- Route: `POST https://hireproof-sigma.vercel.app/api/v1/audit`
+- Mode: `live`
+- Credential mode: `platform-env`
+- Input claim: `Company: Canva. Role: Product Designer.`
+- Extracted company: `Canva`
+- Extracted role: `Product Designer`
+- Verdict: `safe`
+- Risk score: `17`
+- Evidence count: `6`
+- Evidence types: `Company Check`, `Local Presence`, `Reputation`
+
+This proves the live search/model path is production-wired. It does not guarantee every audit will return every possible evidence class; comparable jobs and local/search coverage still depend on provider result availability.
 
 ## Safe Submission Wording
 

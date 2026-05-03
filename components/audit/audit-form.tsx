@@ -92,7 +92,20 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
   )
   
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const textInputRef = useRef<HTMLTextAreaElement>(null)
   const dragDepthRef = useRef(0)
+
+  useEffect(() => {
+    if (loading) return
+    const pointerFine = window.matchMedia?.('(pointer: fine)').matches ?? true
+    if (!pointerFine) return
+
+    const focusTimer = window.setTimeout(() => {
+      textInputRef.current?.focus({ preventScroll: true })
+    }, 120)
+
+    return () => window.clearTimeout(focusTimer)
+  }, [loading])
 
   const applySmartFields = (nextText: string) => {
     const detectedUrl = extractFirstUrl(nextText)
@@ -274,9 +287,9 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
     const cleanText = text.trim().replace(/<script.*?>.*?<\/script>/gi, '')
     const cleanUrl = url.trim().replace(/<script.*?>.*?<\/script>/gi, '')
     
-    if (cleanText || image) {
+    if (cleanText || cleanUrl || image) {
       onInvestigate({ 
-        text: cleanText || 'Please extract job details from the uploaded image.', 
+        text: cleanText || (cleanUrl ? cleanUrl : 'Please extract job details from the uploaded image.'),
         url: cleanUrl, 
         location,
         image: image || undefined
@@ -376,6 +389,7 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
         )}
 
         <textarea
+          ref={textInputRef}
           value={text}
           onChange={(e) => handleTextChange(e.target.value)}
           onPaste={handleClipboardPaste}
@@ -460,7 +474,7 @@ export default function AuditForm({ onInvestigate, loading = false }: AuditFormP
             type="submit"
             data-testid="investigate-button"
             aria-label="Investigate Job Post"
-            disabled={loading || (!text.trim() && !image)}
+            disabled={loading || (!text.trim() && !url.trim() && !image)}
             className="hireproof-focus cta-glow flex w-full items-center justify-center gap-2 rounded-xl border border-safe bg-safe py-3 font-black text-background shadow-lg shadow-safe/20 transition-colors hover:bg-safe-text disabled:cursor-not-allowed disabled:border-safe/30 disabled:bg-safe-bg disabled:text-safe-text disabled:opacity-100 disabled:shadow-none"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}

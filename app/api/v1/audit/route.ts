@@ -21,7 +21,9 @@ import {
 } from '@/lib/risk-scorer'
 import {
   ensureSerpApiEvidenceCoverage,
+  getSerpApiOperationalStatus,
   hasSerpApiKey,
+  runSmartSerpApiInvestigation,
   searchCompanyPresence,
   searchComparableJobs,
   searchLocalPresence,
@@ -33,6 +35,14 @@ import { authenticateApiKey, getOwnerProviderCredentials, recordUsage } from '@/
 import { getHireProofModel, hasHireProofModelProvider } from '@/lib/ai-model'
 import { recoverObviousClaims } from '@/lib/claim-extraction.mjs'
 import { buildHireProofWebhookHeaders } from '@/lib/webhook-signing.mjs'
+import { buildAuditReportV2 } from '@/lib/intelligence-v2'
+import {
+  buildEnrichmentEvidence,
+  buildEnrichmentRedFlags,
+  enrichAuditRequestInput,
+} from '@/lib/job-url-enrichment.mjs'
+import { enrichAuditRequestWithOcr } from '@/lib/ocr.mjs'
+import { acquireLiveAuditGuardrail, buildOperationalEvidence } from '@/lib/live-audit-guardrails'
 
 export const runtime = 'nodejs'
 
@@ -65,10 +75,20 @@ function buildDemoReport(validated: AuditRequest, ownerId: string, apiKeyId: str
     fixture = DEMO_FIXTURES.safe
   }
 
-  return {
+  const report = buildAuditReportV2({
     id: `report_${Date.now()}`,
+    extractedClaims: fixture.extractedClaims,
+    evidence: fixture.evidence,
+    ownerId,
+    apiKeyId,
+    source: 'api',
+  })
+
+  return {
+    ...report,
     ...fixture,
-    timestamp: new Date().toISOString(),
+    version: '2',
+    intelligence: report.intelligence,
     mode: 'demo',
     credentialMode: 'demo',
     ownerId,
@@ -164,6 +184,10 @@ async function extractClaims(input: AuditRequest, modelProviderKey?: string): Pr
         location: z.string().describe("The job location. Return 'Not specified' if missing."),
         contactMethod: z.string().describe("The contact method mentioned (e.g. Telegram, WhatsApp, Email). Return 'Not specified' if missing."),
         applicationPath: z.string().describe("How to apply or progress (e.g. No interview mentioned, Direct message, Official portal). Return 'Not specified' if missing."),
+        recruiterName: z.string().optional().describe('Recruiter or hiring contact name if clearly present.'),
+        recruiterEmail: z.string().optional().describe('Recruiter email address if clearly present.'),
+        recruiterProfile: z.string().optional().describe('Recruiter LinkedIn or professional profile URL if clearly present.'),
+        recruiterPhone: z.string().optional().describe('Recruiter phone number if clearly present.'),
       }),
       messages: [
         {
@@ -275,9 +299,22 @@ export async function POST(request: Request) {
   }
 
   let validated: AuditRequest
+  let requestEnrichment: any = null
+  let ocrEvidence: EvidenceItem[] = []
   try {
     const body = await request.json()
     validated = AuditRequestSchema.parse(body)
+    const { request: enrichedRequest, enrichment } = await enrichAuditRequestInput(validated)
+    requestEnrichment = enrichment
+    if (!validated.text && !validated.image && validated.url && enrichment.status !== 'enriched') {
+      return new Response(JSON.stringify({
+        error: 'HireProof could not read enough public job content from that URL. Paste the visible job title, company, pay, location, and application process, or upload a screenshot.',
+        reason: (enrichment as any).reason,
+      }), { status: 422, headers: { 'Content-Type': 'application/json' } })
+    }
+    const { request: ocrRequest, evidence: screenshotEvidence } = await enrichAuditRequestWithOcr(enrichedRequest)
+    ocrEvidence = screenshotEvidence as EvidenceItem[]
+    validated = ocrRequest
 
     if (validated.webhook_url) {
       const url = new URL(validated.webhook_url)
@@ -321,6 +358,23 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: message }), { status: 400, headers: { 'Content-Type': 'application/json' } })
   }
 
+  const serpApiOperationalStatus = getSerpApiOperationalStatus()
+  const liveSearchRequested = validated.mode !== 'demo' && serpapiAvailable
+  const liveSearchAllowed = liveSearchRequested && serpApiOperationalStatus.status !== 'circuit-open'
+  const guardrail = await acquireLiveAuditGuardrail({ identifier: apiKey, channel: 'api', live: liveSearchAllowed })
+  if (!guardrail.allowed) {
+    return new Response(JSON.stringify({
+      error: guardrail.status.message || 'Live audit guardrail is active.',
+      liveSearch: guardrail.status,
+    }), {
+      status: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'Retry-After': String(guardrail.retryAfterSec || 30),
+      },
+    })
+  }
+
   try {
     const performInvestigation = async (): Promise<AuditReport | null> => {
       try {
@@ -335,7 +389,7 @@ export async function POST(request: Request) {
           const hasCompany = !extractedClaims.company.toLowerCase().includes('unknown')
           let evidence: EvidenceItem[] = []
 
-          if (hasCompany && serpapiAvailable && modelAvailable) {
+          if (hasCompany && liveSearchAllowed && modelAvailable) {
             try {
               const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3000'
               
@@ -404,56 +458,47 @@ export async function POST(request: Request) {
                 }
               }
             } catch (agentError) {
-              const [companyEvidence, newsEvidence, jobsEvidence, localEvidence] = await Promise.all([
-                searchCompanyPresence(extractedClaims.company, extractedClaims.role, ownerCredentials.serpapiKey),
-                searchNewsReputation(extractedClaims.company, ownerCredentials.serpapiKey),
-                searchComparableJobs(extractedClaims.role, extractedClaims.location, ownerCredentials.serpapiKey),
-                searchLocalPresence(extractedClaims.company, extractedClaims.location, ownerCredentials.serpapiKey),
-              ])
-              evidence = [...companyEvidence, ...newsEvidence, ...jobsEvidence, ...localEvidence]
+              evidence = await runSmartSerpApiInvestigation(extractedClaims, {
+                serpapiKey: ownerCredentials.serpapiKey,
+                applicationUrl: validated.url || undefined,
+              })
             }
-          } else if (serpapiAvailable) {
-            const [companyEvidence, newsEvidence, jobsEvidence, localEvidence] = await Promise.all([
-              hasCompany ? searchCompanyPresence(extractedClaims.company, extractedClaims.role, ownerCredentials.serpapiKey) : Promise.resolve([]),
-              hasCompany ? searchNewsReputation(extractedClaims.company, ownerCredentials.serpapiKey) : Promise.resolve([]),
-              searchComparableJobs(extractedClaims.role, extractedClaims.location, ownerCredentials.serpapiKey),
-              hasCompany ? searchLocalPresence(extractedClaims.company, extractedClaims.location, ownerCredentials.serpapiKey) : Promise.resolve([]),
-            ])
-            evidence = [...companyEvidence, ...newsEvidence, ...jobsEvidence, ...localEvidence]
+          } else if (liveSearchAllowed) {
+            evidence = await runSmartSerpApiInvestigation(extractedClaims, {
+              serpapiKey: ownerCredentials.serpapiKey,
+              applicationUrl: validated.url || undefined,
+            })
           }
 
-          evidence = await ensureSerpApiEvidenceCoverage(evidence, extractedClaims, ownerCredentials.serpapiKey)
+          evidence = liveSearchAllowed ? await ensureSerpApiEvidenceCoverage(evidence, extractedClaims, ownerCredentials.serpapiKey) : evidence
+          if (serpApiOperationalStatus.status === 'circuit-open') {
+            evidence.push(buildOperationalEvidence(serpApiOperationalStatus))
+          }
 
-          let redFlags = extractRedFlags(extractedClaims, evidence)
-          const greenFlags = extractGreenFlags(extractedClaims, evidence)
+          const routeRedFlags: string[] = []
+          const enrichmentRedFlags = buildEnrichmentRedFlags(requestEnrichment)
 
-          if (!hasCompany) redFlags = [...redFlags, 'Company name could not be confidently extracted']
-          if (hasCompany && evidence.filter(e => e.type === 'Local Presence').length === 0 && serpapiAvailable) redFlags = [...redFlags, 'No local presence found']
-          if (evidence.length === 0 && serpapiAvailable) redFlags = [...redFlags, 'No supporting evidence found']
+          if (!hasCompany) routeRedFlags.push('Company name could not be confidently extracted')
+          if (hasCompany && evidence.filter(e => e.type.toLowerCase().includes('local presence')).length === 0 && serpapiAvailable) routeRedFlags.push('No local presence found')
+          if (evidence.length === 0 && serpapiAvailable) routeRedFlags.push('No supporting evidence found')
 
-          const riskScore = calculateRiskScore(extractedClaims, redFlags, greenFlags, evidence)
-          const verdict = determineVerdict(riskScore)
-
-          const report: AuditReport = {
+          const report: AuditReport = buildAuditReportV2({
             id: `report_${Date.now()}`,
-            verdict,
-            riskScore,
-            confidence: getConfidenceLabel(riskScore, evidence.length),
-            summary: generateSummary(verdict, riskScore, redFlags),
             extractedClaims,
-            redFlags,
-            greenFlags,
             evidence,
-            alternatives: buildAlternativeJobs(evidence),
-            nextSteps: buildNextSteps(verdict, extractedClaims.company),
-            timestamp: new Date().toISOString(),
-            mode: 'live',
+            enrichmentEvidence: [...buildEnrichmentEvidence(requestEnrichment), ...ocrEvidence],
+            enrichmentRedFlags: [...enrichmentRedFlags, ...routeRedFlags],
             credentialMode,
             ownerId: apiAuth.ownerId,
             apiKeyId: apiAuth.apiKeyId,
             source: 'api',
-            publiclyListed: true,
-          }
+            publiclyListed: !validated.image,
+            operations: {
+              liveSearch: serpApiOperationalStatus.status === 'circuit-open'
+                ? serpApiOperationalStatus
+                : guardrail.status,
+            },
+          })
 
           await persistReportSafely(report)
           return report
@@ -471,47 +516,55 @@ export async function POST(request: Request) {
     if (validated.webhook_url) {
       // Process asynchronously with retry
       Promise.resolve().then(async () => {
-        const report = await performInvestigation()
-        await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit:webhook', status: report ? 202 : 500, reportId: report?.id })
-        if (report) {
-          const payload = JSON.stringify(report)
+        try {
+          const report = await performInvestigation()
+          await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit:webhook', status: report ? 202 : 500, reportId: report?.id })
+          if (report) {
+            const payload = JSON.stringify(report)
 
-          const maxRetries = 3
-          for (let attempt = 0; attempt < maxRetries; attempt++) {
-            try {
-              const res = await fetch(validated.webhook_url as string, {
-                method: 'POST',
-                headers: buildHireProofWebhookHeaders(payload, apiKey),
-                body: payload,
-                signal: AbortSignal.timeout(10_000),
-              })
-              if (res.ok || (res.status >= 200 && res.status < 300)) break
-              if (res.status >= 400 && res.status < 500) {
-                console.error(`[Webhook] Client error ${res.status}, not retrying.`)
-                break
+            const maxRetries = 3
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+              try {
+                const res = await fetch(validated.webhook_url as string, {
+                  method: 'POST',
+                  headers: buildHireProofWebhookHeaders(payload, apiKey),
+                  body: payload,
+                  signal: AbortSignal.timeout(10_000),
+                })
+                if (res.ok || (res.status >= 200 && res.status < 300)) break
+                if (res.status >= 400 && res.status < 500) {
+                  console.error(`[Webhook] Client error ${res.status}, not retrying.`)
+                  break
+                }
+                console.warn(`[Webhook] Attempt ${attempt + 1} failed with ${res.status}, retrying...`)
+              } catch (e) {
+                console.error(`[Webhook] Attempt ${attempt + 1} failed:`, e)
               }
-              console.warn(`[Webhook] Attempt ${attempt + 1} failed with ${res.status}, retrying...`)
-            } catch (e) {
-              console.error(`[Webhook] Attempt ${attempt + 1} failed:`, e)
-            }
-            if (attempt < maxRetries - 1) {
-              await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)))
+              if (attempt < maxRetries - 1) {
+                await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)))
+              }
             }
           }
+        } finally {
+          await guardrail.release()
         }
       })
       
       return new Response(JSON.stringify({ status: 'processing', message: 'Investigation started. Results will be posted to the webhook URL.' }), { status: 202, headers: { 'Content-Type': 'application/json' } })
     }
 
-    const report = await performInvestigation()
-    if (!report) {
-      await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit', status: 500 })
-      throw new Error('Investigation failed')
+    try {
+      const report = await performInvestigation()
+      if (!report) {
+        await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit', status: 500 })
+        throw new Error('Investigation failed')
+      }
+      await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit', status: 200, reportId: report.id })
+      
+      return new Response(JSON.stringify(report), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    } finally {
+      await guardrail.release()
     }
-    await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit', status: 200, reportId: report.id })
-    
-    return new Response(JSON.stringify(report), { status: 200, headers: { 'Content-Type': 'application/json' } })
 
   } catch (error) {
     if (error instanceof LiveAuditCredentialsError) {

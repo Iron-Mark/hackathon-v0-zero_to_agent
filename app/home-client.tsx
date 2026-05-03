@@ -487,7 +487,7 @@ export function HomeClient() {
               <Link href="/docs/automations" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-black text-background transition-colors hover:bg-safe">
                 View automation docs <ArrowRight className="h-4 w-4" />
               </Link>
-              <a href="/downloads/hireproof-native-integrations.zip" download className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface px-5 py-3 text-sm font-black text-foreground transition-colors hover:bg-background">
+              <a href="/api/downloads/hireproof-native-integrations.zip" download className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface px-5 py-3 text-sm font-black text-foreground transition-colors hover:bg-background">
                 Download source pack <Download className="h-4 w-4" />
               </a>
             </div>

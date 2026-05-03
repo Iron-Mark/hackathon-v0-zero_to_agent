@@ -153,23 +153,29 @@ textarea {
     transparent 100%
   );
   pointer-events: none;
-  animation: bot-scan-line 3.5s linear infinite;
-  opacity: 0.6;
+  animation: bot-scan-line 8s ease-in-out infinite;
+  opacity: 0.38;
 }
 
 @keyframes bot-scan-line {
   0% {
-    transform: translateX(-80%);
+    transform: translateX(-90%);
     opacity: 0;
   }
-  20% {
-    opacity: 0.6;
+  28% {
+    opacity: 0;
   }
-  80% {
-    opacity: 0.6;
+  42% {
+    opacity: 0.38;
+  }
+  58% {
+    opacity: 0.38;
+  }
+  72% {
+    opacity: 0;
   }
   100% {
-    transform: translateX(80%);
+    transform: translateX(90%);
     opacity: 0;
   }
 }

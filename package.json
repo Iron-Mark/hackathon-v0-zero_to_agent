@@ -6,7 +6,8 @@
   "workspaces": [
     "sdk",
     "integrations/n8n-nodes-hireproof",
-    "packages/hireproof-langchain"
+    "packages/hireproof-langchain",
+    "packages/hireproof-cli"
   ],
   "directories": {
     "doc": "docs"
@@ -17,6 +18,8 @@
     "start": "next start",
     "lint": "tsc --noEmit --project tsconfig.lint.json",
     "cleanup:local-data": "node scripts/cleanup-local-data.mjs",
+    "cli": "node packages/hireproof-cli/bin/hireproof.mjs",
+    "cli:test": "node --test test/hireproof-cli.test.mjs",
     "icons:extension": "node scripts/generate-extension-icons.mjs",
     "package:extension": "node scripts/package-extension.mjs",
     "store:assets": "node scripts/generate-chrome-store-assets.mjs",
@@ -51,6 +54,7 @@
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
+    "@vercel/analytics": "^2.0.1",
     "@zernio/chat-sdk-adapter": "^0.2.3",
     "ai": "^6.0.168",
     "chat": "^4.26.0",
@@ -65,6 +69,8 @@
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "recharts": "^3.8.1",
+    "sharp": "^0.34.5",
+    "tesseract.js": "^7.0.0",
     "typescript": "6.0.3",
     "workflow": "^4.2.4",
     "zod": "^4.3.6"

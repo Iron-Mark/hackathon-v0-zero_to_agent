@@ -19,7 +19,10 @@ import {
 } from '@/lib/risk-scorer'
 import {
   ensureSerpApiEvidenceCoverage,
+  getSerpApiResponseCacheStats,
+  getSerpApiOperationalStatus,
   isSerpApiConfigured,
+  runSmartSerpApiInvestigation,
   searchCompanyPresence,
   searchComparableJobs,
   searchLocalPresence,
@@ -29,6 +32,14 @@ import { checkRateLimit } from '@/lib/rate-limit'
 import { saveReport } from '@/lib/db'
 import { getHireProofModel, getModelProviderStatus, hasHireProofModelProvider } from '@/lib/ai-model'
 import { recoverObviousClaims } from '@/lib/claim-extraction.mjs'
+import { buildAuditReportV2 } from '@/lib/intelligence-v2'
+import {
+  buildEnrichmentEvidence,
+  buildEnrichmentRedFlags,
+  enrichAuditRequestInput,
+} from '@/lib/job-url-enrichment.mjs'
+import { enrichAuditRequestWithOcr } from '@/lib/ocr.mjs'
+import { acquireLiveAuditGuardrail, buildOperationalEvidence } from '@/lib/live-audit-guardrails'
 
 export const runtime = 'nodejs'
 
@@ -118,6 +129,10 @@ async function extractClaims(input: AuditRequest): Promise<ExtractedClaims> {
         location: z.string().describe("The job location. Return 'Not specified' if missing."),
         contactMethod: z.string().describe("The contact method mentioned (e.g. Telegram, WhatsApp, Email). Return 'Not specified' if missing."),
         applicationPath: z.string().describe("How to apply or progress (e.g. No interview mentioned, Direct message, Official portal). Return 'Not specified' if missing."),
+        recruiterName: z.string().optional().describe('Recruiter or hiring contact name if clearly present.'),
+        recruiterEmail: z.string().optional().describe('Recruiter email address if clearly present.'),
+        recruiterProfile: z.string().optional().describe('Recruiter LinkedIn or professional profile URL if clearly present.'),
+        recruiterPhone: z.string().optional().describe('Recruiter phone number if clearly present.'),
       }),
       messages: [
         {
@@ -246,10 +261,26 @@ export async function POST(request: Request) {
   }
 
   let validated: AuditRequest
+  let requestEnrichment: any = null
+  let ocrEvidence: EvidenceItem[] = []
   
   try {
     const body = await request.json()
     validated = AuditRequestSchema.parse(body)
+    const { request: enrichedRequest, enrichment } = await enrichAuditRequestInput(validated)
+    requestEnrichment = enrichment
+    if (!validated.text && !validated.image && validated.url && enrichment.status !== 'enriched') {
+      return new Response(JSON.stringify({
+        error: 'HireProof could not read enough public job content from that URL. Paste the visible job title, company, pay, location, and application process, or upload a screenshot.',
+        reason: (enrichment as any).reason,
+      }), {
+        status: 422,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+    const { request: ocrRequest, evidence: screenshotEvidence } = await enrichAuditRequestWithOcr(enrichedRequest)
+    ocrEvidence = screenshotEvidence as EvidenceItem[]
+    validated = ocrRequest
   } catch (error: any) {
     const message = error?.issues
       ? `Validation error: ${error.issues.map((i: any) => `${i.path.join('.')}: ${i.message}`).join('; ')}`
@@ -257,6 +288,23 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: message }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const serpApiOperationalStatus = getSerpApiOperationalStatus()
+  const liveSearchRequested = validated.mode !== 'demo' && isSerpApiConfigured()
+  const liveSearchAllowed = liveSearchRequested && serpApiOperationalStatus.status !== 'circuit-open'
+  const guardrail = await acquireLiveAuditGuardrail({ identifier: ip, channel: 'web', live: liveSearchAllowed })
+  if (!guardrail.allowed) {
+    return new Response(JSON.stringify({
+      error: guardrail.status.message || 'Live audit guardrail is active.',
+      liveSearch: guardrail.status,
+    }), {
+      status: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'Retry-After': String(guardrail.retryAfterSec || 30),
+      },
     })
   }
 
@@ -271,6 +319,9 @@ export async function POST(request: Request) {
   // Process asynchronously
   ;(async () => {
     try {
+      if (serpApiOperationalStatus.status === 'circuit-open') {
+        sendEvent('log', { message: serpApiOperationalStatus.message })
+      }
       sendEvent('log', { message: 'Extracting role, pay, company, and contact claims...' })
 
       if (true) {
@@ -278,7 +329,7 @@ export async function POST(request: Request) {
         const hasCompany = !extractedClaims.company.toLowerCase().includes('unknown')
         let evidence: EvidenceItem[] = []
 
-        if (hasCompany && isSerpApiConfigured() && hasHireProofModelProvider()) {
+        if (hasCompany && liveSearchAllowed && hasHireProofModelProvider()) {
           try {
             const host = request.headers.get('host') || 'localhost:3000'
             const protocol = host.includes('localhost') ? 'http' : 'https'
@@ -378,76 +429,48 @@ export async function POST(request: Request) {
             console.warn('[AI Agent] Execution loop failed or timed out. Falling back to concurrent direct execution.', agentError)
             sendEvent('log', { message: 'Agent taking too long, switching to fast concurrent search...' })
             
-            const [companyEvidence, newsEvidence, jobsEvidence, localEvidence] = await Promise.all([
-              searchCompanyPresence(extractedClaims.company, extractedClaims.role),
-              searchNewsReputation(extractedClaims.company),
-              searchComparableJobs(extractedClaims.role, extractedClaims.location),
-              searchLocalPresence(extractedClaims.company, extractedClaims.location),
-            ])
-
-            evidence = [
-              ...companyEvidence,
-              ...newsEvidence,
-              ...jobsEvidence,
-              ...localEvidence,
-            ]
+            evidence = await runSmartSerpApiInvestigation(extractedClaims, { applicationUrl: validated.url || undefined })
           }
-        } else if (isSerpApiConfigured()) {
+        } else if (liveSearchAllowed) {
           sendEvent('log', { message: 'Checking company footprint concurrently...' })
-          
-          const [companyEvidence, newsEvidence, jobsEvidence, localEvidence] = await Promise.all([
-            hasCompany ? searchCompanyPresence(extractedClaims.company, extractedClaims.role) : Promise.resolve([]),
-            hasCompany ? searchNewsReputation(extractedClaims.company) : Promise.resolve([]),
-            searchComparableJobs(extractedClaims.role, extractedClaims.location),
-            hasCompany ? searchLocalPresence(extractedClaims.company, extractedClaims.location) : Promise.resolve([]),
-          ])
 
-          evidence = [
-            ...companyEvidence,
-            ...newsEvidence,
-            ...jobsEvidence,
-            ...localEvidence,
-          ]
+          evidence = await runSmartSerpApiInvestigation(extractedClaims, { applicationUrl: validated.url || undefined })
         }
 
-        evidence = await ensureSerpApiEvidenceCoverage(evidence, extractedClaims)
+        evidence = liveSearchAllowed ? await ensureSerpApiEvidenceCoverage(evidence, extractedClaims) : evidence
+        if (serpApiOperationalStatus.status === 'circuit-open') {
+          evidence.push(buildOperationalEvidence(serpApiOperationalStatus))
+        }
 
         sendEvent('log', { message: 'Calculating deterministic risk score...' })
 
-        let redFlags = extractRedFlags(extractedClaims, evidence)
-        const greenFlags = extractGreenFlags(extractedClaims, evidence)
-
+        const routeRedFlags: string[] = []
+        const enrichmentRedFlags = buildEnrichmentRedFlags(requestEnrichment)
         if (!hasCompany) {
-          redFlags = [...redFlags, 'Company name could not be confidently extracted from the post']
+          routeRedFlags.push('Company name could not be confidently extracted from the post')
         }
-        if (hasCompany && evidence.filter(e => e.type === 'Local Presence').length === 0 && isSerpApiConfigured()) {
-          redFlags = [...redFlags, 'No local presence found in search results']
+        if (hasCompany && evidence.filter(e => e.type.toLowerCase().includes('local presence')).length === 0 && isSerpApiConfigured()) {
+          routeRedFlags.push('No local presence found in search results')
         }
         if (evidence.length === 0 && isSerpApiConfigured()) {
-          redFlags = [...redFlags, 'No supporting evidence found from live search']
+          routeRedFlags.push('No supporting evidence found from live search')
         }
 
-        const riskScore = calculateRiskScore(extractedClaims, redFlags, greenFlags, evidence)
-        const verdict = determineVerdict(riskScore)
-
-        const report: AuditReport = {
+        const report: AuditReport = buildAuditReportV2({
           id: `report_${Date.now()}`,
-          verdict,
-          riskScore,
-          confidence: getConfidenceLabel(riskScore, evidence.length),
-          summary: generateSummary(verdict, riskScore, redFlags),
           extractedClaims,
-          redFlags,
-          greenFlags,
           evidence,
-          alternatives: buildAlternativeJobs(evidence),
-          nextSteps: buildNextSteps(verdict, extractedClaims.company),
-          timestamp: new Date().toISOString(),
-          mode: 'live',
+          enrichmentEvidence: [...buildEnrichmentEvidence(requestEnrichment), ...ocrEvidence],
+          enrichmentRedFlags: [...enrichmentRedFlags, ...routeRedFlags],
           ownerId: 'web',
           source: 'web',
-          publiclyListed: true,
-        }
+          publiclyListed: !validated.image,
+          operations: {
+            liveSearch: serpApiOperationalStatus.status === 'circuit-open'
+              ? serpApiOperationalStatus
+              : guardrail.status,
+          },
+        })
 
         await persistReportSafely(report)
         sendEvent('result', { data: report })
@@ -459,6 +482,7 @@ export async function POST(request: Request) {
       console.error('[Audit API] Error:', error instanceof Error ? error.message : 'Unknown execution error')
       sendEvent('error', { message: 'Failed to complete audit' })
     } finally {
+      await guardrail.release()
       writer.close()
     }
   })()
@@ -485,6 +509,7 @@ export async function GET() {
         ai_provider: hasHireProofModelProvider(),
       },
       modelProvider,
+      serpapiCache: getSerpApiResponseCacheStats(),
     }),
     { status: 200, headers: { 'Content-Type': 'application/json' } }
   )

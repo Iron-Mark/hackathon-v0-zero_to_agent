@@ -6,6 +6,7 @@ import { CommandMenu } from '@/components/layout/command-menu'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { ThemeScanner } from '@/components/system/theme-scanner'
 import { DemoLoginSnackbar } from '@/components/system/demo-login-snackbar'
+import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 
 export const metadata: Metadata = {
@@ -142,6 +143,7 @@ export default function RootLayout({
               {children}
             </main>
             <SiteFooter />
+            <Analytics />
           </ToastProvider>
         </ThemeProvider>
       </body>

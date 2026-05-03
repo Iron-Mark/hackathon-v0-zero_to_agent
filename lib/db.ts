@@ -138,7 +138,7 @@ export async function listReports(limit = 100): Promise<AuditReport[]> {
 }
 
 export async function getReportTrends() {
-  const reports = await listReports(500)
+  const reports = (await listReports(500)).filter((report) => report.publiclyListed !== false)
   const verdicts = { safe: 0, caution: 0, 'high-risk': 0 }
   const locations: Record<string, number> = {}
   const roles: Record<string, number> = {}

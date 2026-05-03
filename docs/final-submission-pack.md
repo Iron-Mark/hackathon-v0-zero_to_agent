@@ -109,7 +109,7 @@ Proof points:
 - Telegram has real delivery screenshot/log proof.
 - Discord is credential-ready but still pending a real provider-event capture.
 - Discord public server install link is available at `https://discord.com/oauth2/authorize?client_id=1500240100804530336&scope=bot%20applications.commands&permissions=0`.
-- Discord slash commands are implemented as `/verify job_post:<text>` and `/help`; register them with `npm run discord:commands`.
+- Discord slash commands are implemented as `/verify job_post:<text-or-link>` and `/help`; supported public job URLs are expanded before auditing. Register them with `npm run discord:commands`.
 - WhatsApp/Zernio routes are implemented behind credential gates.
 
 Safe boundary:

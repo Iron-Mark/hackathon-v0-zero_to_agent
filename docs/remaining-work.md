@@ -30,6 +30,7 @@ HireProof is core production-ready on the stable production URL:
 ## Production Proof
 
 - `GET /api/health` returns `status: ok`, Redis storage, live search, model, AI Gateway, and OpenAI-compatible fallback ready.
+- `POST /api/v1/audit` with `mode=live` now smoke-proves the SerpApi/model path on production with clean Canva claim extraction and six live evidence items.
 - `GET /api/integrations/proof` returns `status: ready` / `coreStatus: ready` when Slack, Workflow, and AI Gateway are ready. Discord and Telegram now report `ready`; WhatsApp/Zernio keeps `optionalStatus` credential-gated until Zernio credentials are added.
 - `POST /api/v1/audit` with the public demo key returns a High-Risk demo report with score `92`.
 - `POST /api/audit` SSE returns a result event for the High-Risk demo.

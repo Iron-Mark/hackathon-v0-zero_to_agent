@@ -22,6 +22,15 @@ const SECURITY_HEADERS = {
   'Referrer-Policy': 'strict-origin-when-cross-origin', // Added from previous middleware
 }
 
+const DOWNLOAD_ROUTE_FILES = new Set([
+  'hireproof-automation-curl.sh',
+  'hireproof-extension.zip',
+  'hireproof-langchain-tool.ts',
+  'hireproof-make-http-config.json',
+  'hireproof-n8n-workflow.json',
+  'hireproof-native-integrations.zip',
+])
+
 export function proxy(request: NextRequest) {
   const ua = request.headers.get('user-agent') || ''
 
@@ -39,6 +48,13 @@ export function proxy(request: NextRequest) {
 
   if (headersSize > 16384) { // 16KB limit
     return new NextResponse('Header Too Large', { status: 431 })
+  }
+
+  const legacyDownloadMatch = request.nextUrl.pathname.match(/^\/downloads\/([^/]+)$/)
+  if (legacyDownloadMatch && DOWNLOAD_ROUTE_FILES.has(legacyDownloadMatch[1])) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/api/downloads/${legacyDownloadMatch[1]}`
+    return NextResponse.rewrite(url)
   }
 
   const response = NextResponse.next()

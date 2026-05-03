@@ -143,9 +143,11 @@ The `client_id` is public and safe to share. Treat this as the install handoff l
 HireProof supports these Discord application commands:
 
 ```text
-/verify job_post:<suspicious job post text>
+/verify job_post:<suspicious job post text or supported LinkedIn job URL>
 /help
 ```
+
+For URLs, `/verify` can expand supported LinkedIn, public ATS, and public careers pages before auditing. If a job URL cannot be expanded, paste the visible job title, company, pay, location, and application process instead of relying on the URL alone.
 
 Register or refresh commands from the repo after setting `DISCORD_BOT_TOKEN` and `DISCORD_APPLICATION_ID`:
 

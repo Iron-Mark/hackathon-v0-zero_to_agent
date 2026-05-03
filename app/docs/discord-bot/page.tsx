@@ -26,7 +26,7 @@ export default function DiscordBotPage() {
           Install HireProof on Discord
         </a>
         <p className="max-w-2xl text-sm font-semibold leading-6 text-muted">
-          Discord commands are available as <code className="rounded bg-surface px-1.5 py-0.5 text-foreground">/verify job_post:&lt;text&gt;</code> and <code className="rounded bg-surface px-1.5 py-0.5 text-foreground">/help</code> after command registration.
+          Discord commands are available as <code className="rounded bg-surface px-1.5 py-0.5 text-foreground">/verify job_post:&lt;text-or-link&gt;</code> and <code className="rounded bg-surface px-1.5 py-0.5 text-foreground">/help</code> after command registration. Supported public job URLs are expanded before auditing.
         </p>
       </section>
 

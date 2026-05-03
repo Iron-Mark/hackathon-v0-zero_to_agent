@@ -138,7 +138,13 @@ test('multi-platform chat agents are wired through ChatSDK adapters', async () =
   assert.match(bot, /DISCORD_INTERACTION_CALLBACK_PONG_TYPE = 1/)
   assert.match(bot, /Response\.json\(\{ type: DISCORD_INTERACTION_CALLBACK_PONG_TYPE \}/)
   assert.match(bot, /DISCORD_INTERACTION_APPLICATION_COMMAND_TYPE = 2/)
+  assert.match(bot, /DISCORD_INTERACTION_CALLBACK_DEFERRED_CHANNEL_MESSAGE_TYPE = 5/)
   assert.match(bot, /handleDiscordApplicationCommand/)
+  assert.match(bot, /createDiscordAuditReply/)
+  assert.match(bot, /CHAT_URL_PATTERN/)
+  assert.doesNotMatch(bot, /enrichJobUrlInput/)
+  assert.match(bot, /updateDiscordInteraction/)
+  assert.match(bot, /\/api\/v1\/audit/)
   assert.match(bot, /handleTelegramStartCommand/)
   assert.match(bot, /Welcome to HireProof/)
   assert.match(bot, /sendTelegramMessage/)
@@ -159,6 +165,8 @@ test('multi-platform chat agents are wired through ChatSDK adapters', async () =
   assert.match(bot, /botFingerprint/)
   assert.match(bot, /platform: chatPlatform/)
   assert.match(bot, /required: requiredEnvironmentByPlatform/)
+  assert.match(bot, /mode: 'live'/)
+  assert.match(bot, /source: 'chat'/)
   assert.match(discordWebhook, /handleDiscordWebhook/)
   assert.match(discordWebhook, /waitUntil/)
   assert.match(telegramWebhook, /handleTelegramWebhook/)
@@ -329,6 +337,26 @@ test('audit page consumes the live audit sse stream instead of parsing it as jso
   assert.doesNotMatch(source, /Math\.random\(\)/)
 })
 
+test('audit mode tabs explain live evidence and demo fixtures with accessible help text', async () => {
+  const source = await fs.readFile(new URL('../app/audit/audit-client.tsx', import.meta.url), 'utf8')
+
+  assert.match(source, /function ModeTooltip/)
+  assert.match(source, /HelpCircle/)
+  assert.match(source, /Runs the real audit using configured evidence search, OCR, and model providers/)
+  assert.match(source, /Loads prebuilt example reports instantly/)
+  assert.match(source, /aria-label="Use live evidence mode/)
+  assert.match(source, /aria-label="Use demo fixtures mode/)
+  assert.doesNotMatch(source, /title="Live evidence runs/)
+  assert.doesNotMatch(source, /title="Demo fixtures load/)
+  assert.match(source, /overflow-visible rounded-xl/)
+  assert.match(source, /bottom-\[calc\(100%\+0\.65rem\)\]/)
+  assert.match(source, /border-t-border-soft/)
+  assert.match(source, /bg-surface\/95/)
+  assert.match(source, /backdrop-blur-md/)
+  assert.match(source, /AnimatePresence/)
+  assert.match(source, /role="tooltip"/)
+})
+
 test('audit APIs do not fail the response when report persistence fails', async () => {
   const uiRoute = await fs.readFile(new URL('../app/api/audit/route.ts', import.meta.url), 'utf8')
   const v1Route = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
@@ -339,6 +367,99 @@ test('audit APIs do not fail the response when report persistence fails', async 
   assert.match(db, /function parseRedisIndex/)
   assert.match(db, /await redis\.set\(redisIndexKey, nextIndex\)/)
   assert.doesNotMatch(db, /await redis\.set\(redisIndexKey, JSON\.stringify\(nextIndex\)\)/)
+})
+
+test('audit APIs enrich job URLs before claim extraction', async () => {
+  const uiRoute = await fs.readFile(new URL('../app/api/audit/route.ts', import.meta.url), 'utf8')
+  const v1Route = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+  const enrichment = await fs.readFile(new URL('../lib/job-url-enrichment.mjs', import.meta.url), 'utf8')
+  const auditForm = await fs.readFile(new URL('../components/audit/audit-form.tsx', import.meta.url), 'utf8')
+
+  assert.match(uiRoute, /enrichAuditRequestInput/)
+  assert.match(v1Route, /enrichAuditRequestInput/)
+  assert.match(enrichment, /PUBLIC_JOB_HOST_SOURCES/)
+  assert.match(enrichment, /application\\\/ld\\\+json/)
+  assert.match(enrichment, /generic-html/)
+  assert.match(enrichment, /detectInputConflicts/)
+  assert.match(enrichment, /buildEnrichmentEvidence/)
+  assert.match(enrichment, /buildEnrichmentRedFlags/)
+  assert.match(uiRoute, /buildEnrichmentRedFlags/)
+  assert.match(v1Route, /buildEnrichmentRedFlags/)
+  assert.match(auditForm, /cleanText \|\| cleanUrl \|\| image/)
+  assert.match(auditForm, /!text\.trim\(\) && !url\.trim\(\) && !image/)
+})
+
+test('audit form focuses the main paste box on desktop for fast text or screenshot paste', async () => {
+  const auditForm = await fs.readFile(new URL('../components/audit/audit-form.tsx', import.meta.url), 'utf8')
+
+  assert.match(auditForm, /textInputRef/)
+  assert.match(auditForm, /window\.matchMedia\?\.\('\(pointer: fine\)'\)/)
+  assert.match(auditForm, /focus\(\{ preventScroll: true \}\)/)
+  assert.match(auditForm, /onPaste=\{handleClipboardPaste\}/)
+  assert.match(auditForm, /Paste text or screenshot from clipboard/)
+})
+
+test('audit APIs run screenshot OCR before claim extraction', async () => {
+  const uiRoute = await fs.readFile(new URL('../app/api/audit/route.ts', import.meta.url), 'utf8')
+  const v1Route = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+  const ocr = await fs.readFile(new URL('../lib/ocr.mjs', import.meta.url), 'utf8')
+
+  assert.match(uiRoute, /enrichAuditRequestWithOcr/)
+  assert.match(v1Route, /enrichAuditRequestWithOcr/)
+  assert.match(uiRoute, /!validated\.text && !validated\.image && validated\.url/)
+  assert.match(v1Route, /!validated\.text && !validated\.image && validated\.url/)
+  assert.match(ocr, /GOOGLE_CLOUD_VISION_API_KEY/)
+  assert.match(ocr, /DOCUMENT_TEXT_DETECTION/)
+  assert.match(ocr, /preprocessImageForTesseract/)
+  assert.match(ocr, /sharp/)
+  assert.match(ocr, /grayscale\(\)/)
+  assert.match(ocr, /normalise\(\)/)
+  assert.match(ocr, /sharpen/)
+  assert.match(ocr, /tesseract\.js/)
+  assert.match(ocr, /Screenshot OCR/)
+})
+
+test('audit result UI renders a dedicated screenshot OCR evidence receipt', async () => {
+  const resultScreen = await fs.readFile(new URL('../components/audit/result-screen.tsx', import.meta.url), 'utf8')
+
+  assert.match(resultScreen, /data-testid="ocr-evidence-receipt"/)
+  assert.match(resultScreen, /Screenshot analyzed/)
+  assert.match(resultScreen, /Google Vision OCR/)
+  assert.match(resultScreen, /Tesseract fallback OCR/)
+  assert.match(resultScreen, /Show extracted text/)
+  assert.match(resultScreen, /aria-controls="ocr-extracted-text"/)
+  assert.match(resultScreen, /min-h-11/)
+  assert.match(resultScreen, /Screenshot text could not be extracted/)
+  assert.match(resultScreen, /redactSensitiveDisplayText/)
+  assert.match(resultScreen, /getEvidenceDisplaySnippet/)
+})
+
+test('screenshot audits are excluded from public explore and trends listings by default', async () => {
+  const uiRoute = await fs.readFile(new URL('../app/api/audit/route.ts', import.meta.url), 'utf8')
+  const v1Route = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+  const reportsRoute = await fs.readFile(new URL('../app/api/intelligence/reports/route.ts', import.meta.url), 'utf8')
+  const db = await fs.readFile(new URL('../lib/db.ts', import.meta.url), 'utf8')
+  const omniDocs = await fs.readFile(new URL('../app/docs/omni-modal/page.tsx', import.meta.url), 'utf8')
+
+  assert.match(uiRoute, /publiclyListed:\s*!validated\.image/)
+  assert.match(v1Route, /publiclyListed:\s*!validated\.image/)
+  assert.match(reportsRoute, /publiclyListed !== false/)
+  assert.match(db, /publiclyListed !== false/)
+  assert.match(omniDocs, /Google Vision OCR \+ Tesseract fallback/)
+  assert.match(omniDocs, /excluded from Explore and Trends by default/)
+})
+
+test('audit scoring uses normalized evidence-weighted signals', async () => {
+  const scorer = await fs.readFile(new URL('../lib/risk-scorer.ts', import.meta.url), 'utf8')
+  const signals = await fs.readFile(new URL('../lib/audit-signals.mjs', import.meta.url), 'utf8')
+
+  assert.match(scorer, /buildAuditSignals/)
+  assert.match(scorer, /scoreAuditSignals/)
+  assert.match(signals, /sourceTier/)
+  assert.match(signals, /entity\.input_conflict/)
+  assert.match(signals, /salary\.implausible_weekly_entry_role/)
+  assert.match(signals, /score = Math\.max\(score, 80\)/)
+  assert.match(signals, /score = Math\.min\(score, 30\)/)
 })
 
 test('redis-backed services trim production environment variables before client creation', async () => {
@@ -353,4 +474,34 @@ test('redis-backed services trim production environment variables before client 
   }
   assert.match(bot, /REDIS_URL\?\.trim\(\)/)
   assert.match(bot, /REDIS_URL!\.trim\(\)/)
+})
+
+test('feedback endpoint accepts structured reason metadata', async () => {
+  const route = await fs.readFile(new URL('../app/api/intelligence/feedback/route.ts', import.meta.url), 'utf8')
+  const schemas = await fs.readFile(new URL('../lib/schemas.ts', import.meta.url), 'utf8')
+  const resultScreen = await fs.readFile(new URL('../components/audit/result-screen.tsx', import.meta.url), 'utf8')
+
+  assert.match(route, /userFeedbackReason/)
+  assert.match(route, /false_positive/)
+  assert.match(route, /salary_wrong/)
+  assert.match(schemas, /userFeedbackReason/)
+  assert.match(resultScreen, /feedbackReason/)
+})
+
+test('live audit routes expose balanced guardrails and SerpApi circuit status', async () => {
+  const uiRoute = await fs.readFile(new URL('../app/api/audit/route.ts', import.meta.url), 'utf8')
+  const v1Route = await fs.readFile(new URL('../app/api/v1/audit/route.ts', import.meta.url), 'utf8')
+  const guardrails = await fs.readFile(new URL('../lib/live-audit-guardrails.ts', import.meta.url), 'utf8')
+  const serpapi = await fs.readFile(new URL('../lib/serpapi.ts', import.meta.url), 'utf8')
+
+  for (const source of [uiRoute, v1Route]) {
+    assert.match(source, /acquireLiveAuditGuardrail/)
+    assert.match(source, /buildOperationalEvidence/)
+    assert.match(source, /Retry-After/)
+  }
+  assert.match(guardrails, /maxConcurrent/)
+  assert.match(guardrails, /liveSearch/)
+  assert.match(serpapi, /circuitOpenUntil/)
+  assert.match(serpapi, /recordSerpApiFailure/)
+  assert.match(serpapi, /getSerpApiOperationalStatus/)
 })

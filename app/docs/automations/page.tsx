@@ -12,21 +12,21 @@ const nativeIntegrations = [
     title: 'n8n community node',
     desc: 'Installable node package with HireProof API credentials and sync or async audit operations.',
     path: 'integrations/n8n-nodes-hireproof',
-    href: '/downloads/hireproof-native-integrations.zip',
+    href: '/api/downloads/hireproof-native-integrations.zip',
     cta: 'Download source pack',
   },
   {
     title: 'Make Custom App',
     desc: 'Custom app source with API-key connection, audit modules, async audit, and health check.',
     path: 'integrations/make-hireproof',
-    href: '/downloads/hireproof-native-integrations.zip',
+    href: '/api/downloads/hireproof-native-integrations.zip',
     cta: 'Download source pack',
   },
   {
     title: 'LangChain package',
     desc: 'Tool package source exporting a DynamicStructuredTool helper, Zod schema, and typed helpers.',
     path: 'packages/hireproof-langchain',
-    href: '/downloads/hireproof-native-integrations.zip',
+    href: '/api/downloads/hireproof-native-integrations.zip',
     cta: 'Download source pack',
   },
 ]
@@ -35,25 +35,25 @@ const automationDownloads = [
   {
     title: 'n8n workflow',
     desc: 'Importable workflow: incoming webhook, HireProof audit, verdict branch, and JSON response.',
-    href: '/downloads/hireproof-n8n-workflow.json',
+    href: '/api/downloads/hireproof-n8n-workflow.json',
     cta: 'Download JSON',
   },
   {
     title: 'Make HTTP config',
     desc: 'Field-by-field config for Make.com HTTP > Make a request with routing rules.',
-    href: '/downloads/hireproof-make-http-config.json',
+    href: '/api/downloads/hireproof-make-http-config.json',
     cta: 'Download config',
   },
   {
     title: 'LangChain tool',
     desc: 'TypeScript DynamicStructuredTool wrapper for agent pipelines.',
-    href: '/downloads/hireproof-langchain-tool.ts',
+    href: '/api/downloads/hireproof-langchain-tool.ts',
     cta: 'Download TS',
   },
   {
     title: 'curl smoke script',
     desc: 'Runnable shell script for API smoke checks and simple automations.',
-    href: '/downloads/hireproof-automation-curl.sh',
+    href: '/api/downloads/hireproof-automation-curl.sh',
     cta: 'Download script',
   },
 ]
@@ -257,7 +257,7 @@ export default function AutomationsPage() {
           <div className="rounded-2xl border border-safe/30 bg-safe/5 p-5">
             <h3 className="mb-2 text-sm font-black uppercase tracking-widest text-safe">Import path</h3>
             <p className="text-sm font-semibold leading-relaxed text-muted">
-              Download <a href="/downloads/hireproof-n8n-workflow.json" download className="font-black text-safe hover:underline">hireproof-n8n-workflow.json</a>, then use n8n's import-from-file flow. Set <code className="rounded bg-surface px-1.5 py-0.5">HIREPROOF_API_KEY</code> in n8n env for live keys, or leave it unset to use the public demo fixture key.
+              Download <a href="/api/downloads/hireproof-n8n-workflow.json" download className="font-black text-safe hover:underline">hireproof-n8n-workflow.json</a>, then use n8n's import-from-file flow. Set <code className="rounded bg-surface px-1.5 py-0.5">HIREPROOF_API_KEY</code> in n8n env for live keys, or leave it unset to use the public demo fixture key.
             </p>
           </div>
 
@@ -342,8 +342,8 @@ export default function AutomationsPage() {
               Use the Custom App source for API-key connection, audit modules, async audit, and health checks. Use the HTTP config only for a no-review quick start.
             </p>
             <div className="space-y-2">
-              <a href="/downloads/hireproof-native-integrations.zip" download className="block text-xs font-black uppercase tracking-widest text-safe hover:underline">Download source pack</a>
-              <a href="/downloads/hireproof-make-http-config.json" download className="block text-xs font-black uppercase tracking-widest text-muted hover:text-safe hover:underline">Download HTTP config</a>
+              <a href="/api/downloads/hireproof-native-integrations.zip" download className="block text-xs font-black uppercase tracking-widest text-safe hover:underline">Download source pack</a>
+              <a href="/api/downloads/hireproof-make-http-config.json" download className="block text-xs font-black uppercase tracking-widest text-muted hover:text-safe hover:underline">Download HTTP config</a>
             </div>
           </div>
           <div className="rounded-2xl border border-border-soft bg-surface p-5">
@@ -352,8 +352,8 @@ export default function AutomationsPage() {
               Use the package source for <code className="rounded bg-background px-1 py-0.5">@hireproof/langchain</code>, including schema validation, result helpers, and DynamicStructuredTool support.
             </p>
             <div className="space-y-2">
-              <a href="/downloads/hireproof-native-integrations.zip" download className="block text-xs font-black uppercase tracking-widest text-safe hover:underline">Download source pack</a>
-              <a href="/downloads/hireproof-langchain-tool.ts" download className="block text-xs font-black uppercase tracking-widest text-muted hover:text-safe hover:underline">Download standalone TS</a>
+              <a href="/api/downloads/hireproof-native-integrations.zip" download className="block text-xs font-black uppercase tracking-widest text-safe hover:underline">Download source pack</a>
+              <a href="/api/downloads/hireproof-langchain-tool.ts" download className="block text-xs font-black uppercase tracking-widest text-muted hover:text-safe hover:underline">Download standalone TS</a>
             </div>
           </div>
           <div className="rounded-2xl border border-border-soft bg-surface p-5">
@@ -361,7 +361,7 @@ export default function AutomationsPage() {
             <p className="mb-4 text-xs font-semibold leading-relaxed text-muted">
               Use the shell script for smoke checks, cron jobs, or lightweight server automations.
             </p>
-            <a href="/downloads/hireproof-automation-curl.sh" download className="text-xs font-black uppercase tracking-widest text-safe hover:underline">Download curl script</a>
+            <a href="/api/downloads/hireproof-automation-curl.sh" download className="text-xs font-black uppercase tracking-widest text-safe hover:underline">Download curl script</a>
           </div>
         </div>
       </section>

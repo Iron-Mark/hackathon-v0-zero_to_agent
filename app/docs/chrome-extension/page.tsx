@@ -15,7 +15,7 @@ export default function ChromeExtensionPage() {
         </p>
         <div className="flex flex-col gap-3 pt-2 sm:flex-row">
           <a
-            href="/downloads/hireproof-extension.zip"
+            href="/api/downloads/hireproof-extension.zip"
             download
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-black text-background transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >

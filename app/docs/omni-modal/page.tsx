@@ -35,7 +35,7 @@ export default function OmniModalPage() {
           </div>
           <h3 className="mb-2 text-lg font-black">Vision Scan</h3>
           <p className="text-xs font-medium text-muted leading-relaxed">
-            Upload screenshots of WhatsApp chats, LinkedIn posts, or PDF offer letters. Using <strong>GPT-4o Vision</strong>, we extract text directly from the pixels.
+            Upload screenshots of WhatsApp chats, LinkedIn posts, or PDF offer letters. HireProof uses Google Vision OCR first, then Tesseract fallback OCR, to extract visible job text from the image.
           </p>
         </div>
 
@@ -66,7 +66,7 @@ export default function OmniModalPage() {
             <tbody>
               {[
                 { type: 'Text', tech: 'GPT-4o-mini / Regex Fallback', use: 'Email, LinkedIn, Direct Messages' },
-                { type: 'Image', tech: 'GPT-4o Vision', use: 'WhatsApp, Telegram, PDF Documents' },
+                { type: 'Image', tech: 'Google Vision OCR + Tesseract fallback', use: 'WhatsApp, Telegram, LinkedIn screenshots, PDF captures' },
                 { type: 'Voice', tech: 'Web Speech API (Native)', use: 'On-the-go dictation, Phone calls' },
               ].map((row) => (
                 <tr key={row.type} className="border-b border-border-soft last:border-0 hover:bg-surface/50 transition-colors">
@@ -87,7 +87,7 @@ export default function OmniModalPage() {
           <div className="space-y-2">
             <p className="text-sm font-black uppercase tracking-widest text-safe">Privacy First</p>
             <p className="text-sm font-medium text-muted leading-relaxed">
-              All multi-modal inputs are processed in-memory and never persisted unless a permanent share link is generated. Images are stripped of EXIF metadata before being sent to the vision model.
+              Screenshots are processed for OCR so HireProof can analyze visible job text. The raw screenshot is not stored in evidence receipts; screenshot-based reports are excluded from Explore and Trends by default, and public report UI shows only a short display-safe OCR preview.
             </p>
           </div>
         </div>

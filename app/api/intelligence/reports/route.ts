@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('q')?.trim().toLowerCase() || ''
   const verdict = searchParams.get('verdict') || 'all'
-  const reports = await listReports(200)
+  const reports = (await listReports(200)).filter((report) => report.publiclyListed !== false)
 
   const filtered = reports.filter((report) => {
     const haystack = [

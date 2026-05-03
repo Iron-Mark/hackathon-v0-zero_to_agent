@@ -23,7 +23,20 @@ import { showToast } from '@/components/system/toast'
 
 type User = { id: string; email: string; name: string }
 type ApiKey = { id: string; name: string; lastFour: string; createdAt: string; lastUsedAt: string | null }
-type Usage = { totalRequests: number; successfulRequests: number; failedRequests: number; recent: Array<{ id: string; endpoint: string; status: number; createdAt: string }> }
+type Usage = {
+  totalRequests: number
+  successfulRequests: number
+  failedRequests: number
+  recent: Array<{ id: string; endpoint: string; status: number; createdAt: string }>
+  serpapiCache?: {
+    hits: number
+    misses: number
+    persistentHits: number
+    similarityHits: number
+    networkCalls: number
+    creditsSaved: number
+  }
+}
 type ProviderCredential = { provider: 'openai' | 'serpapi'; lastFour: string; createdAt: string; updatedAt: string; verifiedAt: string | null }
 type VerifiedDomain = {
   id: string
@@ -335,11 +348,12 @@ export function DeveloperClient() {
         </div>
 
         {/* Header Stats */}
-        <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {[
             { label: 'Infrastructure Status', value: 'Operational', icon: Activity, color: 'text-safe' },
             { label: 'API Requests (30d)', value: usage?.totalRequests ?? '0', icon: Database, color: 'text-evidence' },
             { label: 'Success Rate', value: usage?.totalRequests ? `${((usage.successfulRequests / usage.totalRequests) * 100).toFixed(1)}%` : '100%', icon: Zap, color: 'text-safe' },
+            { label: 'SerpApi Saved', value: usage?.serpapiCache?.creditsSaved ?? '0', icon: RefreshCcw, color: 'text-evidence' },
             { label: 'Active Keys', value: keys.length, icon: Key, color: 'text-foreground' },
           ].map((stat) => (
             <div key={stat.label} className="rounded-2xl border border-border-soft bg-surface p-5 shadow-sm hover:border-evidence/50 transition-colors">

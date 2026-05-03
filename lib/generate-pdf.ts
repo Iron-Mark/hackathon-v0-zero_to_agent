@@ -8,9 +8,13 @@ interface PdfReportData {
   extractedClaims: Record<string, string>
   redFlags: string[]
   greenFlags: string[]
-  evidence: Array<{ source: string; snippet: string; url?: string; type: string }>
+  evidence: Array<{ id?: string; source: string; snippet: string; url?: string; type: string; trustLevel?: string; matchConfidence?: number }>
   nextSteps: string[]
   timestamp?: string
+  intelligence?: {
+    signals?: Array<{ label: string; direction: string; weight: number; rationale: string }>
+    scoreTrace?: Array<{ step: string; delta: number; scoreAfter: number; reason: string }>
+  }
 }
 
 function sanitizePdfUrl(url?: string): string | undefined {
@@ -160,7 +164,12 @@ export function generatePdfDossier(data: PdfReportData) {
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(10)
       doc.setTextColor(50, 50, 50)
-      doc.text(`${i + 1}. [${ev.type}] ${ev.source}`, margin + 2, y)
+      const evidenceMeta = [
+        ev.id,
+        ev.trustLevel ? `trust: ${ev.trustLevel}` : '',
+        typeof ev.matchConfidence === 'number' ? `match: ${Math.round(ev.matchConfidence * 100)}%` : '',
+      ].filter(Boolean).join(' | ')
+      doc.text(`${i + 1}. [${ev.type}] ${ev.source}${evidenceMeta ? ` (${evidenceMeta})` : ''}`, margin + 2, y)
       y += 5
 
       doc.setFont('helvetica', 'normal')
@@ -179,6 +188,45 @@ export function generatePdfDossier(data: PdfReportData) {
         }
       }
       y += 3
+    })
+  }
+
+  // --- V2 Intelligence ---
+  if (data.intelligence?.signals?.length || data.intelligence?.scoreTrace?.length) {
+    addPageIfNeeded(20)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(13)
+    doc.setTextColor(30, 30, 30)
+    doc.text('V2 Intelligence Trace', margin, y)
+    y += 7
+
+    ;(data.intelligence.signals || []).slice(0, 10).forEach((signal, i) => {
+      addPageIfNeeded(12)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(10)
+      doc.setTextColor(signal.direction === 'risk' ? 220 : signal.direction === 'trust' ? 22 : 80, signal.direction === 'risk' ? 38 : signal.direction === 'trust' ? 163 : 80, signal.direction === 'risk' ? 38 : signal.direction === 'trust' ? 74 : 80)
+      doc.text(`${i + 1}. ${signal.label} (${signal.weight > 0 ? '+' : ''}${signal.weight})`, margin + 2, y)
+      y += 5
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.setTextColor(80, 80, 80)
+      const signalLines = doc.splitTextToSize(signal.rationale, contentWidth - 8)
+      doc.text(signalLines, margin + 4, y)
+      y += signalLines.length * 4.5 + 2
+    })
+
+    ;(data.intelligence.scoreTrace || []).slice(0, 12).forEach((trace) => {
+      addPageIfNeeded(10)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(9)
+      doc.setTextColor(50, 50, 50)
+      doc.text(`${trace.step}: ${trace.delta > 0 ? '+' : ''}${trace.delta} -> ${trace.scoreAfter}`, margin + 2, y)
+      y += 4.5
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(80, 80, 80)
+      const traceLines = doc.splitTextToSize(trace.reason, contentWidth - 8)
+      doc.text(traceLines, margin + 4, y)
+      y += traceLines.length * 4.5 + 1
     })
   }
 
