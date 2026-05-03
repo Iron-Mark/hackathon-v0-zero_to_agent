@@ -23,6 +23,25 @@ pnpm build
 
 Source: `integrations/n8n-nodes-hireproof`
 
+Dry-run and packaging commands:
+
+```powershell
+pnpm integrations:build
+node integrations\n8n-nodes-hireproof\test\request.test.mjs
+npm pack .\integrations\n8n-nodes-hireproof --dry-run
+npm pack .\integrations\n8n-nodes-hireproof
+```
+
+Local install options:
+
+```powershell
+# Option A: install the packed tarball into your n8n custom extensions path.
+npm install C:\path\to\n8n-nodes-hireproof-1.0.0.tgz
+
+# Option B: install from the source folder while iterating locally.
+npm install C:\Codes Local\Hackathons (Workspace)\v0-to-Agent\integrations\n8n-nodes-hireproof
+```
+
 Submission steps:
 
 1. Build or pack from the source folder.
@@ -43,6 +62,17 @@ Current claim: source package implemented and validated. Not yet approved by n8n
 ## Make Custom App
 
 Source: `integrations/make-hireproof`
+
+Dry-run validation commands:
+
+```powershell
+pnpm integrations:build
+Get-ChildItem integrations\make-hireproof -Recurse -Filter *.json | ForEach-Object {
+  Get-Content $_.FullName -Raw | ConvertFrom-Json | Out-Null
+}
+```
+
+Make does not use an npm publish flow for this source pack. The submission happens inside the Make Custom Apps builder. Use the JSON files as the source of truth for metadata, connection, modules, and sample requests.
 
 Submission steps:
 
@@ -68,6 +98,18 @@ Current claim: source pack implemented and static-validated. Not yet approved by
 
 Source: `packages/hireproof-langchain`
 
+Dry-run and publishing commands:
+
+```powershell
+node packages\hireproof-langchain\test-smoke.mjs
+npm pack --workspace @hireproof/langchain --dry-run
+npm pack --workspace @hireproof/langchain
+
+# Only after account ownership and package naming are confirmed:
+npm login
+npm publish --workspace @hireproof/langchain --access public
+```
+
 Submission steps:
 
 1. Run `node packages/hireproof-langchain/test-smoke.mjs`.
@@ -79,6 +121,22 @@ Submission steps:
 7. Add the npm URL to `/docs/automations` only after publish succeeds.
 
 Current claim: package source implemented and smoke-tested. Not yet published to npm.
+
+## ZIP Bundle Validation
+
+Regenerate and validate the public source bundle:
+
+```powershell
+pnpm integrations:package
+
+$tmp = Join-Path $env:TEMP ("hireproof-integrations-" + [guid]::NewGuid())
+New-Item -ItemType Directory -Path $tmp | Out-Null
+Expand-Archive -LiteralPath public\downloads\hireproof-native-integrations.zip -DestinationPath $tmp
+Test-Path (Join-Path $tmp "integrations\n8n-nodes-hireproof\package.json")
+Test-Path (Join-Path $tmp "integrations\make-hireproof\app.json")
+Test-Path (Join-Path $tmp "packages\hireproof-langchain\package.json")
+Remove-Item -LiteralPath $tmp -Recurse -Force
+```
 
 ## Post-Submission Evidence
 

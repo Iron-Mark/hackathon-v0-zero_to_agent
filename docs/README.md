@@ -22,6 +22,8 @@ For the most up-to-date technical documentation, visit the **[Live Documentation
 - `credentials-setup.md`: Step-by-step setup for Slack, Redis, Workflow, and AI Gateway credentials.
 - `automation-integrations.md`: Current n8n, Make, LangChain, HTTP template, and WDK boundary status.
 - `automation-marketplace-submission.md`: Account-backed submission runbook for npm, n8n, and Make.
+- `evidence-screenshot-checklist.md`: Screenshot and proof-capture checklist for submission and marketplace evidence.
+- `final-live-vs-pending-status.md`: Concise status boundary for what is live, repo-controlled, or externally pending.
 - `next-step-plan.md`: Current ordered plan for stabilizing, finishing, verifying, and syncing the app.
 - `hireproof-action-plan.md`: Active credibility-first execution roadmap distilled from Research 03.
 - `platform-proof-status.md`: Current ChatSDK, WDK, AI Gateway, and Vercel environment proof state.

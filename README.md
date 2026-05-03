@@ -19,6 +19,7 @@ HireProof takes a pasted job post, recruiter message, screenshot, or job URL and
 | MCP tools | Implemented | `POST /api/mcp` |
 | ChatSDK | Implemented; Slack and Telegram live-tested, Discord ready, WhatsApp/Zernio credential-gated | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
 | Vercel Workflow / WDK | Implemented; production accepted-run proof captured | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
+| Automation integrations | Repo-shipped n8n, Make, and LangChain packs plus HTTP templates | [`docs/automation-integrations.md`](docs/automation-integrations.md) |
 | Chrome extension | Store-ready package and upload assets generated | [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md) |
 | Docker | Production image/Compose scripts implemented | `Dockerfile`, `docker-compose.yml` |
 
@@ -30,6 +31,7 @@ HireProof takes a pasted job post, recruiter message, screenshot, or job URL and
 - [Quick Start](#quick-start)
 - [Recommended Demo Script](#recommended-demo-script)
 - [Core Workflows](#core-workflows)
+- [Builder Story](#builder-story)
 - [Packaging And Distribution](#packaging-and-distribution)
 - [Environment Variables](#environment-variables)
 - [Verification](#verification)
@@ -50,6 +52,7 @@ What is complete in this repo:
 - MCP endpoint and investigation tools.
 - ChatSDK webhook adapters for Slack, Discord, Telegram, and WhatsApp-via-Zernio.
 - Vercel Workflow / WDK audit start route.
+- Native automation packs for n8n, Make, and LangChain, plus portable HTTP templates.
 - Shareable audit reports, history, trends, PDF dossier, CSV export, PNG export, and safe-report certificate.
 - Verified badge API and developer portal controls.
 - Dockerfile, Compose service, healthcheck, and smoke script for self-hosting.
@@ -64,6 +67,7 @@ Output and sharing capabilities:
 Honest external boundaries:
 
 - Chrome Web Store publication requires the Chrome Web Store developer dashboard, privacy form, uploaded screenshots, and Google review. This repo prepares the upload package and assets; it cannot publish the listing by itself.
+- n8n, Make, and npm marketplace publication require external accounts and review/publish steps. This repo ships validated source packs and checklists, not approved listings.
 - Docker smoke testing requires Docker Desktop or another Docker runtime. The scripts are present, but the local machine must have Docker available.
 - Live ChatSDK proof is captured for Slack and Telegram. Discord is credential-ready but still needs a real provider-event screenshot/log, and WhatsApp/Zernio needs provider credentials before proof can be claimed.
 - WDK proof is currently an accepted production workflow run. Do not claim a completed long-running workflow result until a completed result and callback proof are captured.
@@ -173,6 +177,20 @@ The `/developer` page supports:
 
 Provider credentials are verified before storage and encrypted server-side. Secrets are not returned to the browser after save.
 
+## Builder Story
+
+HireProof is useful as a user-facing app, but the stronger technical story is that the same verification core is exposed to builders through multiple interfaces:
+
+- **Web app** for job seekers who want a verdict before applying.
+- **Headless API** for agents that need a structured job-safety gate.
+- **MCP tools** for evidence-gathering runtimes.
+- **n8n and Make source packs** for no-code and operations workflows.
+- **LangChain package source** for agent pipelines using structured tools.
+- **ChatSDK adapters** for job-seeker communities in Slack, Telegram, Discord, and WhatsApp-backed channels.
+- **WDK route** for durable investigation handoff when workflow credentials are configured.
+
+The current repo-controlled automation status is implemented, validated, and source-packaged. Public marketplace listings are intentionally tracked as external next steps.
+
 ## What Makes It Agentic
 
 HireProof is not a single prompt wrapper. The app runs a structured investigation loop:
@@ -226,6 +244,36 @@ docs/chrome-web-store-assets/
 ```
 
 Listing copy, reviewer notes, privacy practices, and publication boundary are in [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md). Extension privacy details are in [`extension/PRIVACY.md`](extension/PRIVACY.md).
+
+### Native Automation Integrations
+
+Build, test, and package the automation integrations:
+
+```bash
+pnpm integrations:build
+pnpm integrations:test
+pnpm integrations:package
+```
+
+Outputs:
+
+```text
+public/downloads/hireproof-native-integrations.zip
+public/downloads/hireproof-n8n-workflow.json
+public/downloads/hireproof-make-http-config.json
+public/downloads/hireproof-langchain-tool.ts
+public/downloads/hireproof-automation-curl.sh
+```
+
+Source packs:
+
+```text
+integrations/n8n-nodes-hireproof/
+integrations/make-hireproof/
+packages/hireproof-langchain/
+```
+
+Marketplace submission steps are in [`docs/automation-marketplace-submission.md`](docs/automation-marketplace-submission.md). Screenshot proof requirements are in [`docs/evidence-screenshot-checklist.md`](docs/evidence-screenshot-checklist.md).
 
 ### Docker Self-Hosting
 
@@ -297,6 +345,9 @@ node test/runtime-wiring.test.mjs
 node test/byok-credentials.test.mjs
 npm run package:extension
 npm run store:assets
+pnpm integrations:build
+pnpm integrations:test
+pnpm integrations:package
 ```
 
 What those gates prove:
@@ -309,6 +360,9 @@ What those gates prove:
 | `node test/byok-credentials.test.mjs` | BYOK encryption, CSRF, and credential routing checks pass. |
 | `npm run package:extension` | Chrome extension manifest/assets package into a clean upload ZIP. |
 | `npm run store:assets` | Chrome Web Store screenshots and promo image are regenerated. |
+| `pnpm integrations:build` | n8n, Make, LangChain, and download-template metadata validate. |
+| `pnpm integrations:test` | Integration validators plus demo API smoke pass. |
+| `pnpm integrations:package` | Native integration source bundle is regenerated. |
 
 Optional Docker verification when Docker is available:
 
@@ -394,10 +448,13 @@ app/
 `-- docs/                          In-app documentation portal
 
 components/
-+-- audit-form.tsx
-+-- result-screen.tsx
-+-- risk-radar-chart.tsx
-`-- site/header and UI components
++-- audit/                         Audit form, skeleton, result screen, charts, voice input
++-- brand/                         Brand mark and verified badge
++-- docs/                          API playground
++-- layout/                        Header, footer, command menu
++-- marketing/                     Landing-page marketing components
++-- system/                        Theme, toast, error, confetti utilities
+`-- ui/                            Shared primitive UI components
 
 lib/
 +-- schemas.ts                     Shared Zod contracts
@@ -417,6 +474,8 @@ extension/
 
 scripts/
 +-- package-extension.mjs
++-- package-integrations.mjs
++-- validate-integrations.mjs
 +-- generate-extension-icons.mjs
 +-- generate-chrome-store-assets.mjs
 `-- smoke-docker.mjs
@@ -430,6 +489,10 @@ scripts/
 - [`docs/credentials-setup.md`](docs/credentials-setup.md): platform credential setup notes.
 - [`docs/platform-proof-status.md`](docs/platform-proof-status.md): platform readiness status.
 - [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md): hackathon track mapping.
+- [`docs/automation-integrations.md`](docs/automation-integrations.md): native integration status.
+- [`docs/automation-marketplace-submission.md`](docs/automation-marketplace-submission.md): npm, n8n, and Make submission runbook.
+- [`docs/evidence-screenshot-checklist.md`](docs/evidence-screenshot-checklist.md): proof screenshot checklist.
+- [`docs/final-live-vs-pending-status.md`](docs/final-live-vs-pending-status.md): concise live vs pending status boundary.
 
 ## License
 

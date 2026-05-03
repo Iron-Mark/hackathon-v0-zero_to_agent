@@ -24,3 +24,16 @@ npm pack --workspace @hireproof/langchain
 7. Add the npm package URL to public docs only after publish succeeds.
 
 Current status: source implemented and smoke-tested, not published to npm.
+
+Dry-run command:
+
+```powershell
+npm pack --workspace @hireproof/langchain --dry-run
+```
+
+Publish command after account ownership is confirmed:
+
+```powershell
+npm login
+npm publish --workspace @hireproof/langchain --access public
+```

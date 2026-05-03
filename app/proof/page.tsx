@@ -11,6 +11,7 @@ import {
   MessageSquare,
   PackageCheck,
   PlugZap,
+  Network,
   Server,
   ShieldCheck,
   Store,
@@ -55,6 +56,13 @@ const readyProof = [
     body: 'Production accepted run ID: wrun_01KQD9H6AND3W7YZBHHKAH2KV5.',
     href: '/api/workflows/audit',
   },
+  {
+    icon: Network,
+    title: 'Automation integrations',
+    status: 'repo-shipped',
+    body: 'n8n, Make, and LangChain source packs are implemented, validated, and downloadable. Marketplace approval remains external.',
+    href: '/docs/automations',
+  },
 ]
 
 const proofStats = [
@@ -75,6 +83,7 @@ const proofStats = [
 
 const packagedSurfaces = [
   { icon: PlugZap, text: 'Runtime MCP tools for company, news, jobs, and local footprint evidence.' },
+  { icon: Network, text: 'Repo-shipped n8n, Make, and LangChain integration packs plus portable HTTP templates.' },
   { icon: PackageCheck, text: 'Chrome extension package workflow with upload ZIP and listing notes.' },
   { icon: Container, text: 'Docker standalone image, Compose service, healthcheck, and smoke script.' },
   { icon: FileArchive, text: 'PDF dossier, PNG screenshot, report CSV, and safe-report certificate exports.' },
