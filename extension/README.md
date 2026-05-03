@@ -14,7 +14,10 @@ The package script validates the manifest, generates required PNG icon sizes whe
 
 ```text
 dist/chrome/hireproof-extension.zip
+public/downloads/hireproof-extension.zip
 ```
+
+The `public/downloads` copy is the website download fallback while the Chrome Web Store listing is pending review.
 
 ## Local Testing
 
@@ -22,6 +25,8 @@ dist/chrome/hireproof-extension.zip
 2. Enable Developer mode.
 3. Click "Load unpacked".
 4. Select the `extension/` directory.
+
+For the public download package, unzip `hireproof-extension.zip` first and select the unzipped `hireproof-extension` folder.
 
 The packaged extension defaults to `https://hireproof-sigma.vercel.app`, but users can replace the API Server URL in the popup for self-hosted deployments.
 

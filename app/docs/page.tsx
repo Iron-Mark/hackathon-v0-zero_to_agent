@@ -9,6 +9,7 @@ const quickLinks = [
   { icon: Code2, title: 'API Reference', desc: 'Full endpoint docs, params, and schemas', href: '/docs/api-reference', color: 'hover:border-evidence' },
   { icon: Cpu, title: 'Agent Skills', desc: 'Download MCP skills for your AI CLI', href: '/docs/skills', color: 'hover:border-caution' },
   { icon: Webhook, title: 'Webhooks', desc: 'Async investigations with callbacks', href: '/docs/webhooks', color: 'hover:border-safe' },
+  { icon: Download, title: 'Chrome Extension', desc: 'Download the ZIP while Web Store review is pending', href: '/docs/chrome-extension', color: 'hover:border-evidence' },
   { icon: ShieldCheck, title: 'Competitive Roadmap', desc: 'Judge-safe positioning, boundaries, and next milestones', href: '/docs/competitive-roadmap', color: 'hover:border-evidence' },
 ]
 
@@ -16,7 +17,7 @@ const platforms = [
   { title: 'Web App', desc: 'Use the investigation UI at /audit — paste, upload, or speak your job post.' },
   { title: 'REST API', desc: 'Hit /api/v1/audit directly from any script, workflow, or AI agent.' },
   { title: 'MCP Server', desc: 'Connect at /api/mcp to call individual tools from Claude, Cursor, or Codex.' },
-  { title: 'Local extension package', desc: 'Load it locally from /extension or generate the review ZIP before making public store claims.' },
+  { title: 'Local extension package', desc: 'Download /downloads/hireproof-extension.zip while the Chrome Web Store listing is still pending review.' },
   { title: 'TypeScript SDK', desc: 'npm install hireproof-sdk — typed client for Node.js agents.' },
   { title: 'AI CLI Skill', desc: 'Drop SKILL.md into .agents/skills/hireproof/ and any CLI agent can use it.' },
 ]

@@ -47,6 +47,9 @@ const footerLinks = {
   ]
 }
 
+const socialLinkClass =
+  'inline-flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-elevated hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95'
+
 function Tooltip({ children, content, delay = 0.3 }: { children: React.ReactNode; content: string; delay?: number }) {
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -60,8 +63,19 @@ function Tooltip({ children, content, delay = 0.3 }: { children: React.ReactNode
     setIsVisible(false)
   }
 
+  const showImmediately = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setIsVisible(true)
+  }
+
   return (
-    <div className="relative inline-block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <div
+      className="relative inline-block"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onFocus={showImmediately}
+      onBlur={handleMouseLeave}
+    >
       {children}
       <AnimatePresence>
         {isVisible && (
@@ -104,19 +118,24 @@ export function SiteFooter() {
               Verify suspicious job posts and recruiter messages with live evidence before you apply.
             </p>
             <div className="flex gap-4">
-              <Tooltip content="Source Code">
-                <a href="https://github.com/hireproof" target="_blank" rel="noreferrer" aria-label="HireProof GitHub" className="text-muted hover:text-foreground transition-colors">
+              <Tooltip content="View source and implementation proof">
+                <a href="https://github.com/Iron-Mark/hackathon-v0-zero_to_agent" target="_blank" rel="noreferrer" aria-label="HireProof GitHub repository" className={socialLinkClass}>
                   <Code2 className="h-5 w-5" />
                 </a>
               </Tooltip>
-              <Tooltip content="LinkedIn Profile">
-                <a href="https://www.linkedin.com/in/mark-siazon/" target="_blank" rel="noreferrer" aria-label="Mark Siazon LinkedIn" className="text-muted hover:text-foreground transition-colors">
+              <Tooltip content="Connect with the builder">
+                <a href="https://www.linkedin.com/in/mark-siazon/" target="_blank" rel="noreferrer" aria-label="Mark Siazon LinkedIn" className={socialLinkClass}>
                   <LinkedinIcon className="h-5 w-5" />
                 </a>
               </Tooltip>
-              <Tooltip content="Checkout My Portfolio">
-                <a href="https://www.marksiazon.dev/" target="_blank" rel="noreferrer" aria-label="Mark Siazon Portfolio" className="text-muted hover:text-foreground transition-colors">
+              <Tooltip content="View builder portfolio">
+                <a href="https://www.marksiazon.dev/" target="_blank" rel="noreferrer" aria-label="Mark Siazon Portfolio" className={socialLinkClass}>
                   <Globe className="h-5 w-5" />
+                </a>
+              </Tooltip>
+              <Tooltip content="View Zero to Agent showcase">
+                <a href="https://community.vercel.com/hackathons/zero-to-agent/showcase" target="_blank" rel="noreferrer" aria-label="HireProof Zero to Agent showcase submission" className={socialLinkClass}>
+                  <ShieldCheck className="h-5 w-5" />
                 </a>
               </Tooltip>
             </div>
@@ -188,7 +207,7 @@ export function SiteFooter() {
             </Tooltip>
           </div>
           <p className="text-[10px] font-black text-muted uppercase tracking-widest">
-            © 2026 HireProof. Developed by M.Siazon. Built for the <a href="https://community.vercel.com/hackathons/zero-to-agent" target="_blank" rel="noreferrer" className="text-foreground hover:text-safe underline underline-offset-4">Hackathon</a>.
+            © 2026 HireProof. Developed by M.Siazon. Built for Vercel Zero to Agent · <a href="https://community.vercel.com/hackathons/zero-to-agent/showcase" target="_blank" rel="noreferrer" className="text-foreground hover:text-safe underline underline-offset-4">Submitted showcase</a>.
           </p>
         </div>
       </div>

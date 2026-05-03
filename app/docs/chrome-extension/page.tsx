@@ -1,4 +1,4 @@
-import { Puzzle, Zap, ShieldCheck, Info, MousePointer2 } from 'lucide-react'
+import { Download, Info, MousePointer2, PackageCheck, Puzzle, ShieldCheck, Zap } from 'lucide-react'
 
 export const metadata = { 
   title: 'Chrome Extension — HireProof Docs',
@@ -13,6 +13,26 @@ export default function ChromeExtensionPage() {
         <p className="text-xl font-medium leading-relaxed text-muted">
           The fastest way to verify a job post. Scan any listing on LinkedIn, Indeed, or Telegram without ever leaving the page.
         </p>
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+          <a
+            href="/downloads/hireproof-extension.zip"
+            download
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-black text-background transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <Download className="h-4 w-4" />
+            Download Chrome ZIP
+          </a>
+          <span
+            aria-disabled="true"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface px-5 py-3 text-sm font-black text-muted"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Chrome Web Store coming soon
+          </span>
+        </div>
+        <p className="text-xs font-bold leading-relaxed text-muted">
+          Chrome Web Store publication is still pending review. Until then, use the ZIP for manual Developer mode install.
+        </p>
       </section>
 
       {/* Installation */}
@@ -25,7 +45,7 @@ export default function ChromeExtensionPage() {
           <div className="rounded-3xl border border-border-soft bg-surface p-8 shadow-sm">
             <h3 className="mb-2 font-black">1. Install</h3>
             <p className="text-sm font-medium text-muted leading-relaxed">
-              Load it locally from the <code className="bg-background px-1 rounded">/extension</code> directory, or generate the store upload ZIP with <code className="bg-background px-1 rounded">npm run package:extension</code>.
+              Download <code className="bg-background px-1 rounded">hireproof-extension.zip</code>, unzip it, then load the unzipped folder in Chrome Developer mode.
             </p>
           </div>
           <div className="rounded-3xl border border-border-soft bg-surface p-8 shadow-sm">
@@ -81,9 +101,21 @@ export default function ChromeExtensionPage() {
       </section>
 
       <section className="space-y-4 rounded-2xl border border-border-soft bg-surface p-6">
-        <h2 className="text-2xl font-black">Local Package</h2>
+        <div className="flex items-center gap-3">
+          <PackageCheck className="h-6 w-6 text-safe" />
+          <h2 className="text-2xl font-black">Local Package</h2>
+        </div>
         <p className="font-medium text-muted leading-relaxed">
-          HireProof now ships a validated browser-extension ZIP at <code className="bg-background px-1 rounded">dist/chrome/hireproof-extension.zip</code>. Public publication still depends on a developer account, privacy form, screenshots, and review.
+          HireProof now ships a validated browser-extension ZIP at <code className="bg-background px-1 rounded">/downloads/hireproof-extension.zip</code>. The package is generated from <code className="bg-background px-1 rounded">extension/</code> with <code className="bg-background px-1 rounded">npm run package:extension</code>, then published to <code className="bg-background px-1 rounded">public/downloads/</code> for the site download.
+        </p>
+        <ol className="space-y-2 text-sm font-semibold leading-relaxed text-muted">
+          <li>1. Download and unzip the package.</li>
+          <li>2. Open <code className="bg-background px-1 rounded">chrome://extensions</code>.</li>
+          <li>3. Enable Developer mode.</li>
+          <li>4. Click Load unpacked and select the unzipped <code className="bg-background px-1 rounded">hireproof-extension</code> folder.</li>
+        </ol>
+        <p className="text-sm font-semibold leading-relaxed text-muted">
+          Public Chrome Web Store publication still depends on a developer account, privacy form, screenshots, and Google review.
         </p>
       </section>
     </div>

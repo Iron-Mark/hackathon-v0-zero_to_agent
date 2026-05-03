@@ -10,6 +10,8 @@ const sourceDir = path.join(root, 'extension')
 const outDir = path.join(root, 'dist', 'chrome')
 const packageDir = path.join(outDir, 'hireproof-extension')
 const zipPath = path.join(outDir, 'hireproof-extension.zip')
+const publicDownloadsDir = path.join(root, 'public', 'downloads')
+const publicZipPath = path.join(publicDownloadsDir, 'hireproof-extension.zip')
 const requiredIcons = ['16', '32', '48', '128']
 const requiredFiles = [
   'manifest.json',
@@ -148,5 +150,8 @@ await rm(packageDir, { recursive: true, force: true })
 await mkdir(outDir, { recursive: true })
 await copyTree(sourceDir, packageDir)
 const files = await makeZip(packageDir, zipPath)
+await mkdir(publicDownloadsDir, { recursive: true })
+await copyFile(zipPath, publicZipPath)
 
 console.log(`Created ${path.relative(root, zipPath)} with ${files.length} files.`)
+console.log(`Published ${path.relative(root, publicZipPath)} for public download.`)

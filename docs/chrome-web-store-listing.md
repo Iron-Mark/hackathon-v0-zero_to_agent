@@ -1,6 +1,6 @@
 # Chrome Web Store Listing Draft
 
-Use this copy when submitting `dist/chrome/hireproof-extension.zip` to the Chrome Web Store.
+Use this copy when submitting `dist/chrome/hireproof-extension.zip` to the Chrome Web Store. The site also serves a manual-install fallback at `/downloads/hireproof-extension.zip` while the public listing is pending review.
 
 ## Listing
 
@@ -57,4 +57,4 @@ Chrome's image guidance allows 1280x800 screenshots or 640x400 when the larger s
 
 ## Publication Boundary
 
-This repository creates the ZIP and listing materials. A public listing requires a Chrome Web Store developer account, privacy form completion, screenshot upload, and Google review approval.
+This repository creates the ZIP, public download fallback, and listing materials. A public Chrome Web Store listing requires a developer account, privacy form completion, screenshot upload, and Google review approval.
