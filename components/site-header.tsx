@@ -15,6 +15,7 @@ import {
   History,
   KeyRound,
   Menu,
+  Network,
   SearchCheck,
   ShieldCheck,
   ToggleLeft,
@@ -51,6 +52,7 @@ const resourceGroups: { label: string; links: NavLink[] }[] = [
     links: [
       { href: '/developer', label: 'Developer Portal', description: 'API keys and webhooks', icon: Code2 },
       { href: '/docs/api-reference', label: 'API Docs', description: 'Headless audit API', icon: KeyRound },
+      { href: '/docs/automations', label: 'Automations', description: 'n8n, Make, LangChain', icon: Network },
       { href: '/docs/sdk', label: 'SDK', description: 'Typed integration client', icon: BookOpen },
     ],
   },

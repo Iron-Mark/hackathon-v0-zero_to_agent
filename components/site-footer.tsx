@@ -35,6 +35,7 @@ const footerLinks = {
   resources: [
     { label: 'Documentation', href: '/docs', description: 'Guides for using HireProof' },
     { label: 'API Reference', href: '/docs/api-reference', description: 'Detailed endpoint specifications' },
+    { label: 'Automations', href: '/docs/automations', description: 'n8n, Make, LangChain, and webhooks' },
     { label: 'SDK Quickstart', href: '/docs/sdk-quickstart', description: 'Get running in minutes' },
     { label: 'Agent Skills', href: '/docs/skills', description: 'Extend agent capabilities' },
   ],

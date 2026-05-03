@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { AlertTriangle, CheckCircle2, Play, Zap, Search, TrendingUp, Terminal, ShieldAlert } from 'lucide-react'
+import Link from 'next/link'
+import { AlertTriangle, CheckCircle2, Play, Zap, Search, TrendingUp, Terminal, ShieldAlert, Network, ArrowRight, Download } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AuditForm from '@/components/audit-form'
 import ResultScreen from '@/components/result-screen'
@@ -213,6 +214,30 @@ function AuditContent() {
             </div>
             
             <AuditForm onInvestigate={handleAudit} loading={isAuditing} />
+
+            <div className="mt-8 rounded-2xl border border-border-soft bg-surface p-5 shadow-sm">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-safe/10 text-safe">
+                    <Network className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black">Automating job checks?</h2>
+                    <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-muted">
+                      Use the same audit contract from n8n, Make, LangChain, curl, or async signed webhooks before an apply agent sends user data.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 sm:min-w-56">
+                  <Link href="/docs/automations" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-black text-background transition-colors hover:bg-safe">
+                    Automation docs <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <a href="/downloads/hireproof-native-integrations.zip" download className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-2.5 text-sm font-black text-foreground transition-colors hover:bg-surface-elevated">
+                    Source pack <Download className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+            </div>
             
             {error && (
               <motion.div

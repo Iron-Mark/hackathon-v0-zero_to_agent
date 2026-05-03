@@ -1,6 +1,6 @@
 # HireProof Automation Integrations
 
-Last checked: 2026-05-03
+Last checked: 2026-05-04
 
 HireProof now ships repo-owned native integration source packs for automation builders, plus portable HTTP templates for fast imports. The public docs page is `/docs/automations`.
 
@@ -62,5 +62,7 @@ Do not claim these as complete until account-backed publishing/review is done:
 - n8n community-node listing approval
 - Make Custom App review/approval
 - Marketplace screenshots and submitted-review evidence
+
+See `docs/automation-marketplace-submission.md` for the account-backed submission sequence and screenshot checklist.
 
 The correct current wording is: implemented, build-verified, and source-packaged in the repo; marketplace publication is pending external account actions.

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
-import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap, Bot, Terminal, Cpu, Zap as ZapIcon } from 'lucide-react'
+import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap, Bot, Terminal, Cpu, Zap as ZapIcon, Network, Download, Workflow } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/site-header'
 
@@ -28,6 +28,12 @@ const evidenceSignals = [
   { icon: AlertCircle, title: 'Recent reputation', description: 'News, reviews, scam reports, media mentions, and public complaints.' },
   { icon: TrendingUp, title: 'Comparable listings', description: 'Similar legitimate jobs to catch unrealistic pay or role expectations.' },
   { icon: MapPin, title: 'Local footprint', description: 'Maps, directories, registrations, and location consistency.' },
+]
+
+const automationSurfaces = [
+  { label: 'n8n node', detail: 'Run audit and async audit operations', status: 'source-shipped' },
+  { label: 'Make app', detail: 'API key connection and audit modules', status: 'source-shipped' },
+  { label: 'LangChain tool', detail: 'Structured tool wrapper and helpers', status: 'source-shipped' },
 ]
 
 const pitchDemos = [
@@ -454,6 +460,72 @@ export function HomeClient() {
                 </motion.div>
               )
             })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Automations */}
+      <section className="border-b border-border-soft bg-background">
+        <div className="mx-auto grid max-w-[1600px] gap-8 px-6 py-14 md:px-12 lg:grid-cols-[0.95fr_1.05fr] lg:px-20 xl:px-32">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, ease: heroEase }}
+          >
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-xs font-black uppercase tracking-widest text-safe">
+              <Network className="h-4 w-4" />
+              Built for automation builders
+            </div>
+            <h2 className="text-3xl font-black tracking-tight sm:text-4xl">
+              Put HireProof in front of apply agents and job pipelines.
+            </h2>
+            <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-muted">
+              The same audit API now has repo-shipped integration packs for n8n, Make, and LangChain, plus portable HTTP templates for teams that want direct webhook control.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link href="/docs/automations" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-black text-background transition-colors hover:bg-safe">
+                View automation docs <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a href="/downloads/hireproof-native-integrations.zip" download className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface px-5 py-3 text-sm font-black text-foreground transition-colors hover:bg-background">
+                Download source pack <Download className="h-4 w-4" />
+              </a>
+            </div>
+            <p className="mt-4 text-xs font-bold leading-5 text-muted">
+              Source packs are implemented and build-verified. External marketplace approval is still separate for npm, n8n, and Make.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-60px' }}
+            className="grid gap-3"
+          >
+            {automationSurfaces.map((surface, index) => (
+              <motion.div key={surface.label} variants={cardReveal} className="rounded-2xl border border-border-soft bg-surface p-5 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="mb-1 text-xs font-black uppercase tracking-widest text-muted">Integration {index + 1}</div>
+                    <h3 className="text-lg font-black">{surface.label}</h3>
+                  </div>
+                  <span className="rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-safe">
+                    {surface.status}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm font-semibold leading-6 text-muted">{surface.detail}</p>
+              </motion.div>
+            ))}
+            <motion.div variants={cardReveal} className="rounded-2xl border border-evidence/30 bg-evidence/5 p-5">
+              <div className="mb-2 flex items-center gap-2 text-evidence">
+                <Workflow className="h-5 w-5" />
+                <h3 className="font-black">Separate WDK handoff</h3>
+              </div>
+              <p className="text-sm font-semibold leading-6 text-evidence-text">
+                Portable integrations call <code className="rounded bg-background px-1 py-0.5">/api/v1/audit</code>. Durable Workflow handoff stays separate at <code className="rounded bg-background px-1 py-0.5">/api/workflows/audit</code>.
+              </p>
+            </motion.div>
           </motion.div>
         </div>
       </section>
