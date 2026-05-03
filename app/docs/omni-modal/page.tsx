@@ -92,6 +92,18 @@ export default function OmniModalPage() {
           </div>
         </div>
       </section>
+
+      <section className="rounded-2xl border border-caution/30 bg-caution/5 p-6">
+        <div className="flex items-start gap-4">
+          <Zap className="mt-1 h-5 w-5 text-caution" />
+          <div className="space-y-2">
+            <p className="text-sm font-black uppercase tracking-widest text-caution">Roadmap Boundary</p>
+            <p className="text-sm font-medium text-muted leading-relaxed">
+              HireProof accepts screenshots to extract job and recruiter evidence. It should not be described as an in-house deepfake detector today; specialist image or deepfake forensics providers belong on the roadmap where they add trustworthy signals.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

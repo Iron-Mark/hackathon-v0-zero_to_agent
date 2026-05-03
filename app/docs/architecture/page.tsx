@@ -114,8 +114,8 @@ export default function ArchitecturePage() {
           />
           <FlowStep
             step="5"
-            title="Deterministic Risk Scoring"
-            desc="A deterministic scorer assigns weighted penalties for red flags and bonuses for green flags, producing a final 0–100 risk score and one of three verdicts: Safe, Caution, or High-Risk."
+            title="Evidence-Weighted Risk Policy"
+            desc="A transparent scorer assigns weighted penalties for red flags and bonuses for green flags, producing a final 0-100 risk score and one of three verdicts: Safe, Caution, or High-Risk."
           />
           <FlowStep
             step="6"

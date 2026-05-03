@@ -15,13 +15,13 @@ const platforms = [
   },
   {
     name: 'Discord',
-    status: 'Credential-gated',
+    status: 'Credential-ready',
     endpoint: '/api/webhooks/discord',
     credentials: 'DISCORD_BOT_TOKEN, DISCORD_PUBLIC_KEY, DISCORD_APPLICATION_ID, REDIS_URL',
   },
   {
     name: 'Telegram',
-    status: 'Credential-gated',
+    status: 'Live-tested',
     endpoint: '/api/webhooks/telegram',
     credentials: 'TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET_TOKEN, TELEGRAM_BOT_USERNAME, REDIS_URL',
   },
@@ -43,7 +43,7 @@ export default function ChatSdkAgentsPage() {
         </div>
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Multi-Platform Chat Agents</h1>
         <p className="max-w-3xl text-xl font-medium leading-relaxed text-muted">
-          HireProof exposes the same job-scam verification agent inside chat communities, using ChatSDK adapters for Slack, Discord, Telegram, and WhatsApp-backed inboxes through Zernio.
+          HireProof exposes the same employment-fraud trust-and-safety agent inside chat communities, using ChatSDK adapters for Slack, Discord, Telegram, and WhatsApp-backed inboxes through Zernio.
         </p>
       </section>
 
@@ -84,7 +84,9 @@ export default function ChatSdkAgentsPage() {
         <ul className="list-inside list-disc space-y-2 text-sm font-semibold leading-6 text-muted">
           <li>All platforms call the same HireProof chat reply path and saved-report permalink flow.</li>
           <li>Missing credentials return credential-gated webhook status instead of breaking the build.</li>
-          <li>Slack has screenshot proof; Discord, Telegram, and WhatsApp/Zernio require fresh platform event captures before claiming live proof.</li>
+          <li>Slack has screenshot proof and Telegram has live delivery screenshot/log proof.</li>
+          <li>Discord is credential-ready but still needs a real event capture before claiming live proof.</li>
+          <li>WhatsApp/Zernio requires provider credentials and a real event capture before claiming live proof.</li>
         </ul>
       </section>
     </div>

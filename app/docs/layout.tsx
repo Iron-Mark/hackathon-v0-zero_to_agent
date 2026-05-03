@@ -19,6 +19,7 @@ const docsSidebar = [
       { label: 'AI Scam Patterns', href: '/docs/dead-internet' },
       { label: 'Architecture', href: '/docs/architecture' },
       { label: 'Triple-Track Coverage', href: '/docs/triple-track-coverage' },
+      { label: 'Competitive Roadmap', href: '/docs/competitive-roadmap' },
     ],
   },
   {

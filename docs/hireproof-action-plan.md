@@ -1,14 +1,15 @@
 # HireProof Action Plan
 
-Last checked: 2026-04-30
+Last checked: 2026-05-03
 
 ## P0 - Demo Credibility Cleanup
 
 - Keep the public demo centered on `/audit`, `/lab`, `/trends`, `/developer`, and `/docs/triple-track-coverage`.
-- Describe ChatSDK as live-tested in Slack with screenshot evidence. Describe WDK as production-accepted with run ID `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`.
+- Describe ChatSDK as live-tested in Slack and Telegram with screenshot/log evidence. Describe WDK as production-accepted with run ID `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`.
 - Use `/api/integrations/proof` as the E2E readiness endpoint for Slack, Workflow, and AI Gateway status.
 - Keep the verified badge demo honest: DNS TXT ownership first, public token embed second, no API keys in browser embeds.
 - Use `docs/demo/Screenshot 2026-04-30 024756.jpg` as the Slack proof screenshot.
+- Use `/docs/competitive-roadmap` when explaining why HireProof starts with employment fraud, how the transparent scoring policy is intentionally explainable, and what belongs on the WDK/model/multimodal roadmap.
 
 ## P1 - Remaining Product Gaps
 

@@ -29,6 +29,15 @@ Final submission status:
 - **Forensic Export Proof**: Verified that `generatePdfDossier` and `buildTrendsCsvExport` are wired to the production UI, allowing for multi-format evidence persistence.
 - Vercel 500-log check after the final smoke returned no new logs.
 
+## Submission Positioning Boundary
+
+Use the proof above to support the current product, not to overclaim future capability.
+
+- Narrow-domain framing: HireProof is an employment-fraud trust-and-safety agent. Job scams are the focused wedge because users need fast, evidence-backed decisions before they apply or share personal data.
+- Risk-model framing: the current scorer is a transparent evidence-weighted safety policy. Do not claim continuous learning, adaptive ML, or in-house deepfake detection as shipped functionality.
+- WDK framing: claim a production-accepted workflow run only. The next milestone is a durable investigation timeline with intake, evidence checks, scoring, report creation, callback delivery, and retry history.
+- Near-term proof roadmap: capture Discord live-provider proof, configure Zernio if WhatsApp remains in scope, and re-capture the Telegram report-link screenshot after the permalink fix.
+
 ## Vercel Environment State
 
 Configured in Production:

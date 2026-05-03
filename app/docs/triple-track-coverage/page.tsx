@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { Bot, Clock, ExternalLink, MessageSquare, Workflow, Wrench } from 'lucide-react'
+import { Bot, Clock, ExternalLink, MessageSquare, Target, Workflow, Wrench } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Triple-Track Coverage | HireProof Docs',
@@ -12,7 +12,7 @@ const tracks = [
     title: 'v0 + MCPs',
     status: 'Implemented',
     icon: Wrench,
-    body: 'The primary web app already connects to runtime MCP investigation tools for company presence, news reputation, job comparison, and local footprint evidence.',
+    body: 'The primary web app connects to runtime MCP investigation tools and applies a transparent evidence-weighted safety policy.',
   },
   {
     title: 'ChatSDK Agents',
@@ -38,7 +38,17 @@ export default function TripleTrackCoveragePage() {
         </div>
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Triple-Track Coverage</h1>
         <p className="max-w-3xl text-xl font-medium leading-relaxed text-muted">
-          HireProof should be presented as one job-verification agent. The tracks are delivery layers: web app, agent tools, chat communities, and async investigation workflows.
+          HireProof should be presented as one employment-fraud trust-and-safety agent. Job scams are the focused wedge; the tracks are delivery layers for the same evidence core.
+        </p>
+      </section>
+
+      <section className="rounded-2xl border border-border-soft bg-surface p-6">
+        <div className="mb-4 flex items-center gap-3">
+          <Target className="h-5 w-5 text-safe" />
+          <h2 className="text-2xl font-black">Positioning</h2>
+        </div>
+        <p className="text-sm font-semibold leading-6 text-muted">
+          HireProof focuses on employment fraud first because the job-seeker moment is urgent, personal, and high-risk. It should not be pitched as a generic fraud dashboard or as an in-house deepfake detector. The current strength is evidence-backed employment safety across web, API, MCP, chat, and workflow surfaces.
         </p>
       </section>
 
@@ -75,7 +85,7 @@ export default function TripleTrackCoveragePage() {
       <section className="rounded-2xl border border-caution/30 bg-caution/5 p-6">
         <h2 className="text-2xl font-black">Honest Submission Boundary</h2>
         <p className="mt-3 text-sm font-medium leading-6 text-muted">
-          Submit under the strongest working demo path. ChatSDK is live-tested in Slack and Telegram with screenshot/log proof, while Discord still needs a real event capture and WhatsApp/Zernio remains credential-gated. WDK has an accepted production run ID; frame it as accepted workflow execution unless a completed workflow result is captured.
+          Submit under the strongest working demo path. ChatSDK is live-tested in Slack and Telegram with screenshot/log proof, while Discord still needs a real event capture and WhatsApp/Zernio remains credential-gated. WDK has an accepted production run ID; frame it as accepted workflow execution unless a completed workflow result is captured. Do not claim continuous learning or adaptive ML as shipped functionality.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/docs/mcp" className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2 text-sm font-black text-background hover:bg-safe">
@@ -86,6 +96,22 @@ export default function TripleTrackCoveragePage() {
             Async webhooks
             <ExternalLink className="h-4 w-4" />
           </Link>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-border-soft bg-surface p-6">
+        <h2 className="text-2xl font-black">Roadmap</h2>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          {[
+            'Discord live-provider proof and optional WhatsApp/Zernio credentials.',
+            'Durable WDK timeline with checkpoints, retries, callbacks, and completed-result evidence.',
+            'Calibrated learning from reviewed cases while keeping visible red-flag evidence.',
+            'Richer screenshot/OCR handling plus specialist image forensics providers where useful.',
+          ].map((item) => (
+            <div key={item} className="rounded-xl border border-border-soft bg-background p-4 text-sm font-semibold leading-6 text-muted">
+              {item}
+            </div>
+          ))}
         </div>
       </section>
     </div>

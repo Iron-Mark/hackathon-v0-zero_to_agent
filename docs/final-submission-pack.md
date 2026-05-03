@@ -1,6 +1,6 @@
 # HireProof Final Submission Pack
 
-Last checked: 2026-04-30
+Last checked: 2026-05-03
 
 ## Submission Basics
 
@@ -20,13 +20,29 @@ HireProof is a proof-backed AI agent that checks suspicious job posts, recruiter
 
 HireProof helps job seekers verify suspicious opportunities before they apply. Paste a job post, recruiter message, or apply URL, and the agent investigates company presence, recent news, similar legitimate jobs, and local business signals before returning a Safe, Caution, or High-Risk verdict with evidence.
 
+HireProof intentionally starts with employment fraud because job scams combine urgency, financial risk, identity exposure, and fragmented evidence. The current version uses transparent evidence-weighted scoring so users can see why a verdict was reached. The roadmap expands this into adaptive scoring, richer screenshot analysis, and durable workflow investigations with retryable evidence collection.
+
 ### Long Description
 
 Job scams often look normal until a few details do not add up: unrealistic pay, no interview process, off-platform messaging, weak company footprint, or pressure to act quickly. Checking those signals manually means opening search, news, maps, job boards, and company pages while still guessing.
 
 HireProof turns that manual investigation into one proof-backed workflow. A user pastes a job post, recruiter pitch, or apply URL. The agent extracts the important claims, checks live evidence, compares the role against legitimate postings, and returns a structured report with a verdict, risk score, red flags, green flags, evidence cards, safer alternatives, and practical next steps.
 
-The product is built as a Vercel-hosted Next.js app with runtime MCP investigation tools, AI SDK model routing, SerpApi evidence search, a ChatSDK Slack surface, and a production-accepted Vercel Workflow path for longer-running investigations.
+The product is built as a Vercel-hosted Next.js app with runtime MCP investigation tools, AI SDK model routing, SerpApi evidence search, ChatSDK surfaces, and a production-accepted Vercel Workflow path for longer-running investigations.
+
+### Competitive Positioning
+
+Use this if judges ask whether the product is too narrow:
+
+> HireProof focuses on employment fraud first because job scams happen in urgent, personal, high-risk moments where users need an actionable verdict, not a generic fraud dashboard. The narrow domain is the wedge, not the ceiling: the same evidence core already runs through the web app, API, MCP tools, ChatSDK agents, and WDK workflow entrypoint.
+
+Use this if judges ask whether the risk model is only heuristic:
+
+> HireProof uses a transparent evidence-weighted safety policy. It does not claim continuous ML today; instead, it shows users which red flags, green flags, and evidence receipts drove the verdict. That explainability is deliberate for safety decisions where users need to understand the reason, not just trust a black-box score.
+
+Use this if judges ask about the WDK roadmap:
+
+> The current WDK proof is a production-accepted workflow run. The next milestone is a durable investigation timeline with intake, evidence checks, scoring, report creation, callback delivery, and retry history.
 
 ### Before / After Story
 
@@ -41,18 +57,18 @@ HireProof is not a generic chatbot. It performs a multi-step investigation:
 - Extracts structured claims from the job post.
 - Calls runtime investigation tools for company, news, job-market, and local footprint checks.
 - Uses live SerpApi-backed evidence when production credentials are configured.
-- Scores risk with deterministic red-flag and green-flag logic.
+- Scores risk with transparent red-flag and green-flag policy.
 - Persists a report that can be opened, shared, exported, or called from API/chat/workflow surfaces.
 
 ### Live-Proven Boundary
 
 Safe claim:
 
-> HireProof is production-deployed, API-smoke-tested, Slack-screenshot-proven, and WDK accepted-run proven.
+> HireProof is production-deployed, API-smoke-tested, Slack-screenshot-proven, Telegram-delivery-proven, and WDK accepted-run proven.
 
 Careful boundary:
 
-> Discord, Telegram, and WhatsApp/Zernio adapters are implemented and credential-gated. They should not be described as live-proven until real external provider events, screenshots, and logs are captured.
+> Discord is credential-ready but pending a real event capture. WhatsApp/Zernio is implemented but credential-gated. Telegram delivery is live-proven, but the final report-link screenshot should be recaptured after the permalink fix.
 
 ## Links
 
@@ -89,13 +105,15 @@ Proof points:
 - ChatSDK packages and Redis state adapter are installed.
 - `lib/hireproof-bot.ts` handles mentions and subscribed messages.
 - Slack screenshot proof is captured at `docs/demo/Screenshot 2026-04-30 024756.jpg`.
-- Discord, Telegram, and WhatsApp/Zernio routes are implemented behind credential gates.
+- Telegram has real delivery screenshot/log proof.
+- Discord is credential-ready but still pending a real provider-event capture.
+- WhatsApp/Zernio routes are implemented behind credential gates.
 
 Safe boundary:
 
-- Say "live-tested in Slack with screenshot proof."
-- Say "Discord, Telegram, and WhatsApp/Zernio are implemented and credential-gated."
-- Do not say "live-tested on Discord/Telegram/WhatsApp" until `npm run proof:chat-live:strict` passes and screenshots/logs are archived.
+- Say "Slack is screenshot-proven and Telegram delivery is screenshot/log-proven."
+- Say "Telegram delivery is live-proven; Discord is credential-ready; WhatsApp/Zernio is credential-gated."
+- Do not say "live-tested on Discord/WhatsApp" until `npm run proof:chat-live:strict` passes and screenshots/logs are archived.
 - Do not over-explain request logs unless asked.
 
 ### Vercel Workflow / WDK
@@ -133,6 +151,15 @@ Job scams can look normal until you notice the gaps: unrealistic pay, no intervi
 HireProof investigates those gaps for you. Paste a job post, recruiter pitch, or apply URL. The agent extracts the role, company, salary, location, and contact method, then checks live evidence across search, news, jobs, and local business signals. It returns a clear verdict, a risk score, evidence cards, red flags, green flags, and safer next steps.
 
 This is not another generic chatbot. It is a job-post investigator built with v0, deployed on Vercel, powered by runtime MCP tools, and extended through ChatSDK and Vercel Workflow surfaces.
+
+## Roadmap Positioning
+
+Use this as the credible future direction without weakening the current submission:
+
+- Near-term proof: capture one real Discord message screenshot/log, configure Zernio if WhatsApp proof stays in scope, and recapture the Telegram report-link screenshot after the permalink fix.
+- Durable workflow: add a public investigation timeline that shows intake, evidence checks, scoring, report creation, callback delivery, and retry history for WDK runs.
+- Risk model: add calibrated learning from reviewed cases while keeping verdicts explainable through visible red flags, green flags, and evidence receipts.
+- Multimodal evidence: improve screenshot/OCR handling and integrate specialist image or deepfake forensics providers only when they add real evidence.
 
 ### 15-Second Vertical Video
 
@@ -179,8 +206,9 @@ Capture or attach these in order:
 5. Red flags and safer alternatives visible.
 6. `/docs/triple-track-coverage` showing the three surfaces.
 7. Slack proof screenshot: `docs/demo/Screenshot 2026-04-30 024756.jpg`.
-8. Integration proof response from `/api/integrations/proof`.
-9. Optional: health response from `/api/health`.
+8. Telegram live delivery screenshot and matching webhook log.
+9. Integration proof response from `/api/integrations/proof`.
+10. Optional: health response from `/api/health`.
 
 Recommended cover image:
 
@@ -238,8 +266,10 @@ Live mode uses the same flow with runtime MCP tools connected to SerpApi for sea
 
 Use these only if asked:
 
-- Slack: "Slack has screenshot proof through the ChatSDK surface. If deeper proof is needed, we can show the webhook route and integration readiness."
+- ChatSDK: "Slack and Telegram are live-proven. Discord is credential-ready pending a real event capture. WhatsApp/Zernio is implemented but credential-gated."
 - Workflow: "The production Workflow route accepted a run. We are not claiming a completed long-running workflow transcript unless a completed result is captured."
+- Model: "The current scorer is a transparent evidence-weighted safety policy, not a claimed continuous-learning model."
+- Multimodal: "HireProof accepts screenshots, but it should not be described as an in-house deepfake detector."
 - Browser extension: "The extension has a Chrome Web Store-ready package and listing draft; public listing publication still requires Google review."
 - Export: "The current reliable export path includes PNG screenshots, PDF dossiers, safety certificates for Safe listings, and JSON/CSV trend exports."
 - Verified badge: "Badge verification requires DNS TXT ownership and public embed tokens. It does not expose API keys."
@@ -251,7 +281,7 @@ Lead with the working web demo. It is the clearest product experience and the fa
 Then use the platform proof as supporting evidence:
 
 1. v0 + MCPs: core working product.
-2. ChatSDK: Slack proof screenshot and webhook route.
+2. ChatSDK: Slack proof screenshot, Telegram delivery proof, and webhook route.
 3. WDK: production-accepted workflow run.
 
 Do not center the pitch on implementation breadth. Center it on the job seeker moment: "Should I trust this job post before I apply?"

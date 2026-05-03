@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Zap, Code2, Webhook, ArrowRight, Download, Cpu } from 'lucide-react'
+import { Zap, Code2, Webhook, ArrowRight, Download, Cpu, ShieldCheck } from 'lucide-react'
 import { CodeBlock } from '@/components/ui/code-block'
 
 export const metadata = { title: 'Documentation — HireProof' }
@@ -9,6 +9,7 @@ const quickLinks = [
   { icon: Code2, title: 'API Reference', desc: 'Full endpoint docs, params, and schemas', href: '/docs/api-reference', color: 'hover:border-evidence' },
   { icon: Cpu, title: 'Agent Skills', desc: 'Download MCP skills for your AI CLI', href: '/docs/skills', color: 'hover:border-caution' },
   { icon: Webhook, title: 'Webhooks', desc: 'Async investigations with callbacks', href: '/docs/webhooks', color: 'hover:border-safe' },
+  { icon: ShieldCheck, title: 'Competitive Roadmap', desc: 'Judge-safe positioning, boundaries, and next milestones', href: '/docs/competitive-roadmap', color: 'hover:border-evidence' },
 ]
 
 const platforms = [
@@ -36,7 +37,7 @@ export default function DocsOverview() {
         <div className="mb-3 inline-block rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-xs font-black text-safe">v1.0 — Open Platform</div>
         <h1 className="mb-4 text-4xl font-black tracking-tight">HireProof Documentation</h1>
         <p className="text-lg font-semibold leading-8 text-muted">
-          An open AI agent platform for verifying job posts and detecting recruitment fraud.
+          An employment-fraud trust-and-safety agent for verifying job posts and detecting recruitment fraud.
           Paste a listing, upload a screenshot, or call the API — HireProof investigates with live web evidence and returns a verdict with receipts.
         </p>
       </div>
@@ -77,7 +78,7 @@ export default function DocsOverview() {
             'User submits a job post via text, image upload, or voice dictation',
             'AI extracts structured claims: company, role, salary, location, and contact method',
             'An autonomous agent loop calls 4 MCP tools concurrently to gather live web evidence',
-            'A deterministic risk scorer produces a weighted 0–100 score and a verdict',
+            'A transparent evidence-weighted risk policy produces a 0-100 score and a verdict',
             'Results stream to the browser in real-time, or return as JSON for headless clients',
           ].map((step, i) => (
             <li key={i} className="flex gap-3">

@@ -2,7 +2,7 @@ import { BarChart3, AlertTriangle, ShieldCheck, Scale, Info } from 'lucide-react
 
 export const metadata = { 
   title: 'Risk Scoring — HireProof Docs',
-  description: 'Deep dive into the deterministic, weighted risk scoring system used by HireProof.'
+  description: 'Deep dive into the transparent, evidence-weighted safety policy used by HireProof.'
 }
 
 export default function RiskScoringPage() {
@@ -11,7 +11,7 @@ export default function RiskScoringPage() {
       <section className="space-y-4">
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Risk Scoring</h1>
         <p className="text-xl font-medium leading-relaxed text-muted">
-          HireProof uses a deterministic, weighted scoring system to ensure that every verdict is explainable, repeatable, and accurate.
+          HireProof uses a transparent, evidence-weighted scoring policy so every verdict is explainable, repeatable, and tied to visible report evidence.
         </p>
       </section>
 
@@ -89,6 +89,18 @@ export default function RiskScoringPage() {
             <p className="mt-2 text-xs font-semibold leading-5 text-muted">{item.body}</p>
           </div>
         ))}
+      </section>
+
+      <section className="rounded-2xl border border-caution-bg/60 bg-caution-bg/20 p-6">
+        <div className="flex items-start gap-4">
+          <AlertTriangle className="mt-1 h-5 w-5 text-caution-text" />
+          <div className="space-y-2">
+            <p className="text-sm font-black uppercase tracking-widest text-caution-text">Current boundary</p>
+            <p className="text-sm font-medium text-muted leading-relaxed">
+              This is not claimed as continuous learning or a black-box fraud model. The current version prioritizes explainability: users can see which red flags, green flags, and evidence receipts affected the verdict. The roadmap is calibrated learning from reviewed cases while preserving visible evidence.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Verdicts */}

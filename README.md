@@ -17,7 +17,7 @@ HireProof takes a pasted job post, recruiter message, screenshot, or job URL and
 | Main audit flow | Implemented | `/audit` |
 | Headless API | Implemented | `POST /api/v1/audit` |
 | MCP tools | Implemented | `POST /api/mcp` |
-| ChatSDK | Implemented; Slack live-tested, other adapters credential-gated | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
+| ChatSDK | Implemented; Slack and Telegram live-tested, Discord ready, WhatsApp/Zernio credential-gated | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
 | Vercel Workflow / WDK | Implemented; production accepted-run proof captured | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
 | Chrome extension | Store-ready package and upload assets generated | [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md) |
 | Docker | Production image/Compose scripts implemented | `Dockerfile`, `docker-compose.yml` |
@@ -25,6 +25,7 @@ HireProof takes a pasted job post, recruiter message, screenshot, or job URL and
 ## Contents
 
 - [Current Status](#current-status)
+- [Competitive Positioning And Roadmap](#competitive-positioning-and-roadmap)
 - [Hackathon Track Coverage](#hackathon-track-coverage)
 - [Quick Start](#quick-start)
 - [Recommended Demo Script](#recommended-demo-script)
@@ -64,8 +65,21 @@ Honest external boundaries:
 
 - Chrome Web Store publication requires the Chrome Web Store developer dashboard, privacy form, uploaded screenshots, and Google review. This repo prepares the upload package and assets; it cannot publish the listing by itself.
 - Docker smoke testing requires Docker Desktop or another Docker runtime. The scripts are present, but the local machine must have Docker available.
-- Live ChatSDK platform proof requires real platform credentials and Redis-backed chat state.
-- Live WDK proof requires deployed Workflow credentials and a completed workflow run.
+- Live ChatSDK proof is captured for Slack and Telegram. Discord is credential-ready but still needs a real provider-event screenshot/log, and WhatsApp/Zernio needs provider credentials before proof can be claimed.
+- WDK proof is currently an accepted production workflow run. Do not claim a completed long-running workflow result until a completed result and callback proof are captured.
+
+## Competitive Positioning And Roadmap
+
+HireProof focuses on employment fraud first because job scams happen in urgent, personal, high-risk moments where users need an actionable verdict, not a generic fraud dashboard. The narrow domain is the wedge, not the ceiling: the same evidence core is already exposed through the web app, API, MCP tools, ChatSDK agents, and WDK workflow entrypoint.
+
+The risk model is intentionally framed as a transparent evidence-weighted safety policy. HireProof does not claim continuous machine learning or in-house deepfake detection today. Instead, it shows users which red flags, green flags, and evidence receipts drove the verdict so a job seeker can understand the decision before sharing money or personal data.
+
+Roadmap:
+
+- Near-term: capture Discord live-provider proof, add WhatsApp/Zernio credentials if that proof stays in scope, and re-capture the final Telegram report-link screenshot.
+- Next product milestone: show a durable investigation timeline for WDK with intake, evidence checks, scoring, report creation, callback, and retry history.
+- Model milestone: add calibrated learning from reviewed cases while preserving explainable red-flag evidence.
+- Multimodal milestone: improve screenshot/OCR analysis and integrate specialist image or deepfake forensics providers where they add real evidence.
 
 ## Hackathon Track Coverage
 
@@ -74,7 +88,7 @@ HireProof is one verification agent exposed through multiple delivery surfaces.
 | Track | What is implemented | Proof notes |
 | --- | --- | --- |
 | v0 + MCPs | Next.js app, audit workspace, evidence tools, and MCP endpoint. | Strongest primary product flow. |
-| ChatSDK Agents | Shared ChatSDK bot wrapper plus Slack, Discord, Telegram, and Zernio webhook routes. | Slack has screenshot proof; other platforms are code-ready behind credentials. |
+| ChatSDK Agents | Shared ChatSDK bot wrapper plus Slack, Discord, Telegram, and Zernio webhook routes. | Slack has screenshot proof, Telegram has delivery screenshot/log proof, Discord is credential-ready, and WhatsApp/Zernio is credential-gated. |
 | Vercel Workflow / WDK | Workflow package enabled, `startAuditWorkflow`, and `/api/workflows/audit` start route. | Production accepted run captured in proof docs. |
 
 More detail: [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md).
@@ -166,7 +180,7 @@ HireProof is not a single prompt wrapper. The app runs a structured investigatio
 - Extracts normalized claims from messy human job text.
 - Chooses evidence tools based on the claims it finds.
 - Calls company, reputation, comparable-role, and local-footprint tools.
-- Combines tool output with deterministic risk scoring.
+- Combines tool output with a transparent evidence-weighted risk policy.
 - Returns a report designed for human decisions and downstream agents.
 
 The same investigation core is reused by the web app, API, MCP endpoint, ChatSDK reply path, and workflow entrypoint.
@@ -387,7 +401,7 @@ components/
 
 lib/
 +-- schemas.ts                     Shared Zod contracts
-+-- risk-scorer.ts                 Deterministic risk scoring
++-- risk-scorer.ts                 Evidence-weighted risk policy
 +-- serpapi.ts                     Search provider integration
 +-- mcp-tools.ts                   MCP investigation tools
 +-- db.ts                          Hybrid persistence

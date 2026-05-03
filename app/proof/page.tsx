@@ -14,6 +14,7 @@ import {
   Server,
   ShieldCheck,
   Store,
+  Target,
   Workflow,
 } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
@@ -171,6 +172,33 @@ export default function ProofPage() {
                 </div>
               )
             })}
+          </div>
+        </section>
+
+        <section className="mb-8 rounded-2xl border border-border-soft bg-surface p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <Target className="h-5 w-5 text-safe" />
+            <h2 className="text-lg font-black">Submission positioning</h2>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="rounded-xl border border-border-soft bg-background p-4">
+              <div className="text-[10px] font-black uppercase tracking-normal text-muted">Focused wedge</div>
+              <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+                HireProof starts with employment fraud because job seekers need an actionable verdict before applying, paying fees, or sharing identity data.
+              </p>
+            </div>
+            <div className="rounded-xl border border-border-soft bg-background p-4">
+              <div className="text-[10px] font-black uppercase tracking-normal text-muted">Transparent model</div>
+              <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+                The current scorer is a transparent evidence-weighted safety policy, not a claimed continuous-learning model.
+              </p>
+            </div>
+            <div className="rounded-xl border border-border-soft bg-background p-4">
+              <div className="text-[10px] font-black uppercase tracking-normal text-muted">WDK roadmap</div>
+              <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+                Current proof is a production-accepted workflow run. The next step is a durable timeline with checkpoints, retries, callbacks, and completed-result proof.
+              </p>
+            </div>
           </div>
         </section>
 
