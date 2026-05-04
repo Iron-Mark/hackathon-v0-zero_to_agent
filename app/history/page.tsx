@@ -73,7 +73,7 @@ export default function HistoryPage() {
             <p className="mx-auto mb-6 max-w-md text-sm font-medium leading-6 text-muted sm:text-base">
               You haven't checked any job posts in this session yet.
             </p>
-            <Link href="/audit" className="inline-flex rounded-xl bg-safe px-6 py-3 text-sm font-black text-background shadow-lg shadow-safe/20 transition-colors hover:bg-safe-text">
+            <Link href="/audit" className="hireproof-cta-primary inline-flex rounded-xl px-6 py-3 text-sm font-black shadow-lg">
               Check a Job Post
             </Link>
           </div>

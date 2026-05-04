@@ -44,9 +44,24 @@ const readyProof = [
   },
   {
     icon: Bot,
-    brandIcon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/slack.svg',
-    brandName: 'Slack',
-    title: 'ChatSDK Slack',
+    brandIcons: [
+      {
+        src: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/slack.svg',
+        name: 'Slack',
+        color: 'var(--hireproof-safe-text)',
+      },
+      {
+        src: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/telegram.svg',
+        name: 'Telegram',
+        color: 'var(--hireproof-safe-text)',
+      },
+      {
+        src: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/discord.svg',
+        name: 'Discord',
+        color: 'var(--hireproof-safe-text)',
+      },
+    ],
+    title: 'ChatSDK delivery',
     status: 'Slack, Telegram, Discord observed',
     body: 'Slack has screenshot proof, Telegram has screenshot plus webhook-log proof, and Discord slash-command delivery has been observed with a real bot reply.',
     href: '/docs/triple-track-coverage',
@@ -199,7 +214,7 @@ export default function ProofPage() {
                   This screenshot is rendered from the published CLI TUI source. It shows the branded Shield Sentinel launcher, command console, Tab autocomplete affordance, proof-safe mode/key status, and the audit workflow menu.
                 </p>
               </div>
-              <Link href="/docs/cli" className="hireproof-focus inline-flex w-fit items-center gap-2 rounded-xl bg-safe px-4 py-3 text-sm font-black text-safe-foreground transition hover:bg-safe-hover">
+              <Link href="/docs/cli" className="hireproof-focus inline-flex w-fit items-center gap-2 rounded-xl border border-safe/30 bg-safe/10 px-4 py-3 text-sm font-black text-safe transition-colors hover:border-safe/50 hover:bg-safe/15">
                 View CLI docs <ExternalLink className="h-4 w-4" />
               </Link>
             </div>
@@ -253,12 +268,21 @@ export default function ProofPage() {
         <section className="grid gap-4 md:grid-cols-2">
           {readyProof.map((item) => {
             const Icon = item.icon
+            const brandIcons = 'brandIcons' in item && Array.isArray(item.brandIcons) ? item.brandIcons : null
             return (
               <Link key={item.title} href={item.href} className="hireproof-focus group rounded-2xl border border-border-soft bg-surface p-6 shadow-sm transition hover:border-safe-bg hover:bg-background">
                 <div className="mb-5 flex items-start justify-between gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-safe-bg text-safe-text">
-                    {'brandIcon' in item ? (
-                      <img src={item.brandIcon} alt={`${item.brandName} logo`} className="h-6 w-6" />
+                  <div className={`${brandIcons ? 'w-20 gap-1.5 px-2' : 'w-12'} flex h-12 items-center justify-center rounded-xl bg-safe-bg text-safe-text`}>
+                    {brandIcons ? (
+                      brandIcons.map((brand) => (
+                        <BrandIcon
+                          key={brand.name}
+                          src={brand.src}
+                          alt={`${brand.name} logo`}
+                          className="h-4 w-4"
+                          color={brand.color}
+                        />
+                      ))
                     ) : (
                       <Icon className="h-6 w-6" />
                     )}

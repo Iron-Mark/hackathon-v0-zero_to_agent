@@ -352,7 +352,7 @@ export default function UseCasesPage() {
         </div>
         <Link
           href="/audit"
-          className="hireproof-focus inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-black text-background transition-opacity hover:opacity-85"
+          className="hireproof-focus hireproof-cta-primary inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-black"
         >
           Start investigation
           <ArrowRight className="h-4 w-4" />

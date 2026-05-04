@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Copy, Download } from 'lucide-react'
+import { ArrowRight, Bot, Check, Copy, Download, FileCode2, Plug, Server } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CodeBlock } from '@/components/ui/code-block'
 
@@ -140,41 +140,52 @@ export default function SkillsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-10">
-        <div className="mb-3 flex items-center gap-3">
-          <h1 className="text-4xl font-black tracking-tight">Agent Skills</h1>
-          <span className="rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-xs font-black text-safe">4 Skills</span>
-          <span className="rounded-full border border-evidence/30 bg-evidence/10 px-3 py-1 text-xs font-black text-evidence">SKILL.md Standard</span>
+      <div className="mb-10 grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(25rem,0.8fr)] xl:items-center">
+        <div>
+          <div className="mb-3 text-xs font-black uppercase tracking-wider text-safe">Open agent surface</div>
+          <h1 className="max-w-3xl text-4xl font-black tracking-tight sm:text-5xl">Agent Skills</h1>
+          <p className="mt-4 max-w-3xl text-lg font-semibold leading-8 text-muted">
+            HireProof exposes 4 open investigation skills via MCP for agents that need company identity, reputation, salary, and local footprint checks before they trust a job opportunity.
+          </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            {[
+              { icon: FileCode2, label: 'SKILL.md package', desc: 'Portable agent instructions' },
+              { icon: Server, label: 'Live MCP endpoint', desc: 'Tool calls over HTTP' },
+              { icon: Bot, label: 'CLI ready', desc: 'Codex, Claude, Gemini, Cursor' },
+            ].map((item) => (
+              <div key={item.label} className="border-l border-border-soft pl-3">
+                <div className="flex items-center gap-2 text-sm font-black text-foreground">
+                  <item.icon className="h-4 w-4 text-safe" />
+                  {item.label}
+                </div>
+                <div className="mt-1 text-xs font-semibold leading-5 text-muted">{item.desc}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="text-lg font-semibold text-muted leading-8">
-          HireProof exposes 4 open investigation skills via the Model Context Protocol (MCP). Any agent, LLM client, or automation that supports MCP can call these tools directly — no sign-up required.
-          The skill package is fully compatible with the open <strong>SKILL.md standard</strong> used by Claude, Codex, Gemini CLI, and public marketplaces.
-        </p>
-      </div>
 
-      <section className="mb-10 rounded-3xl border border-border-soft bg-surface/70 p-4 shadow-sm sm:p-6">
-        <div className="overflow-hidden rounded-2xl border border-border-soft bg-background shadow-inner">
+        <section className="rounded-3xl border border-border-soft bg-surface/70 p-4 shadow-sm">
           <img
-            src="/docs-media/docs-skills.png"
-            alt="HireProof Agent Skills documentation showing MCP tools, SKILL.md setup, and agent connection examples"
-            className="w-full object-cover"
+            src="/docs-media/skills-agent-network.svg"
+            alt="Diagram showing HireProof skills connecting AI agents to MCP investigation tools"
+            className="aspect-[16/11] w-full rounded-2xl object-contain"
             loading="lazy"
           />
-        </div>
-        <p className="mt-3 text-xs font-bold uppercase tracking-wider text-muted">
-          Media proof: the skills docs show the SKILL.md package, live MCP connection, TypeScript SDK example, and available investigation tools.
-        </p>
-      </section>
+        </section>
+      </div>
 
       {/* Download Banner */}
       <div className="mb-10 space-y-3">
         <h2 className="text-2xl font-black">Get the Skills</h2>
-        <p className="text-sm font-semibold text-muted">Choose how you want to integrate:</p>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <p className="text-sm font-semibold text-muted">Choose the integration path that matches your agent runtime.</p>
+        <div className="grid gap-4 lg:grid-cols-2">
           {/* AI CLI Skill */}
           <div className="flex flex-col justify-between gap-4 rounded-2xl border border-safe/30 bg-safe/5 p-5">
             <div>
-              <div className="text-sm font-black mb-1">AI CLI Skill Package</div>
+              <div className="mb-1 flex items-center gap-2 text-sm font-black">
+                <FileCode2 className="h-4 w-4 text-safe" />
+                AI CLI Skill Package
+              </div>
               <p className="text-xs font-semibold text-muted leading-5">
                 Drop into <code className="font-mono bg-surface px-1 rounded">.agents/skills/hireproof/</code> to use with Gemini CLI, Claude Code, Cursor, Codex, or any agent that reads skill files.
               </p>
@@ -183,7 +194,7 @@ export default function SkillsPage() {
               href="https://raw.githubusercontent.com/Iron-Mark/hackathon-v0-zero_to_agent/main/.agents/skills/hireproof/SKILL.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-black text-background transition-opacity hover:opacity-80 w-fit"
+              className="hireproof-cta-primary flex w-fit items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black"
             >
               <Download className="h-4 w-4" />
               Download SKILL.md
@@ -192,7 +203,10 @@ export default function SkillsPage() {
           {/* Reference doc */}
           <div className="flex flex-col justify-between gap-4 rounded-2xl border border-border-soft bg-surface p-5">
             <div>
-              <div className="text-sm font-black mb-1">Full Reference (SKILLS.md)</div>
+              <div className="mb-1 flex items-center gap-2 text-sm font-black">
+                <Plug className="h-4 w-4 text-evidence" />
+                Full Reference
+              </div>
               <p className="text-xs font-semibold text-muted leading-5">
                 Complete markdown reference with all 4 skill definitions, parameter tables, and cURL examples. Great for documentation or custom integrations.
               </p>
@@ -201,7 +215,7 @@ export default function SkillsPage() {
               href="https://raw.githubusercontent.com/Iron-Mark/hackathon-v0-zero_to_agent/main/SKILLS.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-2.5 text-sm font-black text-foreground transition-colors hover:bg-surface w-fit"
+              className="flex w-fit cursor-pointer items-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-2.5 text-sm font-black text-foreground transition-colors hover:bg-surface"
             >
               <Download className="h-4 w-4" />
               Download SKILLS.md
@@ -214,7 +228,7 @@ export default function SkillsPage() {
       <section className="mb-10">
         <h2 className="mb-3 text-2xl font-black">Skill Directory Links</h2>
         <p className="mb-4 text-sm font-semibold text-muted">Use these public SKILL.md directories and MCP tool catalogs to discover compatible agent-skill surfaces. Availability can depend on each directory&apos;s current indexing and review state.</p>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-3">
           {[
             { name: 'SkillsLLM', url: 'https://skillsllm.com', desc: '1600+ security-vetted skills' },
             { name: 'SkillsMP', url: 'https://skillsmp.com', desc: '900k+ skills, open standard' },
@@ -398,8 +412,9 @@ lib/
 
 app/api/mcp/route.ts    # MCP server route (register your tool here)`} />
           </div>
-          <div className="rounded-lg border border-safe/20 bg-safe/5 px-4 py-3 text-xs font-bold text-safe">
-            After adding a new tool, update the SKILL.md with its name, parameters, and "when to use" guidance — so every AI agent that loads the skill knows how to call it.
+          <div className="flex items-center gap-2 rounded-lg border border-safe/20 bg-safe/5 px-4 py-3 text-xs font-bold text-safe">
+            <ArrowRight className="h-4 w-4 shrink-0" />
+            <span>After adding a new tool, update the SKILL.md with its name, parameters, and "when to use" guidance so every AI agent that loads the skill knows how to call it.</span>
           </div>
         </div>
       </section>

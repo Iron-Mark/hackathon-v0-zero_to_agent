@@ -125,7 +125,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       <button
         type="button"
         onClick={openHireProofCommandMenu}
-        className="hireproof-focus flex h-10 w-full items-center justify-between gap-3 rounded-xl border border-border-soft bg-surface px-3 text-left text-[13px] font-bold text-muted transition-colors hover:border-safe/50 hover:bg-background hover:text-foreground"
+        className="hireproof-focus flex h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-border-soft bg-surface px-3 text-left text-[13px] font-bold text-muted transition-colors hover:border-safe/50 hover:bg-background hover:text-foreground"
         aria-label="Search documentation with global site search"
       >
         <span className="flex min-w-0 items-center gap-2">
@@ -200,7 +200,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           {/* Mobile Sidebar Toggle */}
           <button
             onClick={() => setIsMobileSidebarOpen(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-foreground lg:hidden"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-muted hover:bg-surface hover:text-foreground lg:hidden"
             aria-label="Open documentation menu"
           >
             <Menu className="h-5 w-5" />
@@ -241,7 +241,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
                   </div>
                   <button
                     onClick={() => setIsMobileSidebarOpen(false)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-surface"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -275,7 +275,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             }
           }
         }}
-        className="hireproof-focus group fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full border border-border bg-foreground px-5 py-3 text-sm font-black text-background shadow-2xl transition-all hover:-translate-y-1 hover:bg-safe hover:shadow-safe/20"
+        className="hireproof-focus group fixed bottom-4 right-4 cursor-pointer z-50 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border-soft bg-surface/95 px-3 py-3 text-sm font-black text-foreground shadow-2xl backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-safe/40 hover:bg-background hover:text-safe sm:bottom-6 sm:right-6 sm:px-4"
         title="Copy page text for AI Prompting"
         aria-label="Copy page text for AI Prompting"
       >

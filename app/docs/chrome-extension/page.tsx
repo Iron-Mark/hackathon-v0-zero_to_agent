@@ -17,7 +17,7 @@ export default function ChromeExtensionPage() {
           <a
             href="/api/downloads/hireproof-extension.zip"
             download
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-black text-background transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="hireproof-cta-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-black"
           >
             <Download className="h-4 w-4" />
             Download Chrome ZIP

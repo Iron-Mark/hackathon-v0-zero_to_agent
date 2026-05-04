@@ -43,7 +43,7 @@ export default function LocalHistoryReportPage() {
               <Link href="/history" className="hireproof-focus inline-flex items-center justify-center rounded-xl border border-border-soft bg-background px-4 py-3 text-sm font-black text-evidence hover:bg-evidence-bg">
                 Back to History
               </Link>
-              <Link href="/audit" className="hireproof-focus inline-flex items-center justify-center rounded-xl bg-safe px-4 py-3 text-sm font-black text-background hover:bg-safe-text">
+              <Link href="/audit" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-black">
                 Check a Job Post
               </Link>
             </div>

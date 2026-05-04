@@ -58,7 +58,7 @@ Phase 1 remaining manual action:
 
 ### Phase 2: Published Package Proof
 
-Status: in progress.
+Status: complete for CLI, SDK, LangChain, and n8n metadata.
 
 Goal:
 
@@ -70,16 +70,25 @@ Goal:
 
 Acceptance:
 
-- `npx @hireproof/cli --help` works from outside the repo.
-- `npx @hireproof/cli audit --mode demo --json` returns parseable JSON without ANSI/TUI output.
-- A fresh temporary project can install and import `hireproof-sdk`.
-- A fresh temporary project can install and import `@hireproof/langchain`.
-- A fresh temporary project can install `n8n-nodes-hireproof` and expose expected n8n package metadata/files.
+- `npx @hireproof/cli --help` works from outside the repo. Result: passed with `@hireproof/cli@1.0.0`.
+- `npx @hireproof/cli audit --mode demo --json` returns parseable JSON without ANSI/TUI output. Result: passed with a High-Risk report, score `92`.
+- A fresh temporary project can install and import `@hireproof/langchain`. Result: passed with `@hireproof/langchain@1.0.0`, `@langchain/core`, and `zod`.
+- A fresh temporary project can install `n8n-nodes-hireproof` and expose expected n8n package metadata/files. Result: passed with `credentials/HireProofApi.credentials.js` and `nodes/HireProof/HireProof.node.js`.
+- A fresh temporary project can install and import `hireproof-sdk`. Result: `hireproof-sdk@1.0.0` exposed CommonJS/named exports but failed native ESM default import even though the README shows `import HireProof from 'hireproof-sdk'`.
+
+SDK follow-up completed and published:
+
+- `hireproof-sdk` is bumped to `1.0.1`.
+- Package exports now include an ESM wrapper at `dist/index.mjs`.
+- Verified from the published `hireproof-sdk@1.0.1` package:
+  - `import HireProof from 'hireproof-sdk'` works.
+  - `import { HireProof } from 'hireproof-sdk'` works.
+  - `require('hireproof-sdk').HireProof` works.
+  - Demo audit against `https://hireproof-sigma.vercel.app` returns High-Risk, score `92`.
 
 Manual actions after Phase 2:
 
 - Review npm package pages for copy/screenshots.
-- Create an npm version bump before any future republish.
 - Continue external n8n community and Make review flows separately.
 
 ## Current State

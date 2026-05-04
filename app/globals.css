@@ -102,6 +102,88 @@ textarea {
   outline-offset: 2px;
 }
 
+.hireproof-cta-primary {
+  position: relative;
+  isolation: isolate;
+  min-height: 44px;
+  touch-action: manipulation;
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--hireproof-safe) 86%, var(--hireproof-ink));
+  background: var(--hireproof-safe);
+  color: #ffffff;
+  box-shadow:
+    0 14px 34px -20px color-mix(in srgb, var(--hireproof-safe) 72%, var(--hireproof-ink)),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
+  transform: translateY(0) scale(1);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.hireproof-cta-primary:hover {
+  border-color: color-mix(in srgb, var(--hireproof-safe-text) 60%, var(--hireproof-safe));
+  background: color-mix(in srgb, var(--hireproof-safe) 88%, var(--hireproof-ink));
+  box-shadow:
+    0 20px 42px -22px color-mix(in srgb, var(--hireproof-safe) 68%, var(--hireproof-ink)),
+    0 0 0 3px color-mix(in srgb, var(--hireproof-safe) 18%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 24%, transparent);
+  transform: translateY(-1px) scale(1.01);
+}
+
+.hireproof-cta-primary:active {
+  box-shadow:
+    0 9px 22px -18px color-mix(in srgb, var(--hireproof-safe) 80%, var(--hireproof-ink)),
+    0 0 0 2px color-mix(in srgb, var(--hireproof-evidence) 22%, transparent);
+  transform: translateY(1px) scale(0.98);
+}
+
+.hireproof-cta-primary:focus-visible {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--hireproof-evidence) 22%, transparent),
+    0 18px 38px -22px color-mix(in srgb, var(--hireproof-safe) 72%, var(--hireproof-ink));
+}
+
+.hireproof-cta-primary[aria-current='page'],
+.hireproof-cta-primary[data-active='true'],
+.hireproof-cta-primary[data-selected='true'] {
+  border-color: color-mix(in srgb, var(--hireproof-safe-text) 64%, var(--hireproof-safe));
+  background: color-mix(in srgb, var(--hireproof-safe) 92%, var(--hireproof-evidence));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--hireproof-safe) 24%, transparent),
+    0 14px 34px -22px color-mix(in srgb, var(--hireproof-safe) 52%, var(--hireproof-ink));
+}
+
+.hireproof-cta-primary:disabled,
+.hireproof-cta-primary[aria-disabled='true'] {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+.dark .hireproof-cta-primary {
+  color: #06130d;
+  box-shadow:
+    0 16px 38px -24px rgba(52, 211, 153, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hireproof-cta-primary {
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease, color 160ms ease, opacity 160ms ease;
+  }
+
+  .hireproof-cta-primary:hover,
+  .hireproof-cta-primary:active {
+    transform: none;
+  }
+}
+
 .cta-glow {
   position: relative;
 }

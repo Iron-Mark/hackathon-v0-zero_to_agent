@@ -129,7 +129,7 @@ export default function PricingPage() {
                 SDK, CLI, LangChain, and n8n support
               </li>
             </ul>
-            <Link href="/audit" className="hireproof-focus flex w-full items-center justify-center rounded-xl bg-foreground px-4 py-3 text-sm font-black text-background hover:bg-safe transition-colors">
+            <Link href="/audit" className="hireproof-focus hireproof-cta-primary flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-black">
               Start with demo
             </Link>
           </div>

@@ -290,7 +290,7 @@ npx @hireproof/cli --help`}
 
           <div className="space-y-4">
             <h3 className="flex items-center gap-3 text-lg font-black">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-sm text-background">1</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-safe text-sm text-background dark:text-[#06130d]">1</span>
               HTTP Request Node
             </h3>
             <div className="ml-11">
@@ -313,7 +313,7 @@ npx @hireproof/cli --help`}
 
           <div className="space-y-4">
             <h3 className="flex items-center gap-3 text-lg font-black">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-sm text-background">2</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-safe text-sm text-background dark:text-[#06130d]">2</span>
               JSON Body
             </h3>
             <div className="ml-11 space-y-4">
@@ -334,7 +334,7 @@ npx @hireproof/cli --help`}
 
           <div className="space-y-4">
             <h3 className="flex items-center gap-3 text-lg font-black">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-sm text-background">3</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-safe text-sm text-background dark:text-[#06130d]">3</span>
               IF Node
             </h3>
             <div className="ml-11 space-y-4">

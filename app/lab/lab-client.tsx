@@ -375,7 +375,7 @@ export function LabClient() {
                     type="button"
                     onClick={runInvestigation}
                     disabled={isProcessing}
-                    className={`flex h-14 items-center gap-3 rounded-2xl bg-foreground px-8 text-sm font-black text-background transition-all hover:bg-safe hover:text-background active:scale-95 disabled:opacity-50 ${
+                    className={`hireproof-cta-primary flex h-14 items-center gap-3 rounded-2xl px-8 text-sm font-black disabled:opacity-50 ${
                       isProcessing ? 'shadow-[0_0_40px_rgba(16,185,129,0.4)]' : ''
                     }`}
                   >
@@ -497,7 +497,7 @@ export function LabClient() {
                   {report.id ? (
                     <Link
                       href={`/audit/${report.id}`}
-                      className="inline-flex h-12 items-center gap-3 rounded-2xl bg-foreground px-6 text-sm font-black text-background transition hover:bg-safe"
+                      className="hireproof-cta-primary inline-flex h-12 items-center gap-3 rounded-2xl px-6 text-sm font-black"
                     >
                       OPEN REPORT
                       <ArrowRight className="h-4 w-4" />

@@ -344,7 +344,7 @@ function AuditContent() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 sm:min-w-56">
-                  <Link href="/docs/automations" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-black text-background transition-colors hover:bg-safe">
+                  <Link href="/docs/automations" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black">
                     Automation docs <ArrowRight className="h-4 w-4" />
                   </Link>
                   <a href="/api/downloads/hireproof-native-integrations.zip" download className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-2.5 text-sm font-black text-foreground transition-colors hover:bg-surface-elevated">

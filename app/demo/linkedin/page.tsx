@@ -326,7 +326,7 @@ export default function ExtensionDemo() {
                           <div className="pt-2">
                              <button 
                                onClick={() => setActiveStage('scanning')}
-                               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-4 text-sm font-black text-background hover:bg-safe transition-all shadow-xl"
+                               className="hireproof-cta-primary flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black shadow-xl"
                              >
                                Generate Full Dossier
                                <ArrowRight className="h-4 w-4" />
@@ -361,7 +361,7 @@ export default function ExtensionDemo() {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     onClick={() => setIsExtensionOpen(true)}
-                    className="ml-auto flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-foreground text-background shadow-2xl hover:bg-safe transition-all group"
+                    className="hireproof-cta-primary group ml-auto flex h-16 w-16 items-center justify-center rounded-[1.5rem] shadow-2xl"
                   >
                      <BrandMark className="h-10 w-10 group-hover:scale-110 transition-transform" />
                   </motion.button>
@@ -397,13 +397,13 @@ export default function ExtensionDemo() {
          <div className="flex gap-4">
             <button 
               onClick={() => setActiveStage('scanning')}
-              className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full transition-all ${activeStage === 'scanning' ? 'bg-white text-black' : 'text-white/50 hover:text-white'}`}
+              className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full transition-all ${activeStage === 'scanning' ? 'bg-safe text-background dark:text-[#06130d]' : 'text-white/50 hover:text-white'}`}
             >
               Scan Mode
             </button>
             <button 
               onClick={() => setActiveStage('result')}
-              className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full transition-all ${activeStage === 'result' ? 'bg-white text-black' : 'text-white/50 hover:text-white'}`}
+              className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full transition-all ${activeStage === 'result' ? 'bg-safe text-background dark:text-[#06130d]' : 'text-white/50 hover:text-white'}`}
             >
               Verdict Mode
             </button>

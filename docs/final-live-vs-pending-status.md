@@ -21,7 +21,7 @@ This is the concise status boundary for submission, demos, and reviewer conversa
 | Telegram proof | Live delivery proven | `docs/platform-proof-status.md` |
 | WDK route | Production accepted-run proven | run ID `wrun_01KQD9H6AND3W7YZBHHKAH2KV5` |
 | Native automation packs | Repo-shipped and validated | `integrations/`, `packages/hireproof-langchain`, `/docs/automations` |
-| npm packages | Published | `@hireproof/cli`, `@hireproof/langchain`, `hireproof-sdk`, `n8n-nodes-hireproof` |
+| npm packages | Published and package-proofed | `@hireproof/cli`, `@hireproof/langchain`, `hireproof-sdk`, `n8n-nodes-hireproof` |
 | HireProof CLI | npm-published, tested, and screenshot-proven | `@hireproof/cli@1.0.0`, `/docs/cli`, `public/cli-tui-screenshot*.png` |
 | Native integrations ZIP | Live download | `/downloads/hireproof-native-integrations.zip` |
 | Chrome extension ZIP | Live download fallback | `/downloads/hireproof-extension.zip` |
@@ -59,6 +59,37 @@ Checked after checkpoint `0b83430`:
 - Evidence types: `Company Check`, `Local Presence`, `Reputation`
 
 This proves the live search/model path is production-wired. It does not guarantee every audit will return every possible evidence class; comparable jobs and local/search coverage still depend on provider result availability.
+
+## Latest Evidence Funnel Smoke
+
+Checked on 2026-05-04 against `https://hireproof-sigma.vercel.app/api/audit` with production `Origin` / `Referer` headers:
+
+- Input claim: Vercel role with `https://vercel.com/careers` and `recruiting@vercel.com`
+- Mode: `live`
+- Verdict: `caution`
+- Risk score: `45`
+- Evidence count: `11`
+- Green flags: `6`
+- Red flags: `4`
+- Provider statuses:
+  - SerpApi: `ok`
+  - DNS: `ok`
+  - RDAP: `degraded`
+  - Certificate Transparency: `degraded`
+  - Google Safe Browsing: `not-live`
+
+This proves the evidence broker status object is returned in live SSE results. It also shows the current production boundary: Safe Browsing is not live until `GOOGLE_SAFE_BROWSING_API_KEY` is configured, and RDAP/Certificate Transparency can degrade without blocking the audit.
+
+## Latest Package Proof
+
+Checked on 2026-05-04 from clean temporary npm projects:
+
+- `npx @hireproof/cli --help`: passed.
+- `npx @hireproof/cli audit --mode demo --json`: passed, returned High-Risk, score `92`.
+- `@hireproof/langchain@1.0.0` with `@langchain/core`: passed, returned High-Risk and `shouldContinue: false`.
+- `n8n-nodes-hireproof@1.0.0`: passed metadata check for credentials and node registration.
+- `hireproof-sdk@1.0.0`: published package had a native ESM default-import mismatch.
+- `hireproof-sdk@1.0.1`: published and verified from a clean npm install. ESM default import, ESM named import, CommonJS named export, and demo audit all pass.
 
 ## Latest Screenshot OCR Smoke
 

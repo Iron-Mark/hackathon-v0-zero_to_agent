@@ -155,7 +155,7 @@ npm run docker:smoke`}
             <p className="mb-6 font-medium text-muted leading-relaxed">
               HireProof is optimized for Vercel. Simply push your repository to GitHub and connect it to a new Vercel project. All Edge functions and rate-limiting middleware will work out of the box.
             </p>
-            <a href="https://vercel.com/new" target="_blank" rel="noreferrer" className="hireproof-focus inline-flex items-center gap-2 rounded-xl bg-foreground px-6 py-3 font-black text-background transition-colors hover:bg-safe">
+            <a href="https://vercel.com/new" target="_blank" rel="noreferrer" className="hireproof-focus hireproof-cta-primary inline-flex items-center gap-2 rounded-xl px-6 py-3 font-black">
               Deploy to Vercel
             </a>
           </div>

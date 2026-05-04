@@ -312,7 +312,7 @@ export function DeveloperClient() {
                 <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="••••••••" className="w-full rounded-xl border border-border-soft bg-background p-4 text-sm font-semibold outline-none focus:border-safe" />
               </div>
               
-              <button onClick={submitAuth} className="hireproof-focus mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-4 text-sm font-black text-background transition-all hover:bg-safe">
+              <button onClick={submitAuth} className="hireproof-focus hireproof-cta-primary mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-sm font-black">
                 {mode === 'login' ? 'Sign In to Terminal' : 'Create Access Profile'}
                 <ArrowUpRight className="h-4 w-4" />
               </button>
@@ -643,7 +643,7 @@ export function DeveloperClient() {
                 <button
                   onClick={addDomain}
                   disabled={isAddingDomain}
-                  className="rounded-xl bg-foreground px-4 py-3 text-xs font-black text-background transition-all hover:bg-safe disabled:opacity-50"
+                  className="hireproof-cta-primary rounded-xl px-4 py-3 text-xs font-black disabled:opacity-50"
                 >
                   Add
                 </button>

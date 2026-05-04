@@ -143,11 +143,11 @@ export default function DeadInternetPage() {
         </section>
 
         {/* Evidence-first verification flow */}
-        <section className="bg-foreground text-background rounded-3xl p-10 shadow-2xl relative overflow-hidden">
+        <section className="border border-safe/25 bg-safe/10 text-foreground rounded-3xl p-10 shadow-2xl shadow-safe/10 relative overflow-hidden">
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]" />
           </div>
-          <h2 className="mt-0 flex items-center gap-3 text-2xl font-black text-background relative z-10">
+          <h2 className="mt-0 flex items-center gap-3 text-2xl font-black text-foreground relative z-10">
             <UserCheck className="h-6 w-6 text-safe" />
             The Evidence-First Verification Flow
           </h2>
@@ -176,7 +176,7 @@ export default function DeadInternetPage() {
             Use HireProof to verify suspicious opportunities with evidence, not guesses.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/audit" className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl bg-foreground px-8 py-4 text-base font-black text-background hover:bg-safe transition-all shadow-lg hover:scale-105 active:scale-95">
+            <Link href="/audit" className="hireproof-cta-primary w-full sm:w-auto inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-black shadow-lg">
               Check a Job Post
             </Link>
             <Link href="/docs/api-reference" className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-border-soft bg-background px-8 py-4 text-base font-black text-foreground hover:bg-surface transition-all">

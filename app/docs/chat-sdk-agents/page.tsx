@@ -25,12 +25,6 @@ const platforms = [
     endpoint: '/api/webhooks/telegram',
     credentials: 'TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET_TOKEN, TELEGRAM_BOT_USERNAME, REDIS_URL',
   },
-  {
-    name: 'provider adapters',
-    status: 'Credential-gated via provider adapter',
-    endpoint: '/api/webhooks/zernio',
-    credentials: 'ZERNIO_API_KEY, ZERNIO_WEBHOOK_SECRET, REDIS_URL',
-  },
 ]
 
 export default function ChatSdkAgentsPage() {

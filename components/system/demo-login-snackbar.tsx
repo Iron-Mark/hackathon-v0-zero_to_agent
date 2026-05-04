@@ -127,7 +127,7 @@ export function DemoLoginSnackbar() {
             <button
               onClick={handleDemoLogin}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-xs font-black text-background transition-all hover:bg-safe active:scale-95 disabled:opacity-60"
+              className="hireproof-cta-primary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black disabled:opacity-60"
             >
               {loading ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />

@@ -28,7 +28,7 @@ export default function IDESkillsPage() {
 
         <div className="hireproof-card space-y-6 rounded-3xl border border-border-soft p-8">
           <h3 className="flex items-center gap-3 text-lg font-black">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-sm text-background">1</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-safe text-sm text-background dark:text-[#06130d]">1</span>
             Create the Skills Directory
           </h3>
           <div className="ml-11">
@@ -45,7 +45,7 @@ export default function IDESkillsPage() {
 
         <div className="hireproof-card space-y-6 rounded-3xl border border-border-soft p-8">
           <h3 className="flex items-center gap-3 text-lg font-black">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-sm text-background">2</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-safe text-sm text-background dark:text-[#06130d]">2</span>
             Add the SKILL.md Content
           </h3>
           <div className="ml-11">
@@ -88,7 +88,7 @@ You must present this information clearly to the user. If the verdict is high-ri
 
         <div className="hireproof-card space-y-6 rounded-3xl border border-border-soft p-8">
           <h3 className="flex items-center gap-3 text-lg font-black">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-sm text-background">3</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-safe text-sm text-background dark:text-[#06130d]">3</span>
             Invoke the Agent
           </h3>
           <div className="ml-11">

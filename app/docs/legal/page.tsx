@@ -230,7 +230,7 @@ export default function LegalPage() {
             <p className="mb-4 text-sm font-semibold leading-6 text-muted">
               Use the support path for product support and dispute intake. It is not a legal-advice channel.
             </p>
-            <Link href="/docs/legal#support-and-contact" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-3 text-sm font-black text-background transition-colors hover:bg-safe">
+            <Link href="/docs/legal#support-and-contact" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-black">
               Contact path <ExternalLink className="h-4 w-4" />
             </Link>
           </div>

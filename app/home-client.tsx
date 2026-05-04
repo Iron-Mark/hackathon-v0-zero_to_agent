@@ -232,7 +232,7 @@ export function HomeClient() {
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-col justify-center gap-3 sm:flex-row xl:justify-start">
-              <Link href="/audit" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-5 py-2.5 font-bold text-background shadow-lg transition-colors hover:bg-safe">
+              <Link href="/audit" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-bold shadow-lg">
                 Start investigation <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/audit?demo=high-risk" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
@@ -250,13 +250,21 @@ export function HomeClient() {
                   <motion.div key={demo.href} variants={cardReveal}>
                     <Link
                       href={demo.href}
-                      className={`hireproof-focus block rounded-xl border p-3 text-left shadow-sm transition hover:shadow-md ${demo.className}`}
+                      className={`hireproof-focus group relative block overflow-hidden rounded-xl border p-3 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:scale-[0.98] ${demo.className}`}
                     >
-                      <div className="mb-2 flex items-center gap-2 text-sm font-black">
-                        <Icon className="h-4 w-4" />
-                        {demo.label}
+                      <span className="pointer-events-none absolute inset-0 bg-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 dark:bg-white/10" />
+                      <span className="pointer-events-none absolute -right-8 -top-10 h-20 w-20 rounded-full bg-current/10 blur-2xl transition-transform duration-300 group-hover:scale-150 group-focus-visible:scale-150" />
+                      <div className="relative mb-2 flex items-center justify-between gap-2 text-sm font-black">
+                        <span className="flex items-center gap-2">
+                          <Icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-focus-visible:scale-110" />
+                          {demo.label}
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-80 group-focus-visible:translate-x-0.5 group-focus-visible:opacity-80" />
                       </div>
-                      <p className="text-xs font-semibold leading-5">{demo.description}</p>
+                      <p className="relative text-xs font-semibold leading-5">{demo.description}</p>
+                      <span className="relative mt-2 inline-flex text-[10px] font-black uppercase tracking-widest opacity-0 transition-opacity duration-300 group-hover:opacity-70 group-focus-visible:opacity-70">
+                        Try case
+                      </span>
                     </Link>
                   </motion.div>
                 )
@@ -368,30 +376,6 @@ export function HomeClient() {
         </div>
       </section>
 
-      {/* Example input */}
-      <section className="border-b border-border-soft bg-surface">
-        <div className="mx-auto grid max-w-[1600px] gap-8 px-6 md:px-12 lg:px-20 xl:px-32 py-14 lg:grid-cols-[360px_1fr]">
-          <div>
-            <div className="mb-3 inline-flex rounded-full bg-evidence-bg px-3 py-1 text-xs font-black uppercase tracking-normal text-evidence">
-              Example input
-            </div>
-              <h2 className="text-2xl font-black">Suspicious work offer</h2>
-          </div>
-          <div className="rounded-2xl border border-border bg-background p-6">
-            <div className="grid gap-3 text-sm sm:grid-cols-2">
-              <p><strong>Position:</strong> Remote Frontend Intern</p>
-              <p><strong>Salary:</strong> PHP 80,000 per week</p>
-              <p><strong>Location:</strong> Remote</p>
-              <p><strong>Contact:</strong> Message us on Telegram</p>
-              <p className="sm:col-span-2"><strong>Requirements:</strong> Basic HTML/CSS knowledge, no interview needed</p>
-            </div>
-            <Link href="/audit" className="hireproof-focus mt-5 inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-background transition-colors hover:bg-safe">
-              Run quick demo <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* How it works */}
       <section className="border-b border-border-soft">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20 xl:px-32 py-14">
@@ -484,7 +468,7 @@ export function HomeClient() {
               The same audit API now has repo-shipped integration packs for n8n, Make, and LangChain, plus portable HTTP templates for teams that want direct webhook control.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link href="/docs/automations" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-black text-background transition-colors hover:bg-safe">
+              <Link href="/docs/automations" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-black">
                 View automation docs <ArrowRight className="h-4 w-4" />
               </Link>
               <a href="/api/downloads/hireproof-native-integrations.zip" download className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface px-5 py-3 text-sm font-black text-foreground transition-colors hover:bg-background">
@@ -646,7 +630,7 @@ export function HomeClient() {
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/audit"
-              className="hireproof-focus inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-safe px-8 py-4 text-lg font-black text-background transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:w-auto"
+              className="hireproof-focus hireproof-cta-primary inline-flex w-full items-center justify-center gap-3 rounded-2xl px-8 py-4 text-lg font-black sm:w-auto"
             >
               Start investigation
               <ArrowRight className="h-5 w-5" />

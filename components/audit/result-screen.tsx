@@ -1294,14 +1294,14 @@ export default function ResultScreen({ result, onBackToAudit, timelineEvents = [
           {onBackToAudit ? (
             <button
               onClick={onBackToAudit}
-              className="hireproof-focus rounded-xl bg-foreground px-6 py-3 font-black text-background shadow-lg hover:bg-safe"
+              className="hireproof-focus hireproof-cta-primary rounded-xl px-6 py-3 font-black shadow-lg"
             >
               Run Another Investigation
             </button>
           ) : (
             <a
               href="/audit"
-              className="hireproof-focus inline-block rounded-xl bg-foreground px-6 py-3 font-black text-background shadow-lg hover:bg-safe"
+              className="hireproof-focus hireproof-cta-primary inline-block rounded-xl px-6 py-3 font-black shadow-lg"
             >
               Run Another Investigation
             </a>

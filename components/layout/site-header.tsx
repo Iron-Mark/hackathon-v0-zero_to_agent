@@ -120,7 +120,7 @@ export function SiteHeader() {
         role="menuitem"
         className={`hireproof-focus flex min-h-[48px] items-center gap-3 rounded-xl px-3 py-2 transition-colors ${
           isActive(link.href)
-            ? 'bg-foreground text-background'
+            ? 'hireproof-cta-primary'
             : 'text-muted hover:bg-safe/10 hover:text-foreground'
         }`}
       >
@@ -138,7 +138,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border-soft bg-background/92 backdrop-blur-md print:hidden">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-6 md:px-12 lg:px-20 xl:px-32 py-2">
-        <Link href="/" className="hireproof-focus flex min-w-0 items-center gap-3 rounded-sm group">
+        <Link href="/" className="hireproof-focus flex min-w-0 cursor-pointer items-center gap-3 rounded-sm group">
           <BrandMark className="h-9 w-9 shrink-0 transition-transform group-hover:scale-110 glitch-hover" />
           <div className="min-w-0 leading-tight">
             <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export function SiteHeader() {
                   aria-current={isActive(link.href) ? 'page' : undefined}
                   className={`hireproof-focus flex min-h-[38px] items-center gap-2 rounded-full px-4 transition-colors ${
                     isActive(link.href)
-                      ? 'bg-foreground text-background shadow-sm'
+                      ? 'hireproof-cta-primary shadow-sm'
                       : 'text-muted hover:bg-safe/10 hover:text-foreground'
                   }`}
                 >
@@ -224,7 +224,7 @@ export function SiteHeader() {
                 aria-haspopup="menu"
                 aria-expanded={isMenuOpen}
                 onClick={() => setIsMenuOpen((open) => !open)}
-                className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-full text-muted hover:bg-safe/10 hover:text-foreground"
+                className="hireproof-focus flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-muted hover:bg-safe/10 hover:text-foreground"
               >
                 <Menu className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -261,16 +261,16 @@ export function SiteHeader() {
             <button
               type="button"
               onClick={openHireProofCommandMenu}
-              className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-full text-muted hover:bg-safe/10 hover:text-foreground lg:hidden"
+              className="hireproof-focus flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-muted hover:bg-safe/10 hover:text-foreground lg:hidden"
               aria-label="Search site"
             >
               <Search className="h-5 w-5" aria-hidden="true" />
             </button>
-            <Link href="/audit" className={`hireproof-focus ml-1 flex min-h-[38px] items-center gap-2 rounded-full px-3 text-sm font-black transition-colors sm:px-4 ${
-              isActive('/audit')
-                ? 'bg-foreground text-background shadow-sm'
-                : 'text-muted hover:bg-safe/10 hover:text-foreground'
-            }`}>
+            <Link
+              href="/audit"
+              aria-current={isActive('/audit') ? 'page' : undefined}
+              className="hireproof-focus hireproof-cta-primary ml-1 flex cursor-pointer min-h-[38px] items-center gap-2 rounded-full px-3 text-sm font-black shadow-sm sm:px-4"
+            >
               <SearchCheck className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Audit</span>
             </Link>

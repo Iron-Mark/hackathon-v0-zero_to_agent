@@ -286,7 +286,7 @@ export function SpotTheBot() {
                           setCurrentStep(quizItems.length)
                         }
                       }}
-                      className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-foreground px-5 text-sm font-black text-background shadow-lg transition-all hover:bg-safe hover:shadow-safe/20 w-full"
+                      className="hireproof-cta-primary flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm font-black shadow-lg w-full"
                     >
                       {currentStep < quizItems.length - 1 ? 'Next Case' : 'Final Score'}
                       <ArrowRight className="h-4 w-4" />
@@ -349,7 +349,7 @@ export function SpotTheBot() {
               </button>
               <Link
                 href="/audit"
-                className="hireproof-focus flex h-12 items-center justify-center gap-2 rounded-xl bg-foreground px-6 text-sm font-black text-background hover:bg-safe transition-all w-full sm:w-auto shadow-lg hover:shadow-safe/20"
+                className="hireproof-focus hireproof-cta-primary flex h-12 items-center justify-center gap-2 rounded-xl px-6 text-sm font-black w-full sm:w-auto shadow-lg"
               >
                 Start Live Audit
                 <ArrowRight className="h-4 w-4" />

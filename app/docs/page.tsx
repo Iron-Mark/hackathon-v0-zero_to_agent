@@ -116,7 +116,7 @@ export default function DocsOverview() {
           <div className="text-sm font-black mb-0.5">Want to add HireProof to your AI CLI?</div>
           <p className="text-xs font-semibold text-muted">Download the SKILL.md and drop it in your .agents/skills folder.</p>
         </div>
-        <Link href="/docs/skills" className="flex shrink-0 items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-black text-background hover:opacity-80 transition-opacity">
+        <Link href="/docs/skills" className="hireproof-focus hireproof-cta-primary flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black">
           <Download className="h-4 w-4" />
           Get Skills
         </Link>

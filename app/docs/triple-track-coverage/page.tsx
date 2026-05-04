@@ -88,7 +88,7 @@ export default function TripleTrackCoveragePage() {
           Submit under the strongest working demo path. ChatSDK is live-tested in Slack and Telegram with screenshot/log proof, while Discord still needs a real event capture. WDK has an accepted production run ID; frame it as accepted workflow execution unless a completed workflow result is captured. Do not claim continuous learning or adaptive ML as shipped functionality.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/docs/mcp" className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2 text-sm font-black text-background hover:bg-safe">
+          <Link href="/docs/mcp" className="hireproof-cta-primary inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-black">
             MCP docs
             <ExternalLink className="h-4 w-4" />
           </Link>

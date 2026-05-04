@@ -56,7 +56,7 @@ export default function NotFoundPage() {
           <div className="flex w-full flex-col gap-4 pt-4 sm:flex-row">
             <Link
               href="/"
-              className="hireproof-focus flex flex-1 items-center justify-center gap-3 rounded-2xl bg-foreground px-8 py-4 text-base font-black text-background transition-all hover:bg-safe hover:scale-105 shadow-xl"
+              className="hireproof-focus hireproof-cta-primary flex flex-1 items-center justify-center gap-3 rounded-2xl px-8 py-4 text-base font-black shadow-xl"
             >
               <Home className="h-5 w-5" />
               Return Home
