@@ -18,7 +18,7 @@ For the most up-to-date technical documentation, visit the **[Live Documentation
 - `triple-track-coverage.md`: Honest track map for v0 + MCPs, ChatSDK Agents, and Vercel Workflow / WDK.
 - Live `/docs/competitive-roadmap`: Public judge-safe positioning for the focused employment-fraud wedge, transparent risk policy, WDK roadmap, and future multimodal work.
 - `chat-sdk-agents-integration-plan.md`: Draft plan for future multi-platform chat expansion.
-- `live-chat-platform-proof-plan.md`: Step-by-step runbook for proving Discord, Telegram, and WhatsApp/Zernio with real production events.
+- `live-chat-platform-proof-plan.md`: Step-by-step runbook for proving Discord, Telegram, and optional provider adapters with real production events.
 - `credentials-setup.md`: Step-by-step setup for Slack, Redis, Workflow, and AI Gateway credentials.
 - `automation-integrations.md`: Current n8n, Make, LangChain, HTTP template, and WDK boundary status.
 - `automation-marketplace-submission.md`: Account-backed submission runbook for npm, n8n, and Make.
@@ -38,3 +38,4 @@ For the most up-to-date technical documentation, visit the **[Live Documentation
 ### Assets
 - `prompts/`: Historical prompt packs used to generate the initial v0 scaffolds.
 - `demo/`: Demo scripts, proof archive, Slack screenshot evidence, and seeded investigation fixtures used for fallback demos.
+

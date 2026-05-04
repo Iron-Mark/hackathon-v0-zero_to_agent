@@ -10,7 +10,7 @@ The tracks are delivery layers for the same agent, not separate product directio
 
 - Web users paste a suspicious job post and get a verdict.
 - Other agents call the same checks through MCP or API.
-- Chat communities can ask the same agent to review suspicious posts in Slack, Telegram, Discord, or WhatsApp-backed channels.
+- Chat communities can ask the same agent to review suspicious posts in Slack, Telegram, Discord, or provider-adapter-backed channels.
 - Longer investigations can run asynchronously and notify users when the report is ready.
 - Automation builders can install published npm packages for the CLI, SDK, LangChain, and n8n, or adapt the Make source pack and HTTP templates around the same audit API.
 
@@ -97,7 +97,8 @@ For the final demo, call ChatSDK "live-tested in Slack and Telegram with screens
 
 ## Roadmap
 
-- Near-term: capture Discord live-provider proof, configure WhatsApp/Zernio if the channel remains in scope, and recapture the Telegram full-report-link screenshot.
+- Near-term: capture Discord live-provider proof and recapture the Telegram full-report-link screenshot.
 - WDK: turn the accepted-run proof into a durable investigation timeline with checkpoints, retries, callbacks, and completed-result evidence.
 - Model: add calibrated learning from reviewed cases while preserving explainable scoring.
 - Multimodal: improve screenshot/OCR evidence and integrate specialist image or deepfake forensics providers only where they add trustworthy signals.
+

@@ -3,7 +3,7 @@ import { Bot, CheckCircle2, MessageSquare, ShieldCheck } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'ChatSDK Agents | HireProof Docs',
-  description: 'How HireProof runs as a multi-platform ChatSDK agent across Slack, Discord, Telegram, and WhatsApp via Zernio.',
+  description: 'How HireProof runs as a multi-platform ChatSDK agent across Slack, Discord, and Telegram.',
 }
 
 const platforms = [
@@ -26,8 +26,8 @@ const platforms = [
     credentials: 'TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET_TOKEN, TELEGRAM_BOT_USERNAME, REDIS_URL',
   },
   {
-    name: 'WhatsApp',
-    status: 'Credential-gated via Zernio',
+    name: 'provider adapters',
+    status: 'Credential-gated via provider adapter',
     endpoint: '/api/webhooks/zernio',
     credentials: 'ZERNIO_API_KEY, ZERNIO_WEBHOOK_SECRET, REDIS_URL',
   },
@@ -43,7 +43,7 @@ export default function ChatSdkAgentsPage() {
         </div>
         <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Multi-Platform Chat Agents</h1>
         <p className="max-w-3xl text-xl font-medium leading-relaxed text-muted">
-          HireProof exposes the same employment-fraud trust-and-safety agent inside chat communities, using ChatSDK adapters for Slack, Discord, Telegram, and WhatsApp-backed inboxes through Zernio.
+          HireProof exposes the same employment-fraud trust-and-safety agent inside chat communities, using ChatSDK adapters for Slack, Discord, and Telegram communities.
         </p>
       </section>
 
@@ -86,9 +86,10 @@ export default function ChatSdkAgentsPage() {
           <li>Missing credentials return credential-gated webhook status instead of breaking the build.</li>
           <li>Slack has screenshot proof and Telegram has live delivery screenshot/log proof.</li>
           <li>Discord is credential-ready but still needs a real event capture before claiming live proof.</li>
-          <li>WhatsApp/Zernio requires provider credentials and a real event capture before claiming live proof.</li>
+          <li>optional provider adapters can be added later without changing the shared reply model.</li>
         </ul>
       </section>
     </div>
   )
 }
+

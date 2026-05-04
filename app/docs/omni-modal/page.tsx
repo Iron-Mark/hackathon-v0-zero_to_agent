@@ -35,7 +35,7 @@ export default function OmniModalPage() {
           </div>
           <h3 className="mb-2 text-lg font-black">Vision Scan</h3>
           <p className="text-xs font-medium text-muted leading-relaxed">
-            Upload screenshots of WhatsApp chats, LinkedIn posts, or PDF offer letters. HireProof uses Google Vision OCR first, then Tesseract fallback OCR, to extract visible job text from the image.
+            Upload screenshots of chat messages, LinkedIn posts, or PDF offer letters. HireProof uses Google Vision OCR first, then Tesseract fallback OCR, to extract visible job text from the image.
           </p>
         </div>
 
@@ -66,7 +66,7 @@ export default function OmniModalPage() {
             <tbody>
               {[
                 { type: 'Text', tech: 'GPT-4o-mini / Regex Fallback', use: 'Email, LinkedIn, Direct Messages' },
-                { type: 'Image', tech: 'Google Vision OCR + Tesseract fallback', use: 'WhatsApp, Telegram, LinkedIn screenshots, PDF captures' },
+                { type: 'Image', tech: 'Google Vision OCR + Tesseract fallback', use: 'Chat screenshots, LinkedIn screenshots, PDF captures' },
                 { type: 'Voice', tech: 'Web Speech API (Native)', use: 'On-the-go dictation, Phone calls' },
               ].map((row) => (
                 <tr key={row.type} className="border-b border-border-soft last:border-0 hover:bg-surface/50 transition-colors">

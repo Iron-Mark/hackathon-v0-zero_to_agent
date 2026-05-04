@@ -42,7 +42,7 @@ Use this checklist when collecting proof for the hackathon submission, marketpla
 | Slack message proof | Slack client screenshot | real `@HireProof` reply with verdict | Screenshot-proven; fresh endpoint log is not currently claimed |
 | Telegram message proof | Telegram client and Vercel log | real bot reply plus matching webhook log | Live delivery proven; recapture report-link screenshot if needed |
 | Discord proof | Discord client and Vercel log | real event and bot response | Still pending live event capture |
-| WhatsApp/Zernio proof | Zernio/WhatsApp client and Vercel log | real event and bot response | Credential-gated |
+| Future provider proof | Provider client and Vercel log | real event and bot response | Internal until live proof exists |
 | WDK accepted run | Vercel log or API response | accepted run ID | Accepted-run proof only, not completed workflow transcript |
 
 ## File Naming

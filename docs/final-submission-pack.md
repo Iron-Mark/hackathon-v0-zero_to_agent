@@ -70,7 +70,7 @@ Safe claim:
 
 Careful boundary:
 
-> Discord is credential-ready but pending a real event capture. WhatsApp/Zernio is implemented but credential-gated. Telegram delivery is live-proven, but the final report-link screenshot should be recaptured after the permalink fix.
+> Discord is credential-ready but pending a real event capture. Telegram delivery is live-proven, but the final report-link screenshot should be recaptured after the permalink fix.
 
 ## Links
 
@@ -115,13 +115,13 @@ Proof points:
 - Discord is credential-ready but still pending a real provider-event capture.
 - Discord public server install link is available at `https://discord.com/oauth2/authorize?client_id=1500240100804530336&scope=bot%20applications.commands&permissions=0`.
 - Discord slash commands are implemented as `/verify job_post:<text-or-link>` and `/help`; supported public job URLs are expanded before auditing. Register them with `npm run discord:commands`.
-- WhatsApp/Zernio routes are implemented behind credential gates.
+- Additional provider routes remain backend-gated.
 
 Safe boundary:
 
 - Say "Slack is screenshot-proven and Telegram delivery is screenshot/log-proven."
-- Say "Telegram delivery is live-proven; Discord is credential-ready; WhatsApp/Zernio is credential-gated."
-- Do not say "live-tested on Discord/WhatsApp" until `npm run proof:chat-live:strict` passes and screenshots/logs are archived.
+- Say "Telegram delivery is live-proven; Discord is credential-ready; optional provider adapters are credential-gated."
+- Do not say "live-tested on Discord/provider adapters" until `npm run proof:chat-live:strict` passes and screenshots/logs are archived.
 - Do not over-explain request logs unless asked.
 
 ### Vercel Workflow / WDK
@@ -164,7 +164,7 @@ This is not another generic chatbot. It is a job-post investigator built with v0
 
 Use this as the credible future direction without weakening the current submission:
 
-- Near-term proof: capture one real Discord message screenshot/log, configure Zernio if WhatsApp proof stays in scope, and recapture the Telegram report-link screenshot after the permalink fix.
+- Near-term proof: capture one real Discord message screenshot/log, configure optional provider adapters if that proof stays in scope, and recapture the Telegram report-link screenshot after the permalink fix.
 - Durable workflow: add a public investigation timeline that shows intake, evidence checks, scoring, report creation, callback delivery, and retry history for WDK runs.
 - Risk model: add calibrated learning from reviewed cases while keeping verdicts explainable through visible red flags, green flags, and evidence receipts.
 - Multimodal evidence: current screenshot OCR uses Google Vision first with Tesseract fallback. Specialist image or deepfake forensics providers belong only where they add real evidence.
@@ -274,7 +274,7 @@ Live mode uses the same flow with runtime MCP tools connected to SerpApi for sea
 
 Use these only if asked:
 
-- ChatSDK: "Slack and Telegram are live-proven. Discord is credential-ready pending a real event capture. WhatsApp/Zernio is implemented but credential-gated."
+- ChatSDK: "Slack and Telegram are live-proven. Discord is credential-ready pending a real event capture. optional provider adapters are implemented but credential-gated."
 - Workflow: "The production Workflow route accepted a run. We are not claiming a completed long-running workflow transcript unless a completed result is captured."
 - Model: "The current scorer is a transparent evidence-weighted safety policy, not a claimed continuous-learning model."
 - Multimodal: "HireProof accepts screenshots, but it should not be described as an in-house deepfake detector."
@@ -295,3 +295,4 @@ Then use the platform proof as supporting evidence:
 3. WDK: production-accepted workflow run.
 
 Do not center the pitch on implementation breadth. Center it on the job seeker moment: "Should I trust this job post before I apply?"
+

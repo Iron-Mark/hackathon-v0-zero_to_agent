@@ -38,7 +38,7 @@ For submission, lead with the strongest working web flow, then show ChatSDK scre
 
 ## Competitive Roadmap
 
-- Near-term proof: capture Discord live-provider proof, configure WhatsApp/Zernio if it remains in scope, and recapture the Telegram report-link screenshot.
+- Near-term proof: capture Discord live-provider proof, configure optional provider adapters if it remains in scope, and recapture the Telegram report-link screenshot.
 - Durable workflow: add a WDK investigation timeline with intake, evidence checks, scoring, report creation, callback delivery, and retry history.
 - Integration publishing: submit the repo-shipped n8n community node, Make Custom App source, and LangChain package to their external marketplaces after account-backed review steps are complete.
 - Risk model: add calibrated learning from reviewed cases while preserving explainable red flags, green flags, and evidence receipts.
@@ -152,3 +152,4 @@ Hey, I built HireProof for Zero to Agent. It checks suspicious job posts with li
 "The important part is the product flow: paste a suspicious job post, watch the investigation steps, and get a proof-backed verdict with red flags and safer alternatives."
 
 "Live mode uses the same flow with runtime MCP tools connected to SerpApi for Search, News, Jobs, and Local evidence."
+

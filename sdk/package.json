@@ -3,10 +3,19 @@
   "version": "1.0.0",
   "description": "TypeScript SDK for the HireProof Job Verification API — detect recruitment scams with live web evidence",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": ["dist"],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/write-esm-wrapper.mjs",
     "prepublishOnly": "npm run build"
   },
   "repository": {

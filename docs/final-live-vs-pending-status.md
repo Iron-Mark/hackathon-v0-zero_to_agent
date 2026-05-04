@@ -37,7 +37,7 @@ This is the concise status boundary for submission, demos, and reviewer conversa
 | --- | --- | --- |
 | Chrome Web Store | Public listing approval | Requires developer-dashboard submission and Google review |
 | Discord | Real message screenshot and matching webhook log | Credentials/webhook are ready, but live event proof is still needed |
-| WhatsApp/Zernio | Credentials plus real event proof | Requires Zernio account credentials and provider event |
+| Additional chat providers | Credentials plus real event proof | Requires provider account credentials and real event capture |
 | npm package version bumps | Future package releases after `1.0.0` | Requires version bump and owner publish action |
 | n8n community node | Directory/community verification beyond npm package | Requires n8n review after local install screenshots |
 | Make Custom App | Make review approval | Requires Make developer account and review flow |
@@ -117,3 +117,4 @@ Invoke-RestMethod -Uri "$base/api/v1/audit" -Method Post -ContentType 'applicati
 Invoke-WebRequest -UseBasicParsing "$base/downloads/hireproof-native-integrations.zip"
 Invoke-WebRequest -UseBasicParsing "$base/downloads/hireproof-extension.zip"
 ```
+

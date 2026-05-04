@@ -80,7 +80,7 @@ const termsSections = [
 const boundaryItems = [
   'Chrome Web Store publication requires Google review and is not claimed live until approved.',
   'npm packages for the CLI, SDK, LangChain tool, and n8n node are published separately from Make review, n8n directory/community verification, and Chrome Web Store approval.',
-  'Discord and WhatsApp/Zernio proof require real provider events and matching logs before live-proof claims are made.',
+  'Discord proof requires a real provider event and matching logs before live-proof claims are made.',
   'WDK proof currently means accepted-run proof unless a completed durable workflow transcript and callback evidence are captured.',
 ]
 
@@ -276,3 +276,4 @@ export default function LegalPage() {
     </div>
   )
 }
+

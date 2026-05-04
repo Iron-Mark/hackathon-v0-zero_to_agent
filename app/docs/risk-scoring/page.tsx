@@ -36,7 +36,7 @@ export default function RiskScoringPage() {
               {[
                 { label: 'Payment or Fee Requested', weight: '+30', desc: 'Training fees, starter kits, deposits, or paid onboarding' },
                 { label: 'Unrealistic Pay', weight: '+28', desc: 'Salary far above market outlier' },
-                { label: 'Telegram/WhatsApp', weight: '+18', desc: 'Anonymous chat-only contact' },
+                { label: 'Chat-only contact', weight: '+18', desc: 'Anonymous off-platform contact path' },
                 { label: 'No Interview Process', weight: '+16', desc: 'No credible screening or hiring process' },
                 { label: 'Company Not Verifiable', weight: '+14', desc: 'Unknown or unverifiable company identity' },
               ].map((flag) => (

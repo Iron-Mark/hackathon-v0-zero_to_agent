@@ -23,7 +23,7 @@ HireProof takes a pasted job post, recruiter message, screenshot, or job URL and
 | Main audit flow | Implemented | `/audit` |
 | Headless API | Implemented | `POST /api/v1/audit` |
 | MCP tools | Implemented | `POST /api/mcp` |
-| ChatSDK | Implemented; Slack and Telegram live-tested, Discord ready, WhatsApp/Zernio credential-gated | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
+| ChatSDK | Implemented; Slack and Telegram live-tested, Discord ready | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
 | Vercel Workflow / WDK | Implemented; production accepted-run proof captured | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
 | Automation integrations | npm-published n8n, LangChain, SDK, and CLI packages plus Make source pack and HTTP templates | [`docs/automation-integrations.md`](docs/automation-integrations.md) |
 | HireProof CLI | Published rich terminal UI with light/dark proof screenshots | [`@hireproof/cli`](https://www.npmjs.com/package/@hireproof/cli), [`/docs/cli`](https://hireproof-sigma.vercel.app/docs/cli) |
@@ -60,7 +60,7 @@ What is complete in this repo:
 - Live-mode investigation path using model and search provider credentials.
 - Headless `/api/v1/audit` endpoint with API-key auth and webhook support.
 - MCP endpoint and investigation tools.
-- ChatSDK webhook adapters for Slack, Discord, Telegram, and WhatsApp-via-Zernio.
+- ChatSDK webhook adapters for Slack, Discord, and Telegram.
 - Public Discord server install link for adding the HireProof app: <https://discord.com/oauth2/authorize?client_id=1500240100804530336&scope=bot%20applications.commands&permissions=0>.
 - Discord slash commands: `/verify job_post:<text-or-link>` checks a suspicious job post, expands supported public job URLs, and `/help` explains how to use HireProof in Discord.
 - Vercel Workflow / WDK audit start route.
@@ -82,7 +82,7 @@ Honest external boundaries:
 - Chrome Web Store publication requires the Chrome Web Store developer dashboard, privacy form, uploaded screenshots, and Google review. This repo prepares the upload package and assets listed in [`docs/assets-index.md`](docs/assets-index.md); it cannot publish the listing by itself.
 - npm packages are published for the CLI, LangChain tool, TypeScript SDK, and n8n node. Make Custom App review and any n8n directory/community verification remain external account-backed steps.
 - Docker smoke testing requires Docker Desktop or another Docker runtime. The scripts are present, but the local machine must have Docker available.
-- Live ChatSDK proof is captured for Slack and Telegram. Discord is credential-ready but still needs a real provider-event screenshot/log, and WhatsApp/Zernio needs provider credentials before proof can be claimed.
+- Live ChatSDK proof is captured for Slack and Telegram. Discord is credential-ready but still needs a real provider-event screenshot/log before live proof is claimed.
 - WDK proof is currently an accepted production workflow run. Do not claim a completed long-running workflow result until a completed result and callback proof are captured.
 
 ## Competitive Positioning And Roadmap
@@ -93,7 +93,7 @@ The risk model is intentionally framed as a transparent evidence-weighted safety
 
 Roadmap:
 
-- Near-term: capture Discord live-provider proof, add WhatsApp/Zernio credentials if that proof stays in scope, and re-capture the final Telegram report-link screenshot.
+- Near-term: capture Discord live-provider proof and re-capture the final Telegram report-link screenshot.
 - Next product milestone: show a durable investigation timeline for WDK with intake, evidence checks, scoring, report creation, callback, and retry history.
 - Model milestone: add calibrated learning from reviewed cases while preserving explainable red-flag evidence.
 - Multimodal milestone: improve screenshot/OCR analysis and integrate specialist image or deepfake forensics providers where they add real evidence.
@@ -105,7 +105,7 @@ HireProof is one verification agent exposed through multiple delivery surfaces.
 | Track | What is implemented | Proof notes |
 | --- | --- | --- |
 | v0 + MCPs | Next.js app, audit workspace, evidence tools, and MCP endpoint. | Strongest primary product flow. |
-| ChatSDK Agents | Shared ChatSDK bot wrapper plus Slack, Discord, Telegram, and Zernio webhook routes. | Slack has screenshot proof, Telegram has delivery screenshot/log proof, Discord is credential-ready, and WhatsApp/Zernio is credential-gated. |
+| ChatSDK Agents | Shared ChatSDK bot wrapper plus Slack, Discord, and Telegram webhook routes. | Slack has screenshot proof, Telegram has delivery screenshot/log proof, and Discord is credential-ready. |
 | Vercel Workflow / WDK | Workflow package enabled, `startAuditWorkflow`, and `/api/workflows/audit` start route. | Production accepted run captured in proof docs. |
 
 More detail: [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md).
@@ -218,7 +218,7 @@ HireProof is useful as a user-facing app, but the stronger technical story is th
 - **n8n npm package and Make source pack** for no-code and operations workflows.
 - **LangChain npm package** for agent pipelines using structured tools.
 - **HireProof CLI npm package** for terminal audits, scripted JSON output, health checks, and a branded interactive TUI.
-- **ChatSDK adapters** for job-seeker communities in Slack, Telegram, Discord, and WhatsApp-backed channels.
+- **ChatSDK adapters** for job-seeker communities in Slack, Telegram, and Discord channels.
 - **WDK route** for durable investigation handoff when workflow credentials are configured.
 
 The current repo-controlled automation status is implemented, validated, and source-packaged. Public marketplace listings are intentionally tracked as external next steps.
@@ -412,8 +412,8 @@ Copy `.env.example` to `.env.local` and fill only what you need.
 | `TELEGRAM_BOT_TOKEN` | Telegram | Enables Telegram replies. |
 | `TELEGRAM_WEBHOOK_SECRET_TOKEN` | Telegram | Verifies Telegram webhooks. |
 | `TELEGRAM_BOT_USERNAME` | Telegram | Bot username without `@`. |
-| `ZERNIO_API_KEY` | WhatsApp/Zernio | Enables Zernio-backed replies. |
-| `ZERNIO_WEBHOOK_SECRET` | WhatsApp/Zernio | Verifies Zernio webhooks. |
+| `ZERNIO_API_KEY` | optional Optional provider adapters | Enables provider adapter-backed replies. |
+| `ZERNIO_WEBHOOK_SECRET` | optional Optional provider adapters | Verifies provider adapter webhooks. |
 | `WORKFLOW_SECRET` | WDK | Protects workflow start routes. |
 | `DISCORD_GUILD_ID` | Discord optional | Registers slash commands to one server for faster testing when running `npm run discord:commands`. |
 
@@ -537,7 +537,7 @@ app/
 +-- api/v1/audit/                  Headless JSON audit endpoint
 +-- api/mcp/                       MCP tool endpoint
 +-- api/chat/hireproof/            ChatSDK status/reply endpoint
-+-- api/webhooks/                  Slack, Discord, Telegram, Zernio adapters
++-- api/webhooks/                  Slack, Discord, Telegram adapters
 +-- api/workflows/audit/           WDK workflow start route
 +-- developer/                     Developer portal
 `-- docs/                          In-app documentation portal
@@ -593,3 +593,4 @@ scripts/
 ## License
 
 ISC
+

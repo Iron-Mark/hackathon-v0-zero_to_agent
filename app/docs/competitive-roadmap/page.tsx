@@ -10,7 +10,7 @@ const roadmap = [
   {
     title: 'Near-term proof',
     icon: ShieldCheck,
-    body: 'Capture Discord live-provider proof, configure Zernio if WhatsApp remains in scope, and recapture the Telegram full-report-link screenshot.',
+    body: 'Capture Discord live-provider proof and recapture the Telegram full-report-link screenshot.',
   },
   {
     title: 'Durable workflow',
@@ -92,3 +92,4 @@ export default function CompetitiveRoadmapPage() {
     </div>
   )
 }
+

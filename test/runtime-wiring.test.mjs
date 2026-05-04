@@ -231,6 +231,7 @@ test('use cases docs page markets real workflows with proof-safe integration lan
 test('global command search is visible and indexes public app pages', async () => {
   const header = await fs.readFile(new URL('../components/layout/site-header.tsx', import.meta.url), 'utf8')
   const commandMenu = await fs.readFile(new URL('../components/layout/command-menu.tsx', import.meta.url), 'utf8')
+  const docsLayout = await fs.readFile(new URL('../app/docs/layout.tsx', import.meta.url), 'utf8')
 
   assert.match(header, /openHireProofCommandMenu/)
   assert.match(header, /aria-label="Search site/)
@@ -242,11 +243,22 @@ test('global command search is visible and indexes public app pages', async () =
   for (const href of ['/docs/use-cases', '/docs/automations', '/docs/api-reference', '/audit', '/explore', '/proof', '/developer']) {
     assert.match(commandMenu, new RegExp(href.replaceAll('/', '\\/')))
   }
+  for (const href of ['/docs/api-reference#audit-headless', '/docs/api-reference#schema-request', '/docs/api-reference#mcp-call', '/docs/legal#privacy-policy']) {
+    assert.match(commandMenu, new RegExp(href.replaceAll('/', '\\/')))
+  }
+  assert.match(commandMenu, /webhook_url async audit/)
+  assert.match(commandMenu, /202 accepted/)
+  assert.match(commandMenu, /AuditRequest schema/)
   assert.match(commandMenu, /scoreItem/)
   assert.match(commandMenu, /api, mcp, automation, extension, pricing, or use cases/)
-  assert.doesNotMatch(commandMenu, /\/api\/audit/)
+  assert.doesNotMatch(commandMenu, /href:\s*'\/api\//)
   assert.doesNotMatch(commandMenu, /\/audit\/\[id\]/)
   assert.doesNotMatch(commandMenu, /\/history\/\[id\]/)
+  assert.match(docsLayout, /openHireProofCommandMenu/)
+  assert.match(docsLayout, /Search docs\.\.\./)
+  assert.match(docsLayout, /aria-label="Search documentation with global site search"/)
+  assert.doesNotMatch(docsLayout, /docsQuery/)
+  assert.doesNotMatch(docsLayout, /filteredSidebar/)
 })
 
 test('chat and workflow status endpoints expose honest track readiness', async () => {

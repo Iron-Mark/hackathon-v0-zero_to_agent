@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/layout/site-header'
 import { BookOpen, Code2, Package, ChevronRight, FileText, Menu, Search, X } from 'lucide-react'
 import { showToast } from '@/components/system/toast'
 import { motion, AnimatePresence } from 'framer-motion'
+import { openHireProofCommandMenu } from '@/components/layout/command-menu'
 
 const docsSidebar = [
   {
@@ -109,22 +110,10 @@ const apiSidebar = [
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
-  const [docsQuery, setDocsQuery] = useState('')
   const isApiRef = pathname === '/docs/api-reference'
   const isSdk = pathname.startsWith('/docs/sdk')
   const sidebar = isApiRef ? apiSidebar : docsSidebar
   const activeTab = isApiRef ? 'api' : isSdk ? 'sdk' : 'docs'
-  const normalizedDocsQuery = docsQuery.trim().toLowerCase()
-  const filteredSidebar = normalizedDocsQuery
-    ? sidebar
-        .map((section) => ({
-          ...section,
-          items: section.items.filter((item) =>
-            `${section.title} ${item.label}`.toLowerCase().includes(normalizedDocsQuery)
-          ),
-        }))
-        .filter((section) => section.items.length > 0)
-    : sidebar
 
   // Close mobile sidebar on navigation
   useEffect(() => {
@@ -133,18 +122,19 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
 
   const renderSidebarContent = () => (
     <nav className="p-4 space-y-6">
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-safe" />
-        <input
-          value={docsQuery}
-          onChange={(event) => setDocsQuery(event.target.value)}
-          type="search"
-          placeholder="Search docs..."
-          className="hireproof-focus h-10 w-full rounded-xl border border-border-soft bg-surface py-2 pl-9 pr-3 text-[13px] font-bold text-foreground outline-none placeholder:text-muted/70 focus:border-safe focus:bg-background"
-          aria-label="Search documentation links"
-        />
-      </div>
-      {filteredSidebar.map((section) => (
+      <button
+        type="button"
+        onClick={openHireProofCommandMenu}
+        className="hireproof-focus flex h-10 w-full items-center justify-between gap-3 rounded-xl border border-border-soft bg-surface px-3 text-left text-[13px] font-bold text-muted transition-colors hover:border-safe/50 hover:bg-background hover:text-foreground"
+        aria-label="Search documentation with global site search"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <Search className="h-3.5 w-3.5 shrink-0 text-safe" />
+          <span className="truncate">Search docs...</span>
+        </span>
+        <kbd className="hidden rounded-md border border-border-soft bg-background px-1.5 py-0.5 text-[10px] font-black text-muted sm:inline">Ctrl K</kbd>
+      </button>
+      {sidebar.map((section) => (
         <div key={section.title}>
           <h3 className="mb-2 px-1 text-[11px] font-black uppercase tracking-[0.14em] text-safe-text">{section.title}</h3>
           <ul className="space-y-0.5 pl-3">
@@ -168,11 +158,6 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           </ul>
         </div>
       ))}
-      {filteredSidebar.length === 0 && (
-        <p className="rounded-xl border border-border-soft bg-surface p-3 text-xs font-semibold leading-5 text-muted">
-          No docs links match that search.
-        </p>
-      )}
     </nav>
   )
 

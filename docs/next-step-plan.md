@@ -1,27 +1,102 @@
 # HireProof Next Step Plan
 
-Last checked: 2026-04-29
+Last checked: 2026-05-04
+
+## Current Action Plan
+
+This section is the active post-submission hardening plan. Older phases below are kept for project history.
+
+### Phase 1: Live Production Verification
+
+Status: complete as of 2026-05-04.
+
+Verified production URL:
+
+- `https://hireproof-sigma.vercel.app`
+
+Routes verified with HTTP `200`:
+
+- `/`
+- `/audit`
+- `/docs/use-cases`
+- `/docs/automations`
+- `/docs/cli`
+- `/api/health`
+
+Production health result:
+
+- Storage: Redis
+- Live search: enabled
+- Model provider: AI Gateway plus OpenAI-compatible fallback
+- Model shown by health endpoint: `openai/gpt-4o-mini`
+
+Audit proof:
+
+- `POST /api/v1/audit` with `x-api-key: hireproof_agent_demo_key` and `mode: demo` returns a High-Risk report with score `92`.
+- `POST /api/audit` with production `Origin` / `Referer` returns SSE result events for live audits.
+- Raw live audit POSTs without `Origin` or `Referer` return `403 Insecure Request: Missing Origin/Referer`, which is expected from CSRF/origin hardening.
+
+Latest live evidence-funnel smoke:
+
+- Input: Vercel role with `https://vercel.com/careers` and `recruiting@vercel.com`
+- Result: `caution`
+- Risk score: `45`
+- Evidence count: `11`
+- Green flags: `6`
+- Red flags: `4`
+- Provider statuses:
+  - SerpApi: `ok`
+  - DNS: `ok`
+  - RDAP: `degraded`
+  - Certificate Transparency: `degraded`
+  - Google Safe Browsing: `not-live` because `GOOGLE_SAFE_BROWSING_API_KEY` is not configured
+
+Phase 1 remaining manual action:
+
+- Add `GOOGLE_SAFE_BROWSING_API_KEY` in Vercel if known-bad phishing/malware checks should be live.
+- Keep RDAP and Certificate Transparency degradation visible as non-blocking provider status, not as audit failure.
+
+### Phase 2: Published Package Proof
+
+Status: in progress.
+
+Goal:
+
+- Prove the public npm install/use path for the published package surfaces:
+  - `@hireproof/cli`
+  - `hireproof-sdk`
+  - `@hireproof/langchain`
+  - `n8n-nodes-hireproof`
+
+Acceptance:
+
+- `npx @hireproof/cli --help` works from outside the repo.
+- `npx @hireproof/cli audit --mode demo --json` returns parseable JSON without ANSI/TUI output.
+- A fresh temporary project can install and import `hireproof-sdk`.
+- A fresh temporary project can install and import `@hireproof/langchain`.
+- A fresh temporary project can install `n8n-nodes-hireproof` and expose expected n8n package metadata/files.
+
+Manual actions after Phase 2:
+
+- Review npm package pages for copy/screenshots.
+- Create an npm version bump before any future republish.
+- Continue external n8n community and Make review flows separately.
 
 ## Current State
 
-The repo has uncommitted work touching the AI model provider path, ChatSDK Slack integration, Vercel Workflow wiring, homepage, docs, package dependencies, and runtime tests.
+The repo is on the deployed HireProof production branch with the evidence funnel, published CLI/SDK packages, native integration packs, and current docs pages implemented.
 
 Verified so far:
 
-- `node --test test/auth-core.test.mjs test/runtime-wiring.test.mjs` passes.
+- `node --test test/runtime-wiring.test.mjs` passes.
 - `npm run lint` passes.
-- `npm run build` passes after enabling Workflow lazy discovery in `next.config.js`.
-- Local smoke on `http://localhost:3002` passes for `/api/health`, `/api/audit`, `/api/chat/hireproof`, `/api/workflows/audit`, and `/docs`.
-- `docs/remaining-work.md` is the current punch list for product gaps.
+- `npm run build` passes.
+- Production smoke on `https://hireproof-sigma.vercel.app` passes for public pages, docs pages, health, demo audit, and live SSE audit with origin headers.
+- `docs/remaining-work.md` and `docs/final-live-vs-pending-status.md` are the current truth boundaries for live vs external-proof work.
 
 Current dirty areas:
 
-- AI Gateway model helper and `/api/audit` changes.
-- ChatSDK Slack webhook route and bot wrapper.
-- Vercel Workflow route, workflow helper, and `next.config.js` plugin.
-- Homepage redesign in `app/home-client.tsx`.
-- Docs and env updates for credential-gated ChatSDK/WDK claims.
-- `package.json` and `package-lock.json` dependency changes.
+- None expected before the active Phase 2 package proof pass, except documentation updates created by this action-plan refresh.
 
 ## Phase 1: Stabilize The Working Tree
 

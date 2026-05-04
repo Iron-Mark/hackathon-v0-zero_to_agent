@@ -41,7 +41,7 @@ const scenarios = [
   {
     icon: MessageSquare,
     title: 'Freelancers and remote workers',
-    situation: 'A recruiter pushes a high-paying contract through Telegram, WhatsApp, or direct message only.',
+    situation: 'A recruiter pushes a high-paying contract through Telegram, Messenger, or direct message only.',
     action: 'HireProof preserves the risky contact pattern, checks the visible company footprint, and returns a Safe, Caution, or High-Risk verdict.',
     surface: 'Telegram-tested path, Slack-tested intake, Discord-ready route',
   },

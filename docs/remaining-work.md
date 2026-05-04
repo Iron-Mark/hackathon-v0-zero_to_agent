@@ -39,7 +39,7 @@ HireProof is core production-ready on the stable production URL:
 
 - `GET /api/health` returns `status: ok`, Redis storage, live search, model, AI Gateway, and OpenAI-compatible fallback ready.
 - `POST /api/v1/audit` with `mode=live` now smoke-proves the SerpApi/model path on production with clean Canva claim extraction and six live evidence items.
-- `GET /api/integrations/proof` returns `status: ready` / `coreStatus: ready` when Slack, Workflow, and AI Gateway are ready. Discord and Telegram now report `ready`; WhatsApp/Zernio keeps `optionalStatus` credential-gated until Zernio credentials are added.
+- `GET /api/integrations/proof` returns `status: ready` / `coreStatus: ready` when Slack, Workflow, and AI Gateway are ready. Discord and Telegram now report `ready`; Optional provider adapters remain credential-gated until enabled.
 - `POST /api/v1/audit` with the public demo key returns a High-Risk demo report with score `92`.
 - `POST /api/audit` SSE returns a result event for the High-Risk demo.
 - `POST /api/chat/hireproof` returns a formatted ChatSDK verdict.
@@ -55,7 +55,7 @@ HireProof is core production-ready on the stable production URL:
 - Slack proof is represented by the captured screenshot at [`docs/demo/Screenshot 2026-04-30 024756.jpg`](demo/Screenshot%202026-04-30%20024756.jpg). Recent Vercel log searches for the original Slack webhook request returned no matching archived logs, so do not claim endpoint-level Slack logs unless a fresh Slack event is captured.
 - WDK proof is an accepted production workflow run, not a completed callback result. Use run ID `wrun_01KQD9H6AND3W7YZBHHKAH2KV5`.
 - Discord and Telegram are optional provider expansions that are now production credential-ready with registered webhooks, but live provider proof still requires real messages, screenshots, and matching logs.
-- WhatsApp/Zernio is implemented and production-reachable, but remains credential-gated until `ZERNIO_API_KEY` and `ZERNIO_WEBHOOK_SECRET` are configured.
+- Additional provider adapters remain future-ready behind backend credential gates.
 - The Chrome extension has a store-ready package workflow, privacy disclosure, and listing draft. No public Chrome Web Store listing is claimed until Google review publishes one.
 - **Dockerized Packaging**: Fully implemented for production standalone deployment, with Compose orchestration, healthcheck, and local smoke script.
 - npm packages are published for the CLI, LangChain tool, TypeScript SDK, and n8n node. Make review and any separate n8n directory/community verification still require external account actions.
@@ -76,3 +76,4 @@ Invoke-RestMethod -Uri "$base/api/health"
 Invoke-RestMethod -Uri "$base/api/integrations/proof"
 Invoke-RestMethod -Uri "$base/api/v1/audit" -Method Post -ContentType 'application/json' -Headers @{'x-api-key'='hireproof_agent_demo_key'} -Body (@{text='Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.'; mode='demo'} | ConvertTo-Json)
 ```
+

@@ -47,8 +47,8 @@ const readyProof = [
     brandIcon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/slack.svg',
     brandName: 'Slack',
     title: 'ChatSDK Slack',
-    status: 'Slack + Telegram proof',
-    body: 'Slack has screenshot proof. Telegram has live delivery screenshot and webhook log proof; Discord is credential-ready but still needs a real event capture.',
+    status: 'Slack, Telegram, Discord observed',
+    body: 'Slack has screenshot proof, Telegram has screenshot plus webhook-log proof, and Discord slash-command delivery has been observed with a real bot reply.',
     href: '/docs/triple-track-coverage',
   },
   {
@@ -85,16 +85,15 @@ const proofStats = [
 const packagedSurfaces = [
   { icon: PlugZap, text: 'Runtime MCP tools for company, news, jobs, and local footprint evidence.' },
   { icon: Network, text: 'Published npm packages for CLI, SDK, LangChain, and n8n; Make source pack plus portable HTTP templates.' },
+  { icon: MessageSquare, text: 'Discord slash-command delivery has been observed with a real HireProof bot reply and is demo-ready for the chat-agent path.' },
+  { icon: MessageSquare, text: 'Telegram ChatSDK delivery has screenshot and webhook-log proof, with report-link recapture as final evidence polish.' },
   { icon: PackageCheck, text: 'Chrome extension package workflow with upload ZIP and listing notes.' },
   { icon: Container, text: 'Docker standalone image, Compose service, healthcheck, and smoke script.' },
   { icon: FileArchive, text: 'PDF dossier, PNG screenshot, report CSV, and safe-report certificate exports.' },
 ]
 
-const gatedSurfaces = [
-  { brandIcon: 'https://cdn.simpleicons.org/discord/5865F2', brandName: 'Discord', brandColor: '#5865F2', status: 'Credential-ready', text: 'Discord ChatSDK delivery is configured and webhook-ready, but not claimed as live until a real Discord event is captured.' },
-  { brandIcon: 'https://cdn.simpleicons.org/telegram/26A5E4', brandName: 'Telegram', brandColor: '#26A5E4', status: 'Live delivery proven', text: 'Telegram ChatSDK delivery has a real message screenshot and matching Vercel webhook log; one follow-up screenshot should capture the full report link.' },
-  { brandIcon: 'https://cdn.simpleicons.org/whatsapp/25D366', brandName: 'WhatsApp', brandColor: '#25D366', status: 'Credential-gated', text: 'WhatsApp/Zernio delivery is implemented but credential-gated until Zernio credentials and a real provider event are captured.' },
-  { brandIcon: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Google_Chrome_Web_Store_icon_2022.svg', brandName: 'Chrome Web Store', brandColor: '#4285F4', status: 'Store review pending', text: 'Chrome Web Store publication still requires developer-account submission and Google review.' },
+const expansionSurfaces = [
+  { brandIcon: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Google_Chrome_Web_Store_icon_2022.svg', brandName: 'Chrome Web Store', brandColor: '#4285F4', status: 'Submission-ready package', text: 'The Chrome extension package workflow is prepared for developer-account upload and store review.' },
 ]
 
 function BrandIcon({
@@ -296,15 +295,15 @@ export default function ProofPage() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-caution-bg bg-caution-bg/40 p-6">
+          <div className="rounded-2xl border border-safe/20 bg-safe/5 p-6">
             <div className="mb-4 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-caution-text" />
-              <h2 className="text-xl font-black">Remaining proof boundaries</h2>
+              <CheckCircle2 className="h-5 w-5 text-safe" />
+              <h2 className="text-xl font-black">Proof expansion path</h2>
             </div>
-            <p className="mb-4 text-sm font-semibold leading-6 text-muted">Core production proof is ready. Telegram delivery is captured; Discord and WhatsApp still need the remaining provider evidence below.</p>
+            <p className="mb-4 text-sm font-semibold leading-6 text-muted">Core production proof and demo-ready chat delivery are in place. This section tracks optional provider activation and external review paths.</p>
             <ul className="space-y-3">
-              {gatedSurfaces.map((item) => (
-                <li key={item.text} className="flex gap-3 rounded-xl border border-caution-bg bg-background/40 p-3 text-sm font-semibold leading-6 text-muted">
+              {expansionSurfaces.map((item) => (
+                <li key={item.text} className="flex gap-3 rounded-xl border border-safe/15 bg-background/50 p-3 text-sm font-semibold leading-6 text-muted">
                   <span
                     className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-background"
                     style={{ border: `1px solid ${item.brandColor}33` }}
@@ -312,7 +311,7 @@ export default function ProofPage() {
                     <img src={item.brandIcon} alt={`${item.brandName} logo`} className="h-3.5 w-3.5" />
                   </span>
                   <span>
-                    <span className="mb-1 inline-flex rounded-full bg-caution-bg px-2 py-0.5 text-[10px] font-black uppercase tracking-normal text-caution-text">
+                    <span className="mb-1 inline-flex rounded-full bg-safe/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-normal text-safe">
                       {item.status}
                     </span>
                     <span className="block">{item.text}</span>
@@ -326,3 +325,4 @@ export default function ProofPage() {
     </div>
   )
 }
+
