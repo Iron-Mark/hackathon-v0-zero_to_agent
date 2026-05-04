@@ -1,11 +1,12 @@
 import Link from 'next/link'
-import { Zap, Code2, Webhook, ArrowRight, Download, Cpu, ShieldCheck, SearchCheck, Package } from 'lucide-react'
+import { Zap, Code2, Webhook, ArrowRight, Download, Cpu, ShieldCheck, SearchCheck, Package, BriefcaseBusiness } from 'lucide-react'
 import { CodeBlock } from '@/components/ui/code-block'
 
 export const metadata = { title: 'Documentation — HireProof' }
 
 const quickLinks = [
   { icon: SearchCheck, title: 'How It Works', desc: 'Live vs demo behavior, evidence flow, trust controls, and guardrails', href: '/docs/how-it-works', color: 'hover:border-safe' },
+  { icon: BriefcaseBusiness, title: 'Use Cases', desc: 'Real-world workflows for applicants, AI apply agents, automations, and communities', href: '/docs/use-cases', color: 'hover:border-safe' },
   { icon: Zap, title: 'Quickstart', desc: 'Get running locally in under 2 minutes', href: '/docs/quickstart', color: 'hover:border-safe' },
   { icon: Code2, title: 'API Reference', desc: 'Full endpoint docs, params, and schemas', href: '/docs/api-reference', color: 'hover:border-evidence' },
   { icon: Package, title: 'CLI & npm Packages', desc: 'Published CLI, SDK, LangChain tool, and n8n node packages', href: '/docs/automations', color: 'hover:border-safe' },

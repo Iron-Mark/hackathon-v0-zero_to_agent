@@ -16,12 +16,14 @@ import {
   KeyRound,
   Menu,
   Network,
+  Search,
   SearchCheck,
   ShieldCheck,
   Cpu,
   type LucideIcon,
 } from 'lucide-react'
 import { ThemeToggle } from '@/components/system/theme-toggle'
+import { openHireProofCommandMenu } from '@/components/layout/command-menu'
 
 type NavLink = {
   href: string
@@ -166,6 +168,16 @@ export function SiteHeader() {
                 </Link>
               )
             })}
+            <button
+              type="button"
+              onClick={openHireProofCommandMenu}
+              className="hireproof-focus flex min-h-[38px] items-center gap-2 rounded-full px-3 text-muted transition-colors hover:bg-safe/10 hover:text-foreground"
+              aria-label="Search site. Opens command palette."
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+              <span>Search</span>
+              <kbd className="rounded-md border border-border-soft bg-background px-1.5 py-0.5 text-[10px] font-black text-muted">Ctrl K</kbd>
+            </button>
             <div className="relative">
               <button
                 type="button"
@@ -246,6 +258,14 @@ export function SiteHeader() {
               )}
             </div>
             <ThemeToggle />
+            <button
+              type="button"
+              onClick={openHireProofCommandMenu}
+              className="hireproof-focus flex h-11 w-11 items-center justify-center rounded-full text-muted hover:bg-safe/10 hover:text-foreground md:hidden"
+              aria-label="Search site"
+            >
+              <Search className="h-5 w-5" aria-hidden="true" />
+            </button>
             <Link href="/audit" className={`hireproof-focus ml-1 flex min-h-[38px] items-center gap-2 rounded-full px-3 text-sm font-black transition-colors sm:px-4 ${
               isActive('/audit')
                 ? 'bg-foreground text-background shadow-sm'

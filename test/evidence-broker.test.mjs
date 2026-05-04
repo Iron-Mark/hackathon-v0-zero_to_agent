@@ -271,3 +271,78 @@ test('audit signal scoring understands domain and threat-intel evidence', async 
   assert.ok(ids.includes('threat.known_bad_url'))
   assert.ok(ids.includes('domain.apply_official'))
 })
+
+test('structured broker evidence does not self-trigger generic negative reputation', async () => {
+  const { buildAuditSignals } = await import('../lib/audit-signals.mjs')
+  const claims = {
+    company: 'Dexian Asia Pacific',
+    role: 'Quality Assurance Automation Engineer',
+    salary: 'Not listed',
+    location: 'Manila, Philippines',
+    contactMethod: 'LinkedIn',
+    applicationPath: 'LinkedIn public job page',
+  }
+
+  const signals = buildAuditSignals(claims, [], [], [
+    {
+      source: 'RDAP domain registry',
+      type: 'Domain Age',
+      snippet: 'Risk signal: jobs-dexian.example appears newly registered | registered 2026-05-01',
+      sourceType: 'domain',
+      trustLevel: 'risk',
+    },
+    {
+      source: 'DNS over HTTPS',
+      type: 'DNS Liveness',
+      snippet: 'Risk signal: jobs-dexian.example did not return common A, AAAA, MX, NS, or CNAME records.',
+      sourceType: 'dns',
+      trustLevel: 'risk',
+    },
+    {
+      source: 'Certificate Transparency',
+      type: 'Certificate Transparency',
+      snippet: 'Risk signal: very recent certificate activity for jobs-dexian.example',
+      sourceType: 'certificate',
+      trustLevel: 'risk',
+    },
+    {
+      source: 'Google Safe Browsing',
+      type: 'Known Phishing Check',
+      snippet: 'Risk signal: URL matched known SOCIAL_ENGINEERING threat list.',
+      sourceType: 'threat-intel',
+      trustLevel: 'risk',
+    },
+  ])
+
+  const ids = signals.map((signal) => signal.id)
+  assert.equal(ids.filter((id) => id === 'domain.newly_registered').length, 1)
+  assert.ok(ids.includes('domain.newly_registered'))
+  assert.ok(ids.includes('domain.no_custom_mail_dns'))
+  assert.ok(ids.includes('domain.recent_certificate'))
+  assert.ok(ids.includes('threat.known_bad_url'))
+  assert.ok(!ids.includes('evidence.negative_reputation'))
+})
+
+test('real search and reputation evidence still triggers negative reputation', async () => {
+  const { buildAuditSignals } = await import('../lib/audit-signals.mjs')
+  const claims = {
+    company: 'Example Hiring',
+    role: 'Frontend Developer',
+    salary: 'Not listed',
+    location: 'Remote',
+    contactMethod: 'Email',
+    applicationPath: 'Company website',
+  }
+
+  const signals = buildAuditSignals(claims, [], [], [
+    {
+      source: 'SerpApi Google Search',
+      type: 'Reputation',
+      snippet: 'Forum warning: applicants reported fake recruiter impersonation attempts using this company name.',
+      sourceType: 'search',
+      trustLevel: 'risk',
+    },
+  ])
+
+  assert.ok(signals.map((signal) => signal.id).includes('evidence.negative_reputation'))
+})

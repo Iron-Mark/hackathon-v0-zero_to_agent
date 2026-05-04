@@ -205,6 +205,50 @@ test('triple-track coverage has an app docs page and sidebar link', async () => 
   assert.match(docsLayout, /\/docs\/triple-track-coverage/)
 })
 
+test('use cases docs page markets real workflows with proof-safe integration language', async () => {
+  const useCases = await fs.readFile(new URL('../app/docs/use-cases/page.tsx', import.meta.url), 'utf8')
+  const docsLayout = await fs.readFile(new URL('../app/docs/layout.tsx', import.meta.url), 'utf8')
+  const docsOverview = await fs.readFile(new URL('../app/docs/page.tsx', import.meta.url), 'utf8')
+  const graphic = await fs.readFile(new URL('../public/docs-media/use-cases-agent-gate.svg', import.meta.url), 'utf8')
+
+  assert.match(useCases, /Use Cases for Safer Hiring Automation/)
+  assert.match(useCases, /AI apply automation/)
+  assert.match(useCases, /pre-submit safety gate/)
+  assert.match(useCases, /Headless API, MCP tool, SDK, or workflow handoff/)
+  assert.match(useCases, /Safe, Caution, or High-Risk/)
+  assert.match(useCases, /Demo fixture mode is intentionally labeled/)
+  assert.match(useCases, /docs-media\/docs-automations\.png/)
+  assert.match(useCases, /docs-media\/docs-investigation-engine\.png/)
+  assert.match(useCases, /docs-media\/docs-skills\.png/)
+  assert.match(useCases, /docs-media\/use-cases-agent-gate\.svg/)
+  assert.match(useCases, /not law-enforcement verification or a guarantee/)
+  assert.match(docsLayout, /Use Cases/)
+  assert.match(docsLayout, /\/docs\/use-cases/)
+  assert.match(docsOverview, /Real-world workflows for applicants/)
+  assert.match(graphic, /HireProof as the apply-agent safety gate/)
+})
+
+test('global command search is visible and indexes public app pages', async () => {
+  const header = await fs.readFile(new URL('../components/layout/site-header.tsx', import.meta.url), 'utf8')
+  const commandMenu = await fs.readFile(new URL('../components/layout/command-menu.tsx', import.meta.url), 'utf8')
+
+  assert.match(header, /openHireProofCommandMenu/)
+  assert.match(header, /aria-label="Search site/)
+  assert.match(header, />Search</)
+  assert.match(header, /Ctrl K/)
+  assert.match(commandMenu, /COMMAND_MENU_EVENT = 'hireproof:open-command-menu'/)
+  assert.match(commandMenu, /metaKey \|\| e\.ctrlKey/)
+  assert.match(commandMenu, /SEARCH_INDEX/)
+  for (const href of ['/docs/use-cases', '/docs/automations', '/docs/api-reference', '/audit', '/explore', '/proof', '/developer']) {
+    assert.match(commandMenu, new RegExp(href.replaceAll('/', '\\/')))
+  }
+  assert.match(commandMenu, /scoreItem/)
+  assert.match(commandMenu, /api, mcp, automation, extension, pricing, or use cases/)
+  assert.doesNotMatch(commandMenu, /\/api\/audit/)
+  assert.doesNotMatch(commandMenu, /\/audit\/\[id\]/)
+  assert.doesNotMatch(commandMenu, /\/history\/\[id\]/)
+})
+
 test('chat and workflow status endpoints expose honest track readiness', async () => {
   const chatRoute = await fs.readFile(new URL('../app/api/chat/hireproof/route.ts', import.meta.url), 'utf8')
   const workflowRoute = await fs.readFile(new URL('../app/api/workflows/audit/route.ts', import.meta.url), 'utf8')

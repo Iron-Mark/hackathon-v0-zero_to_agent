@@ -56,6 +56,10 @@ export const OperationalStatusSchema = z.object({
   status: z.enum(['ok', 'not-live', 'throttled', 'circuit-open', 'cache-only', 'degraded']).optional(),
   message: z.string().max(1000).optional(),
   retryAfterSec: z.number().min(0).optional(),
+  provider: z.string().max(100).optional(),
+  fetchedAt: z.string().max(50).optional(),
+  expiresAt: z.string().max(50).optional(),
+  rateLimitedUntil: z.string().max(50).optional(),
 })
 export type OperationalStatus = z.infer<typeof OperationalStatusSchema>
 
