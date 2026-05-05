@@ -44,15 +44,6 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@iron-mark'
 
-      - name: Install root dependencies
-        if: ${{ github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package }}
-        run: npm ci
-
-      - name: Build SDK
-        if: ${{ (github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package) && matrix.package == 'sdk' }}
-        working-directory: sdk
-        run: npm run build
-
       - name: Prepare GitHub package alias
         if: ${{ github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package }}
         run: node scripts/prepare-github-package.mjs ${{ matrix.package }}
@@ -62,4 +53,4 @@ jobs:
         working-directory: .github-package-stage/${{ matrix.package }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm publish --access public
+        run: npm publish --access public --ignore-scripts
