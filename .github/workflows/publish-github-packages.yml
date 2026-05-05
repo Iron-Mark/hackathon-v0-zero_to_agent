@@ -1,0 +1,65 @@
+name: Publish GitHub Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package alias to publish
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - sdk
+          - cli
+          - langchain
+          - n8n
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Publish package aliases
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [sdk, cli, langchain, n8n]
+    steps:
+      - name: Skip non-selected packages
+        if: ${{ github.event.inputs.package != 'all' && github.event.inputs.package != matrix.package }}
+        run: echo "Skipping ${{ matrix.package }}"
+
+      - name: Checkout
+        if: ${{ github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package }}
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        if: ${{ github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          scope: '@iron-mark'
+
+      - name: Install root dependencies
+        if: ${{ github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package }}
+        run: npm ci
+
+      - name: Build SDK
+        if: ${{ (github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package) && matrix.package == 'sdk' }}
+        working-directory: sdk
+        run: npm run build
+
+      - name: Prepare GitHub package alias
+        if: ${{ github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package }}
+        run: node scripts/prepare-github-package.mjs ${{ matrix.package }}
+
+      - name: Publish to GitHub Packages
+        if: ${{ github.event.inputs.package == 'all' || github.event.inputs.package == matrix.package }}
+        working-directory: .github-package-stage/${{ matrix.package }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish --access public
