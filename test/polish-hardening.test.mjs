@@ -27,6 +27,8 @@ test('trends export offers JSON and CSV while returning serializable JSON conten
   const source = await fs.readFile(new URL('../app/trends/trends-client.tsx', import.meta.url), 'utf8')
   const exportPayload = buildTrendsJsonExport({
     totalReports: 1,
+    trendReadyReports: 1,
+    sampleQuality: 'limited',
     verdicts: { safe: 0, caution: 0, 'high-risk': 1 },
   })
 
@@ -37,6 +39,7 @@ test('trends export offers JSON and CSV while returning serializable JSON conten
   assert.equal(exportPayload.mimeType, 'application/json')
   assert.match(exportPayload.filename, /^hireproof-trends-\d{4}-\d{2}-\d{2}\.json$/)
   assert.equal(JSON.parse(exportPayload.content).totalReports, 1)
+  assert.equal(JSON.parse(exportPayload.content).sampleQuality, 'limited')
 })
 
 test('trends live evidence card stays theme-friendly instead of inverted', async () => {
@@ -64,6 +67,10 @@ test('developer SDK install card stays theme-friendly instead of inverted', asyn
 
 test('trends CSV export escapes values and uses a clear CSV filename', () => {
   const exportPayload = buildTrendsCsvExport({
+    trendReadyReports: 2,
+    sampleQuality: 'limited',
+    sampleWarning: 'Limited trend sample.',
+    bucketQuality: { normalized: 4, unclear: 1 },
     topLocations: [{ label: 'Manila, PH', count: 2 }],
     topRoles: [{ label: 'Frontend "Intern"', count: 1 }],
     topContactMethods: [{ label: 'Telegram', count: 3 }],
@@ -73,6 +80,9 @@ test('trends CSV export escapes values and uses a clear CSV filename', () => {
   assert.equal(exportPayload.mimeType, 'text/csv')
   assert.equal(exportPayload.filename, 'hireproof-trends-2026-04-30.csv')
   assert.match(exportPayload.content, /"Category","Label","Count"/)
+  assert.match(exportPayload.content, /"SampleQuality","limited","2"/)
+  assert.match(exportPayload.content, /"SampleWarning","Limited trend sample.",""/)
+  assert.match(exportPayload.content, /"BucketQuality","unclear","1"/)
   assert.match(exportPayload.content, /"Location","Manila, PH","2"/)
   assert.match(exportPayload.content, /"Role","Frontend ""Intern""","1"/)
   assert.match(exportPayload.content, /"Verdict","high-risk","4"/)
@@ -508,4 +518,29 @@ test('final submission pack includes localized voting and short-form campaign co
   assert.match(source, /Paste mo muna/)
   assert.match(source, /Pégalo primero/)
   assert.match(source, /Voting-Day Mobilization/)
+})
+
+test('public positioning keeps do-not-overclaim guardrails explicit', async () => {
+  const readme = await fs.readFile(new URL('../README.md', import.meta.url), 'utf8')
+  const tripleTrack = await fs.readFile(new URL('../docs/triple-track-coverage.md', import.meta.url), 'utf8')
+  const competitiveRoadmap = await fs.readFile(new URL('../app/docs/competitive-roadmap/page.tsx', import.meta.url), 'utf8')
+  const submissionPack = await fs.readFile(new URL('../docs/final-submission-pack.md', import.meta.url), 'utf8')
+
+  for (const source of [readme, tripleTrack, competitiveRoadmap]) {
+    assert.match(source, /Do not call HireProof a generic security platform\./)
+    assert.match(source, /Do not claim adaptive ML, continuous learning, or in-house deepfake detection as shipped\./)
+    assert.match(source, /Do not claim completed WDK workflow proof until a completed result is captured\./)
+    assert.match(source, /Keep competitor comparisons high-level unless the competitor claims have been independently verified\./)
+  }
+
+  for (const source of [readme, tripleTrack, competitiveRoadmap, submissionPack]) {
+    assert.match(source, /roadmap-only work/)
+    assert.match(source, /independently verified proof/)
+  }
+
+  assert.doesNotMatch(readme, /HireProof is a generic security platform/i)
+  assert.doesNotMatch(readme, /ships adaptive ML/i)
+  assert.doesNotMatch(readme, /ships continuous learning/i)
+  assert.doesNotMatch(readme, /ships in-house deepfake detection/i)
+  assert.doesNotMatch(readme, /completed WDK workflow proof is captured/i)
 })

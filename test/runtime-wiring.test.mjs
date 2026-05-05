@@ -62,7 +62,11 @@ test('trends view model maps stored audit API shape into UI sections', () => {
 
   assert.equal(viewModel.statCards[0].label, 'Reports Reviewed')
   assert.equal(viewModel.statCards[0].value, '10')
-  assert.equal(viewModel.statCards[1].value, '3')
+  assert.equal(viewModel.statCards[1].label, 'Trend-Ready')
+  assert.equal(viewModel.statCards[2].value, '3')
+  assert.equal(viewModel.sampleQuality, 'limited')
+  assert.match(viewModel.headline, /Public Audit Pattern Sample/)
+  assert.equal(viewModel.verdictMixLabel, 'Public sample mix')
   assert.equal(viewModel.vectorSections[0].title, 'Contact methods')
   assert.deepEqual(viewModel.vectorSections[0].items[0], { label: 'Telegram', count: 3, percent: 30 })
   assert.equal(viewModel.recentHighRisk[0].company, 'TechStart')
@@ -188,11 +192,73 @@ test('trend intelligence collapses repeated demo-run signatures', async () => {
   const trends = buildPublicReportTrends([first, duplicate, oldFixture, distinct])
 
   assert.equal(trends.totalReports, 2)
+  assert.equal(trends.sampleQuality, 'limited')
+  assert.match(trends.sampleWarning, /Limited trend sample/)
   assert.deepEqual(trends.verdicts, { safe: 1, caution: 0, 'high-risk': 1 })
   assert.deepEqual(trends.topRoles, [
     { label: 'Frontend Intern', count: 1 },
     { label: 'Senior Software Engineer', count: 1 },
   ])
+})
+
+test('trend intelligence normalizes noisy public buckets and exposes sample quality metadata', async () => {
+  const { buildPublicReportTrends } = await import('../lib/public-intelligence-reports.mjs')
+  const base = {
+    id: 'report_noisy',
+    version: '2',
+    verdict: 'caution',
+    riskScore: 45,
+    mode: 'live',
+    credentialMode: 'platform-env',
+    source: 'web',
+    publiclyListed: true,
+    timestamp: '2026-05-04T00:00:00.000Z',
+    intelligence: {
+      coverage: {},
+      companyIdentity: { status: 'matched', evidenceIds: [] },
+      localPresence: { status: 'missing', evidenceIds: [] },
+      marketBenchmark: { status: 'normal', evidenceIds: [] },
+      applyPath: { status: 'matched', evidenceIds: [] },
+      signals: [],
+      scoreTrace: [],
+    },
+    redFlags: [
+      'Company name could not be confidently extracted from the post',
+      'Company name could not be confidently extracted from the post',
+    ],
+    extractedClaims: {
+      company: 'Unknown / Not Verifiable',
+      role: 'At TELUS Digital',
+      location: 'New York City, San Francisco Read more Senior Communications Manager San Francisco Read more Senior Customer Support Engineer Japan',
+      contactMethod: 'Not specified',
+      applicationPath: 'LinkedIn job page',
+    },
+    evidence: [{ source: 'SerpApi Google Search' }],
+  }
+  const metro = {
+    ...base,
+    id: 'report_metro',
+    verdict: 'safe',
+    extractedClaims: {
+      company: 'Heidi',
+      role: 'Frontend Website Developer PH',
+      location: 'Quezon City, National Capital Region, Philippines Remote',
+      contactMethod: 'LinkedIn',
+      applicationPath: 'Ashby job page',
+    },
+  }
+
+  const trends = buildPublicReportTrends([base, metro])
+
+  assert.equal(trends.totalReports, 2)
+  assert.equal(trends.sampleQuality, 'limited')
+  assert.ok(trends.bucketQuality.unclear >= 1)
+  assert.ok(trends.topLocations.some((item) => item.label === 'Unclear'))
+  assert.ok(trends.topLocations.some((item) => item.label === 'Remote'))
+  assert.ok(trends.topContactMethods.some((item) => item.label === 'Unspecified'))
+  assert.ok(trends.topContactMethods.some((item) => item.label === 'LinkedIn'))
+  assert.equal(trends.recentReports[0].redFlags.length, 1)
+  assert.match(trends.recentReports[0].summary, /Unresolved submission|Strongest signals/)
 })
 
 test('triple-track coverage has an app docs page and sidebar link', async () => {

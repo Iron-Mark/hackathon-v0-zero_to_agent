@@ -6,6 +6,10 @@ export function filterPublicIntelligenceReports<T extends AuditReport>(reports: 
 export function uniquePublicTrendReports<T extends AuditReport>(reports: T[]): T[]
 export function buildPublicReportTrends(reports: AuditReport[]): {
   totalReports: number
+  trendReadyReports: number
+  sampleQuality: 'limited' | 'developing' | 'strong'
+  sampleWarning?: string
+  bucketQuality: { normalized: number; unclear: number }
   verdicts: { safe: number; caution: number; 'high-risk': number }
   topLocations: Array<{ label: string; count: number }>
   topRoles: Array<{ label: string; count: number }>

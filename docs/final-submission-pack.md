@@ -166,8 +166,8 @@ Use this as the credible future direction without weakening the current submissi
 
 - Near-term proof: capture one real Discord message screenshot/log, configure optional provider adapters if that proof stays in scope, and recapture the Telegram report-link screenshot after the permalink fix.
 - Durable workflow: add a public investigation timeline that shows intake, evidence checks, scoring, report creation, callback delivery, and retry history for WDK runs.
-- Risk model: add calibrated learning from reviewed cases while keeping verdicts explainable through visible red flags, green flags, and evidence receipts.
-- Multimodal evidence: current screenshot OCR uses Google Vision first with Tesseract fallback. Specialist image or deepfake forensics providers belong only where they add real evidence.
+- Risk model: explore calibrated learning from reviewed cases as roadmap-only work while keeping verdicts explainable through visible red flags, green flags, and evidence receipts.
+- Multimodal evidence: current screenshot OCR uses Google Vision first with Tesseract fallback. Specialist image or deepfake forensics providers belong only where independently verified proof adds real evidence.
 
 ### 15-Second Vertical Video
 

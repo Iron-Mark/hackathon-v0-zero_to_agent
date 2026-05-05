@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/layout/site-header'
-import { TrendingUp, AlertTriangle, ShieldCheck, Zap, Globe, BarChart3, Clock, Download } from 'lucide-react'
+import { TrendingUp, AlertTriangle, ShieldCheck, Zap, BarChart3, Clock, Download, Filter } from 'lucide-react'
 import { buildTrendsViewModel } from '@/lib/trends-view-model.mjs'
 import { buildTrendsJsonExport, buildTrendsCsvExport } from '@/lib/report-actions.mjs'
 
@@ -56,9 +56,15 @@ export function TrendsClient() {
   }
   const statIcons: Record<string, { icon: any; color: string }> = {
     reports: { icon: BarChart3, color: 'text-evidence' },
+    ready: { icon: Filter, color: 'text-safe' },
     highRisk: { icon: AlertTriangle, color: 'text-risk-text' },
     caution: { icon: Clock, color: 'text-caution' },
     safe: { icon: ShieldCheck, color: 'text-safe' },
+  }
+  const qualityToneClasses: Record<string, string> = {
+    safe: 'border-safe/30 bg-safe/10 text-safe',
+    evidence: 'border-evidence/30 bg-evidence/10 text-evidence',
+    caution: 'border-caution/40 bg-caution-bg/30 text-caution-text',
   }
 
   if (loading) {
@@ -83,9 +89,9 @@ export function TrendsClient() {
               <TrendingUp className="h-4 w-4" />
               Pattern Trends · {viewModel.modeLabel}
             </div>
-            <h1 className="text-4xl font-black tracking-tight sm:text-6xl">Recruitment Scam <span className="text-safe">Trends.</span></h1>
+            <h1 className="text-4xl font-black tracking-tight sm:text-6xl">{viewModel.headline}</h1>
             <p className="mt-6 max-w-2xl text-lg font-medium text-muted leading-relaxed">
-              Recurring risk patterns from job-post checks, saved reports, and live evidence sources.
+              {viewModel.deck}
             </p>
             <p className="mt-3 max-w-2xl text-sm font-semibold text-muted">
               Trends use the same public-report policy as Explore: demo fixtures, screenshots, private audits, and old seeded records are excluded.
@@ -113,6 +119,20 @@ export function TrendsClient() {
           </div>
         </header>
 
+        {viewModel.sampleWarning && (
+          <section className={`mb-8 rounded-2xl border p-5 shadow-sm ${qualityToneClasses[viewModel.qualityTone] || qualityToneClasses.caution}`}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest opacity-80">{viewModel.qualityLabel}</div>
+                <p className="mt-2 max-w-3xl text-sm font-bold leading-6">{viewModel.sampleWarning}</p>
+              </div>
+              <div className="shrink-0 rounded-xl border border-current/20 bg-background/50 px-3 py-2 text-[10px] font-black uppercase tracking-widest">
+                {viewModel.trendReadyReports} / {viewModel.rawTotalReports} trend-ready
+              </div>
+            </div>
+          </section>
+        )}
+
         <motion.div 
           variants={containerVariants}
           initial="hidden"
@@ -120,7 +140,7 @@ export function TrendsClient() {
           className="grid min-w-0 gap-8 lg:grid-cols-3"
         >
           {/* High-Level Stats */}
-          <motion.div variants={itemVariants} className="col-span-full grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div variants={itemVariants} className="col-span-full grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {viewModel.statCards.map((stat: any) => {
               const meta = statIcons[stat.id] || statIcons.reports
               const Icon = meta.icon
@@ -208,7 +228,7 @@ export function TrendsClient() {
             </div>
 
             <div className="rounded-[2rem] border border-border-soft bg-surface p-6 lg:rounded-[2.5rem] lg:p-8">
-              <h4 className="text-sm font-black uppercase tracking-widest text-muted mb-6">Verdict Mix</h4>
+              <h4 className="text-sm font-black uppercase tracking-widest text-muted mb-6">{viewModel.verdictMixLabel}</h4>
               <div className="space-y-4">
                 {[
                   { label: 'High-risk', value: stats?.verdicts?.['high-risk'] || 0, color: 'text-risk-text' },

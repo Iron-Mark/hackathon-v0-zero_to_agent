@@ -90,15 +90,17 @@ For the final demo, call ChatSDK "live-tested in Slack and Telegram with screens
 
 ## Guardrails
 
-- Do not describe HireProof as a generic security platform.
-- Do not claim continuous learning, adaptive ML, or in-house deepfake detection as current functionality.
-- Do not claim more than accepted Workflow execution unless a completed workflow result is captured.
+- Do not call HireProof a generic security platform.
+- Do not claim adaptive ML, continuous learning, or in-house deepfake detection as shipped.
+- Do not claim completed WDK workflow proof until a completed result is captured.
+- Keep competitor comparisons high-level unless the competitor claims have been independently verified.
+- Require independently verified proof before naming competitor-specific superiority claims.
 - Keep the product sentence centered on job posts, recruiter messages, evidence, and apply-before-you-trust decisions.
 
 ## Roadmap
 
 - Near-term: capture Discord live-provider proof and recapture the Telegram full-report-link screenshot.
 - WDK: turn the accepted-run proof into a durable investigation timeline with checkpoints, retries, callbacks, and completed-result evidence.
-- Model: add calibrated learning from reviewed cases while preserving explainable scoring.
-- Multimodal: improve screenshot/OCR evidence and integrate specialist image or deepfake forensics providers only where they add trustworthy signals.
+- Model: explore calibrated learning from reviewed cases as roadmap-only work while preserving explainable scoring.
+- Multimodal: improve screenshot/OCR evidence and integrate specialist image or deepfake forensics providers only where externally verified proof adds trustworthy signals.
 

@@ -62,17 +62,17 @@ export default function ArchitecturePage() {
             </thead>
             <tbody>
               {[
-                ['Framework', 'Next.js 16 (App Router) + React 19'],
-                ['Language', 'TypeScript 6'],
-                ['Styling', 'Tailwind CSS 4 + Custom Design Tokens'],
+                ['Framework', 'Next.js 16.2.4 App Router + React 19.2.5'],
+                ['Language', 'TypeScript 6.0.3'],
+                ['Styling', 'Tailwind CSS 4.2 + custom HireProof design tokens'],
                 ['AI Engine', 'Vercel AI SDK 6 + AI Gateway, with OpenAI-compatible fallback'],
                 ['Animation', 'Framer Motion 12'],
-                ['Charts', 'Recharts (Radar, Bar)'],
-                ['Exports', 'html2canvas PNG capture and JSON trend export'],
-                ['Web Intelligence', 'SerpApi (Google, News, Jobs, Maps)'],
+                ['Charts', 'Recharts 3 for radar charts; custom CSS bars for trends'],
+                ['Exports', 'html2canvas PNG, jsPDF PDF, CSV report/trends export, JSON trends export'],
+                ['Web Intelligence', 'SerpApi for Google Search, News, Jobs, and Maps/local signals'],
                 ['Protocol', 'Model Context Protocol (MCP)'],
-                ['Database', 'Upstash Serverless Redis (hybrid fallback)'],
-                ['Deployment', 'Vercel Edge Network'],
+                ['Database', 'Upstash Redis when configured, with local JSON fallback'],
+                ['Deployment', 'Vercel deployment on the Vercel network'],
               ].map(([layer, tech]) => (
                 <tr key={layer} className="border-b border-border-soft last:border-0 hover:bg-surface/50 transition-colors">
                   <td className="px-4 py-3 font-black text-sm">{layer}</td>

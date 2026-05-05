@@ -20,12 +20,12 @@ const roadmap = [
   {
     title: 'Risk model',
     icon: Scale,
-    body: 'Add calibrated learning from reviewed cases while preserving explainable red flags, green flags, and evidence receipts.',
+    body: 'Explore calibrated learning from reviewed cases as roadmap-only work while preserving explainable red flags, green flags, and evidence receipts.',
   },
   {
     title: 'Multimodal evidence',
     icon: Image,
-    body: 'Improve screenshot/OCR handling and integrate specialist image or deepfake forensics providers only where they add trustworthy evidence.',
+    body: 'Improve screenshot/OCR handling and integrate specialist image or deepfake forensics providers only where independently verified proof adds trustworthy evidence.',
   },
 ]
 

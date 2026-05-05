@@ -8,44 +8,11 @@ import {
 } from '@/lib/auth-store'
 import { normalizeProviderInput, verifyProviderCredential } from '@/lib/provider-verification'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { requestIp, validateMutationOrigin } from '@/lib/request-security'
 
 async function requireUser() {
   const cookieStore = await cookies()
   return getUserFromSessionToken(cookieStore.get('hireproof_session')?.value)
-}
-
-function parseOrigin(value: string | null) {
-  if (!value) return null
-
-  try {
-    return new URL(value).origin
-  } catch {
-    return null
-  }
-}
-
-function allowedMutationOrigins(request: Request) {
-  const origins = new Set<string>([new URL(request.url).origin])
-  const appBaseOrigin = parseOrigin(process.env.APP_BASE_URL || null)
-  if (appBaseOrigin) origins.add(appBaseOrigin)
-  return origins
-}
-
-function validateMutationOrigin(request: Request) {
-  const origin = request.headers.get('origin')
-  const referer = request.headers.get('referer')
-  const sourceOrigin = parseOrigin(origin) || parseOrigin(referer)
-
-  if (!sourceOrigin || !allowedMutationOrigins(request).has(sourceOrigin)) {
-    return NextResponse.json({ error: 'CSRF validation failed.' }, { status: 403 })
-  }
-
-  return null
-}
-
-function requestIp(request: Request) {
-  const xForwardedFor = request.headers.get('x-forwarded-for')
-  return request.headers.get('x-real-ip') || (xForwardedFor ? xForwardedFor.split(',')[0].trim() : '127.0.0.1')
 }
 
 async function validateCredentialSaveRateLimit(request: Request, userId: string) {

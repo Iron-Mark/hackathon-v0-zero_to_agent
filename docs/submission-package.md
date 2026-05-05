@@ -41,8 +41,8 @@ For submission, lead with the strongest working web flow, then show ChatSDK scre
 - Near-term proof: capture Discord live-provider proof, configure optional provider adapters if it remains in scope, and recapture the Telegram report-link screenshot.
 - Durable workflow: add a WDK investigation timeline with intake, evidence checks, scoring, report creation, callback delivery, and retry history.
 - Integration publishing: submit the repo-shipped n8n community node, Make Custom App source, and LangChain package to their external marketplaces after account-backed review steps are complete.
-- Risk model: add calibrated learning from reviewed cases while preserving explainable red flags, green flags, and evidence receipts.
-- Multimodal evidence: improve screenshot/OCR handling and integrate specialist image or deepfake forensics providers only where they add trustworthy evidence.
+- Risk model: explore calibrated learning from reviewed cases as roadmap-only work while preserving explainable red flags, green flags, and evidence receipts.
+- Multimodal evidence: improve screenshot/OCR handling and integrate specialist image or deepfake forensics providers only where independently verified proof adds trustworthy evidence.
 
 Safe boundary: the current scorer is a transparent evidence-weighted safety policy, not a claimed continuous-learning model. The current WDK proof is an accepted production run, not a completed long-running transcript.
 

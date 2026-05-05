@@ -85,6 +85,14 @@ Honest external boundaries:
 - Live ChatSDK proof is captured for Slack and Telegram. Discord is credential-ready but still needs a real provider-event screenshot/log before live proof is claimed.
 - WDK proof is currently an accepted production workflow run. Do not claim a completed long-running workflow result until a completed result and callback proof are captured.
 
+Do not overclaim:
+
+- Do not call HireProof a generic security platform.
+- Do not claim adaptive ML, continuous learning, or in-house deepfake detection as shipped.
+- Do not claim completed WDK workflow proof until a completed result is captured.
+- Keep competitor comparisons high-level unless the competitor claims have been independently verified.
+- Require independently verified proof before naming competitor-specific superiority claims.
+
 ## Competitive Positioning And Roadmap
 
 HireProof focuses on employment fraud first because job scams happen in urgent, personal, high-risk moments where users need an actionable verdict, not a generic fraud dashboard. The narrow domain is the wedge, not the ceiling: the same evidence core is already exposed through the web app, API, MCP tools, ChatSDK agents, and WDK workflow entrypoint.
@@ -95,8 +103,8 @@ Roadmap:
 
 - Near-term: capture Discord live-provider proof and re-capture the final Telegram report-link screenshot.
 - Next product milestone: show a durable investigation timeline for WDK with intake, evidence checks, scoring, report creation, callback, and retry history.
-- Model milestone: add calibrated learning from reviewed cases while preserving explainable red-flag evidence.
-- Multimodal milestone: improve screenshot/OCR analysis and integrate specialist image or deepfake forensics providers where they add real evidence.
+- Model milestone: explore calibrated learning from reviewed cases as roadmap-only work while preserving explainable red-flag evidence.
+- Multimodal milestone: improve screenshot/OCR analysis and integrate specialist image or deepfake forensics providers only when third-party proof adds real evidence.
 
 ## Hackathon Track Coverage
 
@@ -517,12 +525,12 @@ Runtime surfaces:
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Next.js 16 App Router |
-| Language | TypeScript 6 |
-| UI | React 19, Tailwind CSS 4, Framer Motion |
-| Charts | Recharts |
+| Framework | Next.js 16.2.4 App Router + React 19.2.5 |
+| Language | TypeScript 6.0.3 |
+| UI | Tailwind CSS 4.2, custom HireProof design tokens, Framer Motion 12 |
+| Charts | Recharts 3 for radar charts; custom CSS bars for trends |
 | AI | Vercel AI SDK 6, AI Gateway, OpenAI-compatible fallback |
-| Search | SerpApi |
+| Search | SerpApi for Google Search, News, Jobs, and Maps/local signals |
 | Storage | Upstash Redis when configured, local JSON fallback for development |
 | Protocols | REST, SSE, MCP, ChatSDK adapters, Vercel Workflow / WDK |
 | Extension | Chrome Manifest V3 |
