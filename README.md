@@ -1,124 +1,189 @@
 # HireProof
 
-AI-powered job post verification for spotting suspicious listings before someone applies.
+Employment-fraud trust and safety for suspicious job posts, recruiter messages, screenshots, and apply links.
 
-HireProof takes a pasted job post, recruiter message, screenshot, or job URL and returns a structured verdict: `safe`, `caution`, or `high-risk`. The agent extracts claims, checks company presence, searches reputation signals, compares similar jobs, verifies local footprint, and shows the evidence behind the score.
+HireProof helps a job seeker decide whether an opportunity is worth trusting before they apply or share personal data. Paste the post, message, screenshot, or URL. The agent extracts the claims, checks evidence, and returns a `Safe`, `Caution`, or `High-Risk` verdict with visible red flags, green flags, source receipts, and next steps.
 
-- Production demo: <https://hireproof-sigma.vercel.app>
-- Live docs: <https://hireproof-sigma.vercel.app/docs>
-- Discord install: <https://discord.com/oauth2/authorize?client_id=1500240100804530336&scope=bot%20applications.commands&permissions=0>
-- Author: [Mark Siazon](https://www.marksiazon.dev/)
-- Built for the [Vercel Zero to Agent Hackathon](https://community.vercel.com/hackathons/zero-to-agent)
+Built as a solo global hackathon project by [Mark Siazon](https://www.marksiazon.dev/) in just over one week for the [Vercel Zero to Agent Hackathon](https://community.vercel.com/hackathons/zero-to-agent).
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="public/cli-tui-screenshot-dark.png">
-  <img alt="HireProof CLI interactive terminal UI with Shield Sentinel mascot" src="public/cli-tui-screenshot.png">
-</picture>
+[![Production Demo](https://img.shields.io/badge/Production-hireproof--sigma.vercel.app-111827?style=for-the-badge)](https://hireproof-sigma.vercel.app)
+[![Docs](https://img.shields.io/badge/Docs-Live-2563eb?style=for-the-badge)](https://hireproof-sigma.vercel.app/docs)
+[![Built Solo](https://img.shields.io/badge/Built%20Solo-Mark%20Siazon-0f766e?style=for-the-badge)](https://www.marksiazon.dev/)
+[![GitHub](https://img.shields.io/badge/GitHub-Iron--Mark-24292f?style=for-the-badge&logo=github)](https://github.com/Iron-Mark)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Mark%20Siazon-0a66c2?style=for-the-badge&logo=linkedin)](https://ph.linkedin.com/in/mark-siazon)
+
+[![Open Live App](https://img.shields.io/badge/Open-Live%20App-16a34a?style=for-the-badge)](https://hireproof-sigma.vercel.app/audit)
+[![Download Extension](https://img.shields.io/badge/Download-Chrome%20Extension-f97316?style=for-the-badge)](public/downloads/hireproof-extension.zip)
+[![Download Integrations](https://img.shields.io/badge/Download-Integration%20Pack-7c3aed?style=for-the-badge)](public/downloads/hireproof-native-integrations.zip)
+[![Install CLI](https://img.shields.io/badge/Install-CLI-111827?style=for-the-badge)](https://www.npmjs.com/package/@hireproof/cli)
+
+![HireProof high-risk demo preview](public/og-high-risk-demo.png)
+
+## Why It Exists
+
+Job scams often look normal until one detail breaks trust: unrealistic pay, no interview, Telegram-only contact, weak company footprint, fake recruiter identity, or a suspicious apply path. A careful applicant has to search the company, check recent news, compare legitimate roles, inspect the apply link, and still make a judgment call.
+
+HireProof turns that manual investigation into one evidence-backed workflow. It is intentionally focused on employment fraud and job scams. It is not presented as a generic security platform, black-box fraud model, continuous-learning system, or in-house deepfake detector.
+
+## Why People Should Care
+
+| Audience | What HireProof gives them |
+| --- | --- |
+| Job seekers | A fast, understandable verdict before they send money, IDs, resumes, or personal data. |
+| Career communities | A chat-ready bot path for checking suspicious posts where people already ask for help. |
+| Builders | A reusable verification core exposed through web, API, MCP, ChatSDK, WDK, CLI, SDK, n8n, LangChain, and extension surfaces. |
+| Judges and reviewers | A narrow, real-world safety wedge with production proof, visible evidence, and honest boundaries. |
+| Future maintainers | Clear docs, proof status, packaging commands, and reproducible demo fixtures instead of a throwaway hackathon demo. |
+
+## Use Or Download
+
+| Action | Link |
+| --- | --- |
+| Open the live audit | [Run HireProof](https://hireproof-sigma.vercel.app/audit) |
+| Install the CLI | [`npx @hireproof/cli`](https://www.npmjs.com/package/@hireproof/cli) |
+| Download the Chrome extension ZIP | [`hireproof-extension.zip`](public/downloads/hireproof-extension.zip) |
+| Download native integration source pack | [`hireproof-native-integrations.zip`](public/downloads/hireproof-native-integrations.zip) |
+| Import n8n HTTP workflow | [`hireproof-n8n-workflow.json`](public/downloads/hireproof-n8n-workflow.json) |
+| Use Make HTTP config | [`hireproof-make-http-config.json`](public/downloads/hireproof-make-http-config.json) |
+| Use standalone LangChain tool | [`hireproof-langchain-tool.ts`](public/downloads/hireproof-langchain-tool.ts) |
+| Run curl smoke template | [`hireproof-automation-curl.sh`](public/downloads/hireproof-automation-curl.sh) |
+
+## Live Links
+
+| Destination | Link |
+| --- | --- |
+| Production app | <https://hireproof-sigma.vercel.app> |
+| Main audit flow | <https://hireproof-sigma.vercel.app/audit> |
+| Public docs | <https://hireproof-sigma.vercel.app/docs> |
+| Track proof | <https://hireproof-sigma.vercel.app/docs/triple-track-coverage> |
+| Health check | <https://hireproof-sigma.vercel.app/api/health> |
+| Integration proof | <https://hireproof-sigma.vercel.app/api/integrations/proof> |
+| Discord install | <https://discord.com/oauth2/authorize?client_id=1500240100804530336&scope=bot%20applications.commands&permissions=0> |
+| Creator portfolio | <https://www.marksiazon.dev/> |
 
 ## At A Glance
 
-| Area | Status | Where to verify |
+| Capability | Current status | Proof or notes |
 | --- | --- | --- |
-| Hosted app | Live on Vercel | <https://hireproof-sigma.vercel.app> |
-| Main audit flow | Implemented | `/audit` |
+| Web audit flow | Implemented and production deployed | `/audit` on the stable Vercel alias |
+| Evidence-backed reports | Implemented | verdict, score, red flags, green flags, evidence cards, exports |
 | Headless API | Implemented | `POST /api/v1/audit` |
-| MCP tools | Implemented | `POST /api/mcp` |
-| ChatSDK | Implemented; Slack and Telegram live-tested, Discord ready | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
-| Vercel Workflow / WDK | Implemented; production accepted-run proof captured | [`docs/platform-proof-status.md`](docs/platform-proof-status.md) |
-| Automation integrations | npm-published n8n, LangChain, SDK, and CLI packages plus Make source pack and HTTP templates | [`docs/automation-integrations.md`](docs/automation-integrations.md) |
-| HireProof CLI | Published rich terminal UI with light/dark proof screenshots | [`@hireproof/cli`](https://www.npmjs.com/package/@hireproof/cli), [`/docs/cli`](https://hireproof-sigma.vercel.app/docs/cli) |
-| Chrome extension | Store-ready package and current upload assets generated | [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md), [`docs/assets-index.md`](docs/assets-index.md) |
-| Docker | Production image/Compose scripts implemented | `Dockerfile`, `docker-compose.yml` |
+| MCP tools | Implemented | `POST /api/mcp` for investigation tools |
+| ChatSDK agents | Implemented | Slack screenshot proof, Telegram delivery proof, Discord credential-ready |
+| Vercel Workflow / WDK | Implemented | production accepted-run proof, not a completed workflow transcript |
+| CLI, SDK, n8n, LangChain | Implemented and package-oriented | package status documented in `docs/automation-integrations.md` |
+| Chrome extension | Store-ready repo package | external Chrome Web Store publication still required |
+| Docker self-hosting | Scripts and image files present | Docker runtime required for smoke verification |
 
-## Contents
+## The Product Flow
 
-- [Current Status](#current-status)
-- [Competitive Positioning And Roadmap](#competitive-positioning-and-roadmap)
-- [Hackathon Track Coverage](#hackathon-track-coverage)
-- [Quick Start](#quick-start)
-- [Recommended Demo Script](#recommended-demo-script)
-- [Core Workflows](#core-workflows)
-- [Builder Story](#builder-story)
-- [Packaging And Distribution](#packaging-and-distribution)
-- [Environment Variables](#environment-variables)
-- [Verification](#verification)
-- [Architecture](#architecture)
-- [Project Map](#project-map)
-- [Documentation](#documentation)
+```mermaid
+flowchart LR
+  Input[Job post, recruiter message, screenshot, or URL] --> Claims[Claim extraction]
+  Claims --> Tools[Evidence tools]
+  Tools --> Signals[Company, news, jobs, local footprint, apply path]
+  Signals --> Policy[Evidence-weighted safety policy]
+  Policy --> Report[Safe, Caution, or High-Risk report]
+  Report --> Surfaces[Web, API, MCP, chat, workflow, CLI, extension]
+```
 
-## Current Status
+The score is explainable by design. HireProof shows the evidence that drove the decision instead of asking the user to trust a hidden model.
 
-HireProof is implemented as a production Next.js app with web UI, headless API, MCP tools, ChatSDK routes, WDK workflow entrypoint, Docker packaging, and a Chrome extension package workflow.
+## Demo In 60 Seconds
 
-What is complete in this repo:
+1. Open <https://hireproof-sigma.vercel.app/audit>.
+2. Paste this suspicious sample:
 
-- Web audit flow with text, job URL, screenshot upload, pasted screenshot, and voice input.
-- Screenshot OCR path with Google Vision first, Tesseract fallback, image preprocessing, and OCR evidence receipts.
-- Public job URL enrichment for supported LinkedIn, ATS, and public career pages before scoring.
-- Screenshot-derived reports excluded from Explore and Trends by default; direct report links still work.
-- Demo-mode seeded scenarios that work without API keys.
-- Live-mode investigation path using model and search provider credentials.
-- Headless `/api/v1/audit` endpoint with API-key auth and webhook support.
-- MCP endpoint and investigation tools.
-- ChatSDK webhook adapters for Slack, Discord, and Telegram.
-- Public Discord server install link for adding the HireProof app: <https://discord.com/oauth2/authorize?client_id=1500240100804530336&scope=bot%20applications.commands&permissions=0>.
-- Discord slash commands: `/verify job_post:<text-or-link>` checks a suspicious job post, expands supported public job URLs, and `/help` explains how to use HireProof in Discord.
-- Vercel Workflow / WDK audit start route.
-- Published npm packages for the CLI, LangChain tool, TypeScript SDK, and n8n node; Make Custom App source pack; plus portable HTTP templates.
-- HireProof CLI with rich terminal reports, an Ink-based Shield Sentinel TUI, Tab autocomplete, local report history, and theme-aware proof screenshots.
-- Shareable audit reports, history, trends, PDF dossier, CSV export, PNG export, and safe-report certificate.
-- Verified badge API and developer portal controls.
-- Dockerfile, Compose service, healthcheck, and smoke script for self-hosting.
-- Manifest V3 Chrome extension with store-ready ZIP, current screenshots, promo assets, listing copy, and privacy notes.
+```text
+Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.
+```
 
-Output and sharing capabilities:
+3. Run the audit.
+4. Show the verdict, score, evidence cards, red flags, and next steps.
+5. Explain the same verification core also runs through API, MCP tools, ChatSDK routes, WDK workflow, CLI, SDK, n8n, LangChain, and the Chrome extension package.
 
-- **PNG Screenshot Export**: capture the visible report for demos and quick sharing.
-- **Forensic PDF Dossier**: download a structured investigation dossier.
-- **Report CSV Export**: export verdict, claims, signals, evidence, and next steps for review.
+For API proof:
 
-Honest external boundaries:
+```bash
+curl -X POST https://hireproof-sigma.vercel.app/api/v1/audit \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: hireproof_agent_demo_key" \
+  -d '{"text":"Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.","mode":"demo"}'
+```
 
-- Chrome Web Store publication requires the Chrome Web Store developer dashboard, privacy form, uploaded screenshots, and Google review. This repo prepares the upload package and assets listed in [`docs/assets-index.md`](docs/assets-index.md); it cannot publish the listing by itself.
-- npm packages are published for the CLI, LangChain tool, TypeScript SDK, and n8n node. Make Custom App review and any n8n directory/community verification remain external account-backed steps.
-- Docker smoke testing requires Docker Desktop or another Docker runtime. The scripts are present, but the local machine must have Docker available.
-- Live ChatSDK proof is captured for Slack and Telegram. Discord is credential-ready but still needs a real provider-event screenshot/log before live proof is claimed.
-- WDK proof is currently an accepted production workflow run. Do not claim a completed long-running workflow result until a completed result and callback proof are captured.
+Demo mode is fixture-based and explicitly labeled. Live evidence mode uses provider-backed checks when credentials are configured.
 
-Do not overclaim:
+## What HireProof Checks
 
-- Do not call HireProof a generic security platform.
-- Do not claim adaptive ML, continuous learning, or in-house deepfake detection as shipped.
-- Do not claim completed WDK workflow proof until a completed result is captured.
-- Keep competitor comparisons high-level unless the competitor claims have been independently verified.
-- Require independently verified proof before naming competitor-specific superiority claims.
+- Company presence and legitimacy signals.
+- Recent news, reputation, and scam-adjacent context.
+- Comparable legitimate jobs and salary context.
+- Local business footprint where relevant.
+- Apply-path consistency between pasted text, OCR text, URLs, and known public job pages.
+- Recruiter and contact-channel signals.
+- Screenshot OCR text. Google Vision OCR runs first, with Tesseract fallback after OCR-oriented image preprocessing when configured.
+- Source quality, freshness, and evidence coverage.
 
-## Competitive Positioning And Roadmap
+## Trust Model
 
-HireProof focuses on employment fraud first because job scams happen in urgent, personal, high-risk moments where users need an actionable verdict, not a generic fraud dashboard. The narrow domain is the wedge, not the ceiling: the same evidence core is already exposed through the web app, API, MCP tools, ChatSDK agents, and WDK workflow entrypoint.
+HireProof uses a transparent evidence-weighted safety policy.
 
-The risk model is intentionally framed as a transparent evidence-weighted safety policy. HireProof does not claim continuous machine learning or in-house deepfake detection today. Instead, it shows users which red flags, green flags, and evidence receipts drove the verdict so a job seeker can understand the decision before sharing money or personal data.
+| Mode | What it means |
+| --- | --- |
+| Live evidence mode | Runs the real evidence path when model, search, and optional provider credentials are configured. |
+| Demo fixture mode | Shows the same report shape with seeded fixture evidence for reliable demos and offline judging. It should not be described as live evidence. |
+| Verified-only safer alternatives | Safer alternatives appear only when comparable job evidence has a real source URL or provider-backed metadata. |
+| Screenshot privacy | Screenshot-derived reports are not publicly listed by default and are excluded from public Explore and Trends. Direct report links still work. |
+| Operational honesty | Missing providers, the SerpApi circuit breaker, queue throttles, or cache fallbacks are surfaced as boundaries instead of hidden. |
 
-Roadmap:
+## Proof Posture
 
-- Near-term: capture Discord live-provider proof and re-capture the final Telegram report-link screenshot.
-- Next product milestone: show a durable investigation timeline for WDK with intake, evidence checks, scoring, report creation, callback, and retry history.
-- Model milestone: explore calibrated learning from reviewed cases as roadmap-only work while preserving explainable red-flag evidence.
-- Multimodal milestone: improve screenshot/OCR analysis and integrate specialist image or deepfake forensics providers only when third-party proof adds real evidence.
+| Surface | Safe claim | Boundary |
+| --- | --- | --- |
+| Production web app | Stable public alias is available at `https://hireproof-sigma.vercel.app`. | Recheck live URL before final submission or public launch. |
+| API smoke | Demo API path returns a structured High-Risk report with the public demo key. | Live evidence depends on configured model/search credentials. |
+| Slack | Screenshot proof exists for a real HireProof reply. | Endpoint-level logs should be recaptured if judges require fresh log proof. |
+| Telegram | Live delivery proof exists with screenshot/log evidence. | The final report-link screenshot should be recaptured after permalink fallback changes. |
+| Discord | Credentials, webhook readiness, install link, and slash commands exist. | Do not claim live Discord proof until a real message screenshot and matching log are captured. |
+| WDK | Production route accepted a workflow run. | Do not claim completed long-running workflow transcript until callback/result proof exists. |
+| Chrome extension | Manifest V3 package workflow, assets, listing copy, and privacy notes exist. | Chrome Web Store publication requires external dashboard and Google review. |
+| Docker | Dockerfile, Compose, healthcheck, and smoke script exist. | Docker runtime is required for local smoke proof. |
+
+Full proof notes:
+
+- [`docs/platform-proof-status.md`](docs/platform-proof-status.md)
+- [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md)
+- [`docs/final-live-vs-pending-status.md`](docs/final-live-vs-pending-status.md)
+- [`docs/current-audit-behavior.md`](docs/current-audit-behavior.md)
+
+![HireProof proof pack preview](public/og-proof-pack.png)
 
 ## Hackathon Track Coverage
 
-HireProof is one verification agent exposed through multiple delivery surfaces.
+HireProof is one verification core exposed through multiple surfaces.
 
-| Track | What is implemented | Proof notes |
+| Track | Implementation | Why it matters |
 | --- | --- | --- |
-| v0 + MCPs | Next.js app, audit workspace, evidence tools, and MCP endpoint. | Strongest primary product flow. |
-| ChatSDK Agents | Shared ChatSDK bot wrapper plus Slack, Discord, and Telegram webhook routes. | Slack has screenshot proof, Telegram has delivery screenshot/log proof, and Discord is credential-ready. |
-| Vercel Workflow / WDK | Workflow package enabled, `startAuditWorkflow`, and `/api/workflows/audit` start route. | Production accepted run captured in proof docs. |
+| v0 + MCPs | Next.js app, audit workspace, evidence tools, and MCP endpoint. | The clearest user-facing product flow and agent tool surface. |
+| ChatSDK Agents | Shared bot reply path plus Slack, Discord, and Telegram webhook routes. | Lets job-seeker communities check suspicious posts inside chat. |
+| Vercel Workflow / WDK | Workflow package enabled with `/api/workflows/audit` start route. | Provides the path for durable, background investigations. |
 
-More detail: [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md).
+## Product Surfaces
 
-## Quick Start
+| Surface | Path or package | Use case |
+| --- | --- | --- |
+| Web app | `/audit` | Job seekers paste suspicious posts and get a report. |
+| Headless API | `POST /api/v1/audit` | Agents and automations request structured verdict JSON. |
+| MCP endpoint | `POST /api/mcp` | Tool-compatible clients call investigation functions. |
+| ChatSDK | `/api/webhooks/slack`, `/api/webhooks/discord`, `/api/webhooks/telegram` | Communities ask the bot to check suspicious posts. |
+| WDK route | `/api/workflows/audit` | Starts asynchronous investigation work when credentials are configured. |
+| CLI | `@hireproof/cli` | Terminal audits, JSON output, health checks, and Shield Sentinel TUI. |
+| SDK | `hireproof-sdk` | Typed API client for JavaScript and TypeScript projects. |
+| LangChain | `@hireproof/langchain` | Structured audit tool for LangChain pipelines. |
+| n8n | `n8n-nodes-hireproof` | Native automation node package. |
+| Chrome extension | `extension/` and `public/downloads/hireproof-extension.zip` | Scan selected job text or supported pages from the browser. |
+
+## Developer Quick Start
 
 ```bash
 npm install
@@ -126,344 +191,97 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open <http://localhost:3002> and go to `/audit`.
+Open <http://localhost:3002>.
 
-Demo fixture mode works without keys and is labeled as fixture data. For live evidence, configure model and search credentials in `.env.local`.
-
-For the current behavior boundary, see [`docs/current-audit-behavior.md`](docs/current-audit-behavior.md).
-
-## Recommended Demo Script
-
-Use this path when showing the project to a judge, reviewer, or stakeholder:
-
-1. Open <https://hireproof-sigma.vercel.app/audit>.
-2. Select or paste the high-risk demo text:
-
-```text
-Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.
-```
-
-3. Run the audit and show the streamed investigation steps.
-4. Open the final report and point out the verdict, score, evidence, flags, and next steps.
-5. Show the same core agent through the API:
-
-```bash
-curl -X POST https://hireproof-sigma.vercel.app/api/v1/audit \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: hireproof_agent_demo_key" \
-  -d '{"text":"Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.","mode":"demo"}'
-```
-
-6. Mention the distribution surfaces: MCP tools, ChatSDK agents, WDK workflow, Docker self-hosting, and Chrome extension package.
-7. Be explicit about boundaries: Chrome Store publication and Docker runtime verification depend on external account/runtime access.
-
-### Current Trust Model
-
-- **Live evidence mode** runs the real evidence path when credentials are configured: claim extraction, job URL enrichment, OCR where needed, SerpApi-backed search/jobs/news/maps checks, scoring, and streamed report events.
-- **Demo fixture mode** is labeled and should not be described as live evidence. It shows deterministic fixture reports for walkthroughs and offline testing.
-- **Timeline honesty**: browser reports use captured stream events when live mode runs; demo reports show fixture events rather than precise fake timings.
-- **Verified-only safer alternatives**: alternatives appear only when comparable job evidence has a real source URL or provider-backed metadata.
-- **False-positive controls**: remote startup mode explains why missing local-office evidence may not hurt the score when digital footprint and apply-path signals are consistent.
-- **SerpApi circuit breaker and queue throttling**: expensive live audits are protected by per-user/per-IP throttling, cache reuse, similarity cache, and circuit-breaker status.
-
-## Core Workflows
-
-### Web Audit
-
-The main workflow lives at `/audit`.
-
-- Paste a job listing or recruiter message. On desktop, the main paste box focuses when the audit page opens so users can paste text or a screenshot immediately.
-- Paste a public job URL when available; HireProof expands supported LinkedIn, ATS, and public careers pages before scoring.
-- Upload or paste a screenshot. Google Vision OCR runs first; Tesseract fallback runs after OCR-oriented image preprocessing when needed.
-- Use browser speech-to-text for voice input.
-- Watch the Server-Sent Events stream as the agent extracts claims and calls tools.
-- Review the verdict, risk score, flags, OCR/source evidence receipts, and recommended next steps.
-
-Screenshot privacy behavior:
-
-- The raw screenshot is not stored as a report evidence item.
-- OCR text is used for analysis and shown as a short display-safe preview in report UI.
-- Screenshot-based reports are marked not publicly listed by default, so they are excluded from `/explore` and `/trends`.
-
-### Headless API
-
-`POST /api/v1/audit` returns JSON for external agents and automation tools.
-
-```bash
-curl -X POST https://hireproof-sigma.vercel.app/api/v1/audit \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: hireproof_agent_demo_key" \
-  -d '{"text":"Remote frontend intern. PHP 80,000/week. No interview. Message us on Telegram.","mode":"demo"}'
-```
-
-### MCP Tools
-
-`POST /api/mcp` exposes investigation tools for agent runtimes:
-
-- Company presence search.
-- News and reputation search.
-- Comparable job search.
-- Local business footprint search.
-
-### Developer Portal
-
-The `/developer` page supports:
-
-- Account login and API key management.
-- Domain verification for badge embeds.
-- Webhook sandbox testing.
-- BYOK provider credential storage for authenticated audits.
-
-Provider credentials are verified before storage and encrypted server-side. Secrets are not returned to the browser after save.
-
-## Builder Story
-
-HireProof is useful as a user-facing app, but the stronger technical story is that the same verification core is exposed to builders through multiple interfaces:
-
-- **Web app** for job seekers who want a verdict before applying.
-- **Headless API** for agents that need a structured job-safety gate.
-- **MCP tools** for evidence-gathering runtimes.
-- **n8n npm package and Make source pack** for no-code and operations workflows.
-- **LangChain npm package** for agent pipelines using structured tools.
-- **HireProof CLI npm package** for terminal audits, scripted JSON output, health checks, and a branded interactive TUI.
-- **ChatSDK adapters** for job-seeker communities in Slack, Telegram, and Discord channels.
-- **WDK route** for durable investigation handoff when workflow credentials are configured.
-
-The current repo-controlled automation status is implemented, validated, and source-packaged. Public marketplace listings are intentionally tracked as external next steps.
-
-## What Makes It Agentic
-
-HireProof is not a single prompt wrapper. The app runs a structured investigation loop:
-
-- Extracts normalized claims from messy human job text.
-- Chooses evidence tools based on the claims it finds.
-- Calls company, reputation, comparable-role, and local-footprint tools.
-- Combines tool output with a transparent evidence-weighted risk policy.
-- Returns a report designed for human decisions and downstream agents.
-
-The same investigation core is reused by the web app, API, MCP endpoint, ChatSDK reply path, and workflow entrypoint.
-
-## Packaging And Distribution
-
-### Chrome Extension
-
-Local install:
-
-1. Open `chrome://extensions`.
-2. Enable Developer mode.
-3. Click "Load unpacked".
-4. Select the `extension/` folder.
-
-Create the Chrome Web Store upload package:
-
-```bash
-npm run package:extension
-```
-
-Current upload/download copy:
-
-```text
-public/downloads/hireproof-extension.zip
-```
-
-The request body can include `text`, `url`, `image`, or a combination of these fields. `image` accepts a base64 data URL screenshot and uses the same OCR path as the web UI.
-
-Build output:
-
-```text
-dist/chrome/hireproof-extension.zip
-```
-
-Generate store screenshots and promo image:
-
-```bash
-npm run store:assets
-```
-
-Generated assets:
-
-```text
-docs/chrome-web-store-assets/
-+-- promo-small-440x280.png
-+-- marquee-1400x560.png
-+-- screenshot-popup-1280x800.png
-+-- screenshot-context-menu-1280x800.png
-`-- screenshot-verdict-1280x800.png
-```
-
-Listing copy, reviewer notes, privacy practices, and publication boundary are in [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md). The full brand, social, platform, and store asset map is in [`docs/assets-index.md`](docs/assets-index.md). Extension privacy details are in [`extension/PRIVACY.md`](extension/PRIVACY.md).
-
-### Native Automation Integrations
-
-Build, test, and package the automation integrations:
-
-```bash
-pnpm integrations:build
-pnpm integrations:test
-pnpm integrations:package
-```
-
-Outputs:
-
-```text
-public/downloads/hireproof-native-integrations.zip
-public/downloads/hireproof-n8n-workflow.json
-public/downloads/hireproof-make-http-config.json
-public/downloads/hireproof-langchain-tool.ts
-public/downloads/hireproof-automation-curl.sh
-```
-
-Source packs:
-
-```text
-integrations/n8n-nodes-hireproof/
-integrations/make-hireproof/
-packages/hireproof-langchain/
-```
-
-Published npm packages:
-
-```bash
-npm install hireproof-sdk
-npm install @hireproof/langchain @langchain/core zod
-npm install n8n-nodes-hireproof
-npx @hireproof/cli --help
-```
-
-Marketplace submission steps are in [`docs/automation-marketplace-submission.md`](docs/automation-marketplace-submission.md). Screenshot proof requirements are in [`docs/evidence-screenshot-checklist.md`](docs/evidence-screenshot-checklist.md).
-
-### HireProof CLI
-
-Run the published terminal product surface:
-
-```bash
-npx @hireproof/cli --help
-npx @hireproof/cli tui
-npx @hireproof/cli health
-npx @hireproof/cli audit --text "Remote frontend intern. PHP 80,000/week. No interview. Telegram only." --mode demo
-```
-
-Run the local terminal product surface from the repo:
-
-```bash
-npm run cli -- --help
-npm run cli -- tui
-npm run cli -- health
-npm run cli -- audit --text "Remote frontend intern. PHP 80,000/week. No interview. Telegram only." --mode demo
-```
-
-The CLI keeps direct commands automation-safe while `hireproof`/`hireproof tui` opens a branded terminal console with the Shield Sentinel mascot, guided audit flows, command autocomplete, health/config tools, recent report summaries, and local Ask HireProof answers from the selected report.
-
-Theme-aware CLI proof screenshots:
-
-```text
-public/cli-tui-screenshot.png
-public/cli-tui-screenshot-dark.png
-```
-
-CLI package details are in [`packages/hireproof-cli/README.md`](packages/hireproof-cli/README.md). Public docs are at [`/docs/cli`](https://hireproof-sigma.vercel.app/docs/cli). npm package page: [`@hireproof/cli`](https://www.npmjs.com/package/@hireproof/cli).
-
-Publishing note: do not run `npm publish` from the repo root. The root app is private and has a `prepublishOnly` blocker. For future package releases, bump the workspace version first, then publish that workspace only.
-
-### Docker Self-Hosting
-
-Build and run the production image:
-
-```bash
-npm run docker:build
-npm run docker:run
-```
-
-In a second terminal:
-
-```bash
-npm run docker:smoke
-```
-
-Docker behavior:
-
-- Uses Next.js standalone output.
-- Runs as a non-root user.
-- Exposes port `3002`.
-- Includes a `/api/health` container healthcheck.
-- Uses environment variables for live model, search, Redis, and workflow credentials.
-
-Compose:
-
-```bash
-docker compose up --build
-```
-
-## Environment Variables
-
-Copy `.env.example` to `.env.local` and fill only what you need.
-
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `APP_BASE_URL` | Recommended | Base URL for internal links and callbacks. |
-| `AGENT_API_KEY` | Recommended | API key accepted by `/api/v1/audit` and `/api/mcp`. |
-| `SESSION_SECRET` | Recommended | Session signing secret for auth. |
-| `AI_GATEWAY_API_KEY` | Live mode preferred | Vercel AI Gateway key. |
-| `VERCEL_AI_GATEWAY_API_KEY` | Live mode optional | Alias accepted for AI Gateway. |
-| `HIREPROOF_MODEL` | Optional | Model path, defaults to `openai/gpt-4o-mini`. |
-| `MODEL_PROVIDER_KEY` | Live mode fallback | OpenAI-compatible fallback provider key. |
-| `SERPAPI_API_KEY` | Live evidence | SerpApi key for search-backed evidence. |
-| `UPSTASH_REDIS_REST_URL` | Optional | Upstash REST URL for persistence and rate limits. |
-| `UPSTASH_REDIS_REST_TOKEN` | Optional | Upstash REST token. |
-| `REDIS_URL` | ChatSDK | Redis URL for ChatSDK thread state. |
-| `BYOK_ENCRYPTION_KEY` | Hosted BYOK | Encrypts saved provider credentials in production. |
-| `SLACK_BOT_TOKEN` | Slack | Enables Slack bot replies. |
-| `SLACK_SIGNING_SECRET` | Slack | Verifies Slack webhook signatures. |
-| `DISCORD_BOT_TOKEN` | Discord | Enables Discord replies. |
-| `DISCORD_PUBLIC_KEY` | Discord | Verifies Discord interactions. |
-| `DISCORD_APPLICATION_ID` | Discord | Discord application ID. |
-| `TELEGRAM_BOT_TOKEN` | Telegram | Enables Telegram replies. |
-| `TELEGRAM_WEBHOOK_SECRET_TOKEN` | Telegram | Verifies Telegram webhooks. |
-| `TELEGRAM_BOT_USERNAME` | Telegram | Bot username without `@`. |
-| `ZERNIO_API_KEY` | optional Optional provider adapters | Enables provider adapter-backed replies. |
-| `ZERNIO_WEBHOOK_SECRET` | optional Optional provider adapters | Verifies provider adapter webhooks. |
-| `WORKFLOW_SECRET` | WDK | Protects workflow start routes. |
-| `DISCORD_GUILD_ID` | Discord optional | Registers slash commands to one server for faster testing when running `npm run discord:commands`. |
-
-Register Discord slash commands after setting the Discord env vars:
-
-```bash
-npm run discord:commands
-```
-
-Set `DISCORD_GUILD_ID` for immediate server-scoped command registration during testing. Leave it unset for global commands, which can take longer to appear in Discord.
-
-## Verification
-
-Run the main local quality gates before handing off:
+Minimum useful checks:
 
 ```bash
 npm run lint
 npm run build
-node test/runtime-wiring.test.mjs
-node test/byok-credentials.test.mjs
+node --test test/runtime-wiring.test.mjs
+```
+
+Demo fixtures work without provider keys. Live evidence mode needs model/search credentials such as AI Gateway or an OpenAI-compatible provider plus SerpApi. See [`docs/credentials-setup.md`](docs/credentials-setup.md).
+
+## Environment Groups
+
+| Group | Variables |
+| --- | --- |
+| App and API | `APP_BASE_URL`, `AGENT_API_KEY`, `SESSION_SECRET` |
+| Model routing | `AI_GATEWAY_API_KEY`, `VERCEL_AI_GATEWAY_API_KEY`, `HIREPROOF_MODEL`, `MODEL_PROVIDER_KEY` |
+| Evidence search | `SERPAPI_API_KEY` |
+| Persistence and rate limits | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `REDIS_URL` |
+| Hosted BYOK | `BYOK_ENCRYPTION_KEY` |
+| Slack | `SLACK_BOT_TOKEN`, `SLACK_SIGNING_SECRET` |
+| Discord | `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_APPLICATION_ID`, `DISCORD_GUILD_ID` |
+| Telegram | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_BOT_USERNAME` |
+| Optional provider adapters | `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET` |
+| Workflow | `WORKFLOW_SECRET` |
+
+## Architecture
+
+![HireProof technical architecture](public/technical_architecture_fraud_v2.png)
+
+Runtime shape:
+
+- Web UI streams audit progress through `/api/audit`.
+- External agents call `/api/v1/audit`.
+- MCP-compatible clients call `/api/mcp`.
+- Chat platforms call `/api/webhooks/*` and share the same reply formatter.
+- Durable background jobs start through `/api/workflows/audit`.
+- Reports can be shared, exported as PNG/PDF/CSV, or delivered through webhook callbacks.
+
+Core stack:
+
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 16 App Router, React 19, TypeScript 6 |
+| UI | Tailwind CSS 4, custom HireProof tokens, Framer Motion, lucide-react |
+| AI | Vercel AI SDK, AI Gateway, OpenAI-compatible fallback |
+| Evidence | SerpApi, OCR path, domain/apply-path checks, provider fallbacks |
+| Storage | Upstash Redis when configured, local JSON fallback for development |
+| Integrations | REST, SSE, MCP, ChatSDK adapters, Vercel Workflow / WDK |
+| Packaging | npm workspaces, Chrome Manifest V3, Docker standalone image |
+
+## CLI Proof
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/cli-tui-screenshot-dark.png">
+  <img alt="HireProof Shield Sentinel terminal interface" src="public/cli-tui-screenshot.png">
+</picture>
+
+```bash
+npx @hireproof/cli --help
+npx @hireproof/cli tui
+npx @hireproof/cli audit --text "Remote frontend intern. PHP 80,000/week. No interview. Telegram only." --mode demo
+```
+
+Local CLI:
+
+```bash
+npm run cli -- --help
+npm run cli -- tui
+npm run cli -- audit --text "Remote frontend intern. PHP 80,000/week. No interview. Telegram only." --mode demo
+```
+
+## Packaging
+
+Chrome extension:
+
+```bash
 npm run package:extension
 npm run store:assets
+```
+
+Automation integrations:
+
+```bash
 pnpm integrations:build
 pnpm integrations:test
 pnpm integrations:package
 ```
 
-What those gates prove:
-
-| Command | Proves |
-| --- | --- |
-| `npm run lint` | TypeScript contracts are valid outside generated Next build output. |
-| `npm run build` | Production Next.js build succeeds. |
-| `node test/runtime-wiring.test.mjs` | Runtime surfaces are wired to real endpoints and honest readiness states. |
-| `node test/byok-credentials.test.mjs` | BYOK encryption, CSRF, and credential routing checks pass. |
-| `npm run package:extension` | Chrome extension manifest/assets package into a clean upload ZIP. |
-| `npm run store:assets` | Current Chrome Web Store screenshots and promotional assets are regenerated. |
-| `pnpm integrations:build` | n8n, Make, LangChain, and download-template metadata validate. |
-| `pnpm integrations:test` | Integration validators plus demo API smoke pass. |
-| `pnpm integrations:package` | Native integration source bundle is regenerated. |
-
-Optional Docker verification when Docker is available:
+Docker:
 
 ```bash
 npm run docker:build
@@ -471,7 +289,25 @@ npm run docker:run
 npm run docker:smoke
 ```
 
-Production smoke commands:
+Docker smoke requires a working Docker runtime.
+
+## Verification
+
+Recommended local gates:
+
+```bash
+npm run lint
+npm run build
+node --test test/runtime-wiring.test.mjs
+node --test test/byok-credentials.test.mjs
+npm run package:extension
+npm run store:assets
+pnpm integrations:build
+pnpm integrations:test
+pnpm integrations:package
+```
+
+Production smoke checks:
 
 ```powershell
 $base='https://hireproof-sigma.vercel.app'
@@ -487,55 +323,6 @@ Invoke-RestMethod -Uri "$base/api/v1/audit" `
   } | ConvertTo-Json)
 ```
 
-## Demo Scenarios
-
-Three seeded audit scenarios are available without external keys:
-
-- **High-Risk**: Telegram-based PHP 80,000/week internship scam.
-- **Caution**: Ambiguous listing with incomplete company signals.
-- **Safe**: Credible listing with matching company, role, and evidence.
-
-These are intentional demo fixtures for deterministic judging and offline fallback. They should not be described as live evidence.
-
-Demo fixture mode is clearly labeled in the UI, shows a snackbar warning, removes fake source links, and hides demo safer alternatives unless they come from sourced comparable-job evidence.
-
-## Architecture
-
-```mermaid
-flowchart LR
-  User[Job seeker or agent] --> Input[Web, API, MCP, chat, or workflow]
-  Input --> Claims[Claim extraction]
-  Claims --> Tools[MCP investigation tools]
-  Tools --> Evidence[Search and local footprint evidence]
-  Evidence --> Score[Risk scoring]
-  Score --> Report[Verdict, report, exports, and callbacks]
-  Report --> Surfaces[UI, API JSON, chat reply, webhook, badge, or extension]
-```
-
-Runtime surfaces:
-
-- Web UI uses `/api/audit` for streamed Server-Sent Events.
-- External agents use `/api/v1/audit` for JSON responses and webhook callbacks.
-- MCP-compatible clients use `/api/mcp` for direct tool execution.
-- Chat platforms use `/api/webhooks/*` and the shared ChatSDK reply formatter.
-- Durable background jobs start through `/api/workflows/audit`.
-- Browser users can scan selected text or supported job pages through the Chrome extension.
-
-## Tech Stack
-
-| Layer | Technology |
-| --- | --- |
-| Framework | Next.js 16.2.4 App Router + React 19.2.5 |
-| Language | TypeScript 6.0.3 |
-| UI | Tailwind CSS 4.2, custom HireProof design tokens, Framer Motion 12 |
-| Charts | Recharts 3 for radar charts; custom CSS bars for trends |
-| AI | Vercel AI SDK 6, AI Gateway, OpenAI-compatible fallback |
-| Search | SerpApi for Google Search, News, Jobs, and Maps/local signals |
-| Storage | Upstash Redis when configured, local JSON fallback for development |
-| Protocols | REST, SSE, MCP, ChatSDK adapters, Vercel Workflow / WDK |
-| Extension | Chrome Manifest V3 |
-| Packaging | Docker standalone image, Compose, Chrome Web Store ZIP |
-
 ## Project Map
 
 ```text
@@ -544,18 +331,18 @@ app/
 +-- api/audit/                     SSE audit endpoint
 +-- api/v1/audit/                  Headless JSON audit endpoint
 +-- api/mcp/                       MCP tool endpoint
-+-- api/chat/hireproof/            ChatSDK status/reply endpoint
++-- api/chat/hireproof/            ChatSDK status and reply endpoint
 +-- api/webhooks/                  Slack, Discord, Telegram adapters
 +-- api/workflows/audit/           WDK workflow start route
 +-- developer/                     Developer portal
 `-- docs/                          In-app documentation portal
 
 components/
-+-- audit/                         Audit form, skeleton, result screen, charts, voice input
++-- audit/                         Audit form, result screen, charts, voice input
 +-- brand/                         Brand mark and verified badge
-+-- docs/                          API playground
++-- docs/                          API playground and docs components
 +-- layout/                        Header, footer, command menu
-+-- marketing/                     Landing-page marketing components
++-- marketing/                     Landing-page components
 +-- system/                        Theme, toast, error, confetti utilities
 `-- ui/                            Shared primitive UI components
 
@@ -586,19 +373,25 @@ scripts/
 
 ## Documentation
 
-- [`DEPLOYMENT.md`](DEPLOYMENT.md): deployment and production status.
-- [`docs/assets-index.md`](docs/assets-index.md): current logo, social, platform, Chrome Web Store, and review asset index.
-- [`docs/remaining-work.md`](docs/remaining-work.md): current proof status and honest boundaries.
-- [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md): Chrome listing copy and upload assets.
-- [`docs/credentials-setup.md`](docs/credentials-setup.md): platform credential setup notes.
-- [`docs/platform-proof-status.md`](docs/platform-proof-status.md): platform readiness status.
-- [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md): hackathon track mapping.
-- [`docs/automation-integrations.md`](docs/automation-integrations.md): native integration status.
-- [`docs/automation-marketplace-submission.md`](docs/automation-marketplace-submission.md): npm, n8n, and Make submission runbook.
-- [`docs/evidence-screenshot-checklist.md`](docs/evidence-screenshot-checklist.md): proof screenshot checklist.
-- [`docs/final-live-vs-pending-status.md`](docs/final-live-vs-pending-status.md): concise live vs pending status boundary.
+- [`docs/final-submission-pack.md`](docs/final-submission-pack.md): title, tagline, demo scripts, copy blocks, caveats, screenshot checklist.
+- [`docs/platform-proof-status.md`](docs/platform-proof-status.md): production proof state and platform boundaries.
+- [`docs/triple-track-coverage.md`](docs/triple-track-coverage.md): v0 + MCP, ChatSDK, and WDK mapping.
+- [`docs/current-audit-behavior.md`](docs/current-audit-behavior.md): live mode, demo mode, safer alternatives, provider boundaries.
+- [`docs/final-live-vs-pending-status.md`](docs/final-live-vs-pending-status.md): concise live vs pending status.
+- [`docs/assets-index.md`](docs/assets-index.md): logos, social previews, platform graphics, Chrome Web Store assets.
+- [`docs/chrome-web-store-listing.md`](docs/chrome-web-store-listing.md): extension listing and reviewer notes.
+- [`docs/automation-integrations.md`](docs/automation-integrations.md): CLI, SDK, n8n, Make, and LangChain integration status.
+- [`docs/evidence-screenshot-checklist.md`](docs/evidence-screenshot-checklist.md): proof capture checklist.
+- [`DEPLOYMENT.md`](DEPLOYMENT.md): deployment notes.
+
+## Creator
+
+HireProof was designed, built, documented, packaged, and polished as a solo global hackathon project by Mark Siazon.
+
+- Portfolio: <https://www.marksiazon.dev/>
+- GitHub: <https://github.com/Iron-Mark>
+- LinkedIn: <https://ph.linkedin.com/in/mark-siazon>
 
 ## License
 
 ISC
-
