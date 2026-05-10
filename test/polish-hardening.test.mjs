@@ -464,6 +464,7 @@ test('history, result, and proof pages keep the audit journey polished', async (
   const resultScreen = await fs.readFile(new URL('../components/audit/result-screen.tsx', import.meta.url), 'utf8')
   const proofPage = await fs.readFile(new URL('../app/proof/page.tsx', import.meta.url), 'utf8')
   const siteHeader = await fs.readFile(new URL('../components/layout/site-header.tsx', import.meta.url), 'utf8')
+  const siteFooter = await fs.readFile(new URL('../components/layout/site-footer.tsx', import.meta.url), 'utf8')
   const docsLayout = await fs.readFile(new URL('../app/docs/layout.tsx', import.meta.url), 'utf8')
 
   assert.match(historyPage, /Open report/)
@@ -498,7 +499,11 @@ test('history, result, and proof pages keep the audit journey polished', async (
   assert.doesNotMatch(proofPage, /\breleased\b/i)
 
   assert.match(siteHeader, /z-50/)
+  assert.match(siteHeader, /min-h-11 min-w-0 cursor-pointer/)
   assert.match(siteHeader, /z-\[60\]/)
+  assert.match(siteFooter, /footerLinkClass/)
+  assert.match(siteFooter, /inline-flex min-h-11 items-center/)
+  assert.match(siteFooter, /inline-flex h-11 w-11/)
   assert.match(docsLayout, /z-20/)
 })
 
@@ -515,6 +520,7 @@ test('pilot funnel clearly frames audience, outcome, and next step', async () =>
   assert.match(pilotClient, /Job-safety workflow to validate/)
   assert.match(pilotPage, /Need the pilot plan first/)
   assert.match(pilotPage, /cost-safe live-provider posture/)
+  assert.match(pilotPage, /inline-flex min-h-11 items-center/)
 })
 
 test('demo login response only returns public demo identity', async () => {

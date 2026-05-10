@@ -23,10 +23,10 @@ export default function PilotPage() {
               <h2 className="text-xl font-black">Need the pilot plan first?</h2>
               <p className="mt-1 text-sm font-semibold leading-6 text-muted">Review the 90-day validation plan, proof boundaries, and cost-safe live-provider posture.</p>
             </div>
-            <Link href="/docs/pilot" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-safe/30 bg-safe/10 px-4 py-2.5 text-sm font-black text-safe hover:bg-background">
+            <Link href="/docs/pilot" className="hireproof-focus inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-safe/30 bg-safe/10 px-4 py-2.5 text-sm font-black text-safe hover:bg-background">
               View pilot plan <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/pilot/admin" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border-soft bg-background px-4 py-2.5 text-sm font-black hover:bg-surface">
+            <Link href="/pilot/admin" className="hireproof-focus inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border-soft bg-background px-4 py-2.5 text-sm font-black hover:bg-surface">
               Admin/export
             </Link>
           </div>

@@ -263,7 +263,7 @@ export function SiteHeader() {
     <>
     <header className="sticky top-0 z-50 border-b border-border-soft bg-background/92 backdrop-blur-md print:hidden">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-3 py-2 sm:px-6 md:px-12 lg:px-20 xl:px-32">
-        <Link href="/" className="hireproof-focus flex min-w-0 cursor-pointer items-center gap-3 rounded-sm group">
+        <Link href="/" className="hireproof-focus group flex min-h-11 min-w-0 cursor-pointer items-center gap-3 rounded-sm">
           <BrandMark className="h-9 w-9 shrink-0 transition-transform group-hover:scale-110 glitch-hover" />
           <div className="min-w-0 leading-tight">
             <div className="flex items-center gap-2">

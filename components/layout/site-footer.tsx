@@ -115,7 +115,10 @@ const footerLinks = {
 };
 
 const socialLinkClass =
-  "inline-flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-elevated hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95";
+  "inline-flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-elevated hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95";
+
+const footerLinkClass =
+  "inline-flex min-h-11 items-center rounded-lg text-sm font-semibold text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 function Tooltip({
   children,
@@ -193,7 +196,7 @@ export function SiteFooter() {
           <div className="col-span-2 lg:col-span-1">
             <Link
               href="/"
-              className="group flex items-center gap-2 mb-6 transition-transform hover:scale-105 active:scale-95 origin-left"
+              className="group mb-6 flex min-h-11 items-center gap-2 rounded-lg transition-transform hover:scale-105 active:scale-95 origin-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <BrandMark className="h-8 w-8 transition-transform group-hover:rotate-12" />
               <BrandWordmark className="text-xl" />
@@ -261,7 +264,7 @@ export function SiteFooter() {
                   <Tooltip content={link.description}>
                     <Link
                       href={link.href}
-                      className="text-sm font-semibold text-muted hover:text-foreground transition-colors"
+                      className={footerLinkClass}
                     >
                       {link.label}
                     </Link>
@@ -281,7 +284,7 @@ export function SiteFooter() {
                   <Tooltip content={link.description}>
                     <Link
                       href={link.href}
-                      className="text-sm font-semibold text-muted hover:text-foreground transition-colors"
+                      className={footerLinkClass}
                     >
                       {link.label}
                     </Link>
@@ -301,7 +304,7 @@ export function SiteFooter() {
                   <Tooltip content={link.description}>
                     <Link
                       href={link.href}
-                      className="text-sm font-semibold text-muted hover:text-foreground transition-colors"
+                      className={footerLinkClass}
                     >
                       {link.label}
                     </Link>
@@ -347,7 +350,7 @@ export function SiteFooter() {
               href="https://www.linkedin.com/in/mark-siazon/"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex rounded-full border border-safe/20 bg-safe/5 px-2 py-0.5 text-safe shadow-sm shadow-safe/10 transition-colors hover:border-safe/40 hover:bg-safe/10 hover:text-safe-text"
+              className="inline-flex min-h-11 items-center rounded-full border border-safe/20 bg-safe/5 px-3 text-safe shadow-sm shadow-safe/10 transition-colors hover:border-safe/40 hover:bg-safe/10 hover:text-safe-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               M.Siazon
             </a>
@@ -358,7 +361,7 @@ export function SiteFooter() {
               href="https://community.vercel.com/hackathons/zero-to-agent/showcase"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-foreground hover:text-safe underline underline-offset-4"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-foreground underline underline-offset-4 hover:text-safe focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safe/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <BrandMark className="h-3.5 w-3.5" />
               Submitted showcase
