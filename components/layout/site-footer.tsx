@@ -47,6 +47,16 @@ const footerLinks = {
       href: "/developer",
       description: "Manage keys for job checks",
     },
+    {
+      label: "Pilot Program",
+      href: "/pilot",
+      description: "Request a small proof run",
+    },
+    {
+      label: "Case Study",
+      href: "/portfolio",
+      description: "Portfolio proof and build story",
+    },
   ],
   resources: [
     {

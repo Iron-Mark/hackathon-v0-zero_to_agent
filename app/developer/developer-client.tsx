@@ -320,7 +320,7 @@ export function DeveloperClient() {
               )}
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-widest text-muted">Email Address</label>
-                <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="investigator@hireproof.com" className="w-full rounded-xl border border-border-soft bg-background p-4 text-sm font-semibold outline-none focus:border-safe" />
+                <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="pilot@hireproof.tech" className="w-full rounded-xl border border-border-soft bg-background p-4 text-sm font-semibold outline-none focus:border-safe" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-widest text-muted">Password</label>

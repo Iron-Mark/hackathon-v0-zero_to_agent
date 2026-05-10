@@ -5,14 +5,14 @@ import { ShieldCheck, Info } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Verified Business Badge | HireProof Docs',
-  description: 'Learn how to embed the HireProof Verified Secure badge on your career page.',
+  description: 'Learn how to embed the HireProof verified hiring badge on your career page.',
 }
 
 export default function VerifiedBadgePage() {
   return (
     <div className="space-y-12 pb-24 text-foreground">
       <section className="space-y-4">
-        <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Verified Business Badge</h1>
+        <h1 className="text-4xl font-black tracking-tight lg:text-5xl">Verified Hiring Badge</h1>
         <p className="text-xl font-medium leading-relaxed text-muted">
           Display a verification seal backed by DNS TXT ownership and a public token, without exposing API keys on your careers page.
         </p>
@@ -37,7 +37,7 @@ export default function VerifiedBadgePage() {
         <CodeBlock 
           title="Embed Script"
           language="html"
-          code={`<script src="https://hireproof.com/api/verified-badge/script?domain=careers.example.com&token=PUBLIC_TOKEN" async></script>`}
+          code={`<script src="https://hireproof.tech/api/verified-badge/script?domain=careers.example.com&token=PUBLIC_TOKEN" async></script>`}
         />
 
         <CodeBlock
@@ -53,7 +53,7 @@ export default function VerifiedBadgePage() {
           <div className="space-y-2">
             <p className="text-sm font-black uppercase tracking-widest">Why it matters</p>
             <p className="text-sm font-medium text-muted leading-relaxed">
-              Recruitment fraud costs legitimate companies millions in brand reputation damage. The HireProof Seal proves that your hiring process is official and audited, building instant trust with top talent.
+              Recruitment fraud can damage legitimate employers and job seekers at the same time. The HireProof badge gives owned hiring pages a verifiable trust signal without exposing private API keys.
             </p>
           </div>
         </div>

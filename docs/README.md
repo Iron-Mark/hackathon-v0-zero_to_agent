@@ -29,6 +29,10 @@ For the most up-to-date technical documentation, visit the **[Live Documentation
 - `platform-proof-status.md`: Current ChatSDK, WDK, AI Gateway, and Vercel environment proof state.
 - `remaining-work.md`: Current punch list for runtime wiring, product gaps, and hardening work.
 - `after-hackathon-cost-safety.md`: Cost-safety and provider-cap runbook for keeping production live after judging.
+- `post-hackathon-startup-plan.md`: 90-day startup/pilot plan for keeping HireProof alive after the hackathon.
+- `post-hackathon-checkpoint-summary.md`: current E2E checkpoint summary for portfolio, pilot, demo, and verification work.
+- `post-hackathon-public-posts.md`: copy-ready LinkedIn, X/Twitter, community, and portfolio card drafts using the positive post-result frame.
+- `post-hackathon-proof-assets.md`: proof screenshot index and sharing order for post-hackathon portfolio/pilot use.
 - `portfolio-case-study.md`: Portfolio-ready solo global hackathon case study for Mark Siazon.
 - `promo-post-drafts.md`: Local post-submission promo copy for LinkedIn, X/Twitter, GitHub, community, and portfolio use.
 - `post-winners-checklist.md`: Winner/finalist/not-selected follow-up plan for public updates after results.

@@ -18,6 +18,7 @@ const docsSidebar = [
       { label: 'Use Cases', href: '/docs/use-cases' },
       { label: 'Quickstart', href: '/docs/quickstart' },
       { label: 'Self-Hosting', href: '/docs/self-hosting' },
+      { label: 'Pilot Program', href: '/docs/pilot' },
       { label: 'Verified Badge', href: '/docs/verified-badge' },
       { label: 'AI Scam Patterns', href: '/docs/dead-internet' },
       { label: 'Architecture', href: '/docs/architecture' },

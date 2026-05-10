@@ -20,7 +20,7 @@ HireProof checks suspicious job posts, recruiter messages, screenshots, and appl
 
 ## LinkedIn - Portfolio Launch
 
-I built HireProof solo for the Vercel Zero to Agent global hackathon in about one week.
+I built and shipped HireProof solo for the Vercel Zero to Agent global hackathon in about one week.
 
 It is a proof-backed job scam verification agent: paste a job post, recruiter message, screenshot, or apply link, and it returns a Safe, Caution, or High-Risk verdict with visible evidence, red flags, green flags, and next steps.
 
@@ -30,15 +30,17 @@ What I wanted to prove:
 - UI/UX: make the evidence readable, not hidden behind a generic chatbot answer.
 - Engineering: ship the same verification core across web, API, MCP, ChatSDK, WDK, CLI, SDK, n8n, LangChain, and a Chrome extension package.
 
-This was built under solo hackathon pressure, but I treated it like a real production product: live demo, release assets, package workflow, cost-safety controls, and documentation that still makes sense after the competition.
+The final result was partly shaped by community-vote reach and distribution timing, which is not fully within a builder's control. The controllable work was the product: live demo, release assets, package workflow, cost-safety controls, documentation, and a pilot path that still makes sense after the competition.
 
 Live demo: https://hireproof.tech/audit
+
+Case study: https://hireproof.tech/portfolio
 
 Repo: https://github.com/Iron-Mark/hackathon-v0-zero_to_agent
 
 ## LinkedIn - Recruiter And Client Focus
 
-HireProof is my solo global hackathon build: a production-deployed AI agent for checking suspicious job opportunities before someone trusts them.
+HireProof is my solo global hackathon build, now moving into pilot validation: a production-deployed AI agent for checking suspicious job opportunities before someone trusts them.
 
 The product focuses on employment fraud because job scams are urgent, personal, and expensive. A user can paste a job post, recruiter pitch, screenshot, or URL, then get an evidence-backed verdict with the reasoning shown.
 
@@ -48,13 +50,17 @@ Built by Mark Siazon in about one week.
 
 Live demo: https://hireproof.tech
 
+Pilot intake: https://hireproof.tech/pilot
+
 ## X / Twitter - Launch
 
-I built HireProof solo for a global hackathon in about one week.
+I built and shipped HireProof solo for a global hackathon in about one week.
 
 Paste a suspicious job post, recruiter message, screenshot, or apply link. HireProof checks evidence and returns Safe, Caution, or High-Risk with proof.
 
 Live demo: https://hireproof.tech/audit
+
+The result is not just a ranking. The controllable work is the shipped proof: app, API, packages, docs, and pilot path.
 
 ## X / Twitter - Builder Thread
 
@@ -107,6 +113,8 @@ Proof-backed job scam verification agent for suspicious job posts, recruiter mes
 Built solo by Mark Siazon in about one week for a global hackathon. The project combines product design, UI/UX, full-stack engineering, AI agent tooling, package distribution, and production launch readiness.
 
 [Open Live Demo](https://hireproof.tech/audit) |
+[Read Case Study](https://hireproof.tech/portfolio) |
+[Request Pilot](https://hireproof.tech/pilot) |
 [View Repository](https://github.com/Iron-Mark/hackathon-v0-zero_to_agent)
 
 ## Visual Pairings

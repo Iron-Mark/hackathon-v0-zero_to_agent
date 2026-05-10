@@ -23,17 +23,17 @@ Suggested line:
 
 > HireProof placed in the Vercel Zero to Agent global hackathon: a solo one-week build that turned suspicious job-post verification into a proof-backed AI agent workflow.
 
-## If HireProof Does Not Place
+## If HireProof Is Not Selected
 
 - Keep the portfolio story positive and outcome-independent.
 - Do not apologize for the result.
 - Lead with what shipped: production app, proof-backed audit flow, release assets, packages, docs, and multi-surface agent coverage.
 - Post the portfolio-focused LinkedIn version instead of winner wording.
-- Add a short "Built for Zero to Agent" note, not a "lost" note.
+- Add a short "Built and shipped for Zero to Agent" note, not a negative result note.
 
 Suggested line:
 
-> HireProof was built solo for the Vercel Zero to Agent global hackathon in about one week and remains live as a production-facing portfolio project.
+> HireProof shipped as a production-facing Zero to Agent build. The community-vote format meant placement was not fully within the product team's control, but the controllable work is clear: app, API, proof pages, docs, and a pilot path.
 
 ## Product Follow-Up
 

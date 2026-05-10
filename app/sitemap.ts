@@ -10,6 +10,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/explore',
     '/lab',
     '/developer',
+    '/portfolio',
+    '/pilot',
+    '/pilot/admin',
     '/trends',
   ].map((route) => ({
     url: `${baseUrl}${route}`,

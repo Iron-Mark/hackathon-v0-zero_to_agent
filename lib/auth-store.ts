@@ -46,6 +46,28 @@ export interface UsageEvent {
   createdAt: string
 }
 
+export interface PilotRequestRecord {
+  id: string
+  name: string
+  email: string
+  organization: string
+  pilotType: string
+  workflow: string
+  sourcePath: string
+  status: 'new' | 'contacted' | 'closed'
+  createdAt: string
+}
+
+export interface ProductEventRecord {
+  id: string
+  eventName: string
+  path: string
+  metadata: Record<string, string>
+  createdAt: string
+}
+
+export type PilotRequestStatus = PilotRequestRecord['status']
+
 export interface AuthenticatedApiKey {
   ownerId: string
   apiKeyId: string
@@ -334,6 +356,169 @@ export async function getUsageSummary(ownerId: string) {
     failedRequests: mine.length - successful,
     recent: mine.slice(0, 20),
   }
+}
+
+function cleanText(value: unknown, maxLength: number) {
+  return String(value || '')
+    .replace(/<script.*?>.*?<\/script>/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxLength)
+}
+
+function cleanLongText(value: unknown, maxLength: number) {
+  return String(value || '')
+    .replace(/<script.*?>.*?<\/script>/gi, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{4,}/g, '\n\n\n')
+    .trim()
+    .slice(0, maxLength)
+}
+
+function isValidEmail(value: string) {
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)
+}
+
+export async function createPilotRequest(input: {
+  name: unknown
+  email: unknown
+  organization?: unknown
+  pilotType?: unknown
+  workflow: unknown
+  sourcePath?: unknown
+}) {
+  const name = cleanText(input.name, 120)
+  const email = cleanText(input.email, 160).toLowerCase()
+  const organization = cleanText(input.organization, 160)
+  const pilotType = cleanText(input.pilotType || 'General pilot', 80)
+  const workflow = cleanLongText(input.workflow, 2000)
+  const sourcePath = cleanText(input.sourcePath || '/pilot', 200)
+
+  if (!name) throw new Error('Name is required.')
+  if (!isValidEmail(email)) throw new Error('Enter a valid email address.')
+  if (!workflow || workflow.length < 20) throw new Error('Describe the workflow to validate.')
+
+  const requests = await readJson<PilotRequestRecord[]>('pilot-requests', [])
+  const now = new Date().toISOString()
+  const record: PilotRequestRecord = {
+    id: `pilot_${crypto.randomUUID()}`,
+    name,
+    email,
+    organization,
+    pilotType,
+    workflow,
+    sourcePath,
+    status: 'new',
+    createdAt: now,
+  }
+  requests.unshift(record)
+  await writeJson('pilot-requests', requests.slice(0, 1000))
+  return record
+}
+
+export async function listPilotRequests() {
+  return readJson<PilotRequestRecord[]>('pilot-requests', [])
+}
+
+export async function updatePilotRequestStatus(id: unknown, status: unknown) {
+  const requestId = cleanText(id, 120)
+  const nextStatus = cleanText(status, 40) as PilotRequestStatus
+  if (!requestId) throw new Error('Pilot request id is required.')
+  if (!['new', 'contacted', 'closed'].includes(nextStatus)) throw new Error('Unsupported pilot request status.')
+
+  const requests = await readJson<PilotRequestRecord[]>('pilot-requests', [])
+  const index = requests.findIndex((request) => request.id === requestId)
+  if (index === -1) throw new Error('Pilot request was not found.')
+
+  requests[index] = { ...requests[index], status: nextStatus }
+  await writeJson('pilot-requests', requests)
+  return requests[index]
+}
+
+function csvCell(value: unknown) {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`
+}
+
+export function buildPilotRequestsCsv(requests: PilotRequestRecord[]) {
+  const header = ['createdAt', 'name', 'email', 'organization', 'pilotType', 'workflow', 'sourcePath', 'status']
+  const rows = requests.map((request) => [
+    request.createdAt,
+    request.name,
+    request.email,
+    request.organization,
+    request.pilotType,
+    request.workflow,
+    request.sourcePath,
+    request.status,
+  ])
+
+  return [header, ...rows].map((row) => row.map(csvCell).join(',')).join('\n')
+}
+
+export function buildProductEventsCsv(events: ProductEventRecord[]) {
+  const header = ['createdAt', 'eventName', 'path', 'metadata']
+  const rows = events.map((event) => [
+    event.createdAt,
+    event.eventName,
+    event.path,
+    JSON.stringify(event.metadata),
+  ])
+
+  return [header, ...rows].map((row) => row.map(csvCell).join(',')).join('\n')
+}
+
+export async function recordProductEvent(input: {
+  eventName: unknown
+  path?: unknown
+  metadata?: unknown
+}) {
+  const eventName = cleanText(input.eventName, 80)
+    .toLowerCase()
+    .replace(/[^a-z0-9_:-]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+  if (!eventName) throw new Error('Event name is required.')
+
+  const metadataInput = input.metadata && typeof input.metadata === 'object' ? input.metadata as Record<string, unknown> : {}
+  const metadata: Record<string, string> = {}
+  for (const [key, value] of Object.entries(metadataInput).slice(0, 12)) {
+    const cleanKey = cleanText(key, 40).replace(/[^a-zA-Z0-9_:-]+/g, '_')
+    if (!cleanKey) continue
+    metadata[cleanKey] = cleanText(value, 160)
+  }
+
+  const events = await readJson<ProductEventRecord[]>('product-events', [])
+  const record: ProductEventRecord = {
+    id: `event_${crypto.randomUUID()}`,
+    eventName,
+    path: cleanText(input.path || '/', 200),
+    metadata,
+    createdAt: new Date().toISOString(),
+  }
+  events.unshift(record)
+  await writeJson('product-events', events.slice(0, 5000))
+  return record
+}
+
+export async function getProductAnalyticsSummary() {
+  const events = await readJson<ProductEventRecord[]>('product-events', [])
+  const byEvent: Record<string, number> = {}
+  const byPath: Record<string, number> = {}
+
+  for (const event of events) {
+    byEvent[event.eventName] = (byEvent[event.eventName] || 0) + 1
+    byPath[event.path] = (byPath[event.path] || 0) + 1
+  }
+
+  return {
+    totalEvents: events.length,
+    byEvent,
+    byPath,
+    recent: events.slice(0, 30),
+  }
+}
+
+export async function listProductEvents() {
+  return readJson<ProductEventRecord[]>('product-events', [])
 }
 
 export async function listProviderCredentials(ownerId: string) {

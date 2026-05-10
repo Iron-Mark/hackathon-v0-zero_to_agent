@@ -12,6 +12,8 @@ Built as a solo global hackathon project by [Mark Siazon](https://www.marksiazon
 
 [![Production Demo](https://img.shields.io/badge/Production-hireproof--sigma.vercel.app-111827?style=for-the-badge)](https://hireproof.tech)
 [![Docs](https://img.shields.io/badge/Docs-Live-2563eb?style=for-the-badge)](https://hireproof.tech/docs)
+[![Case Study](https://img.shields.io/badge/Case%20Study-Live-0f766e?style=for-the-badge)](https://hireproof.tech/portfolio)
+[![Pilot Intake](https://img.shields.io/badge/Pilot-Open-f97316?style=for-the-badge)](https://hireproof.tech/pilot)
 [![Built Solo](https://img.shields.io/badge/Built%20Solo-Mark%20Siazon-0f766e?style=for-the-badge)](https://www.marksiazon.dev/)
 [![GitHub](https://img.shields.io/badge/GitHub-Iron--Mark-24292f?style=for-the-badge&logo=github)](https://github.com/Iron-Mark)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Mark%20Siazon-0a66c2?style=for-the-badge&logo=linkedin)](https://ph.linkedin.com/in/mark-siazon)
@@ -37,7 +39,7 @@ HireProof turns that manual investigation into one evidence-backed workflow. It 
 | Career communities | A chat-ready bot path for checking suspicious posts where people already ask for help. |
 | Builders | A reusable verification core exposed through web, API, MCP, ChatSDK, WDK, CLI, SDK, n8n, LangChain, and extension surfaces. |
 | Judges and reviewers | A narrow, real-world safety wedge with production proof, visible evidence, and honest boundaries. |
-| Future maintainers | Clear docs, proof status, packaging commands, and reproducible demo fixtures instead of a throwaway hackathon demo. |
+| Future maintainers | Clear docs, proof status, packaging commands, and reproducible demo fixtures instead of a one-off event demo. |
 
 ## Use Or Download
 
@@ -58,6 +60,8 @@ HireProof turns that manual investigation into one evidence-backed workflow. It 
 | --- | --- |
 | Production app | <https://hireproof.tech> |
 | Main audit flow | <https://hireproof.tech/audit> |
+| Portfolio case study | <https://hireproof.tech/portfolio> |
+| Pilot intake | <https://hireproof.tech/pilot> |
 | Public docs | <https://hireproof.tech/docs> |
 | Track proof | <https://hireproof.tech/docs/triple-track-coverage> |
 | Health check | <https://hireproof.tech/api/health> |

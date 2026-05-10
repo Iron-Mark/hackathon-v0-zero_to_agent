@@ -51,7 +51,7 @@ Portfolio line:
 
 ## After-Hackathon Path
 
-- Keep the public app live as a portfolio and judge-review surface.
+- Keep the public app live as a portfolio, proof, and pilot-validation surface.
 - Keep provider spend capped with the after-hackathon cost-safety controls.
 - Move serious live usage toward BYOK credentials.
 - Continue external marketplace publication only where external account review is required.

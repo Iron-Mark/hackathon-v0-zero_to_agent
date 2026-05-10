@@ -78,7 +78,7 @@ The project keeps proof and boundaries visible:
 - Local lint/build/runtime tests are the minimum verification gate.
 - Production app and API health are checked by direct URL/API calls.
 - Docs separate live proof from credential-ready or roadmap surfaces.
-- Release assets and screenshots support judge review after the hackathon.
+- Release assets and screenshots support portfolio review, pilot conversations, and future maintainer handoff.
 - Public claims avoid unsupported ML, generic fraud, or completed workflow statements.
 
 ## CLI Visual

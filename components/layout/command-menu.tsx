@@ -23,6 +23,8 @@ import {
   LockKeyhole,
   MessageSquare,
   Bot,
+  BarChart3,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -51,6 +53,9 @@ const SEARCH_INDEX: SearchItem[] = [
   { id: 'trends', title: 'Pattern Trends', description: 'Review saved-report patterns, verdicts, and recurring scam signals.', href: '/trends', category: 'Audit', icon: TrendingUp, keywords: ['patterns', 'analytics', 'signals', 'intelligence'], priority: 6 },
   { id: 'history', title: 'Investigation History', description: 'Open locally saved investigations and report archive.', href: '/history', category: 'Audit', icon: History, keywords: ['archive', 'saved reports', 'past audits'], priority: 6 },
   { id: 'proof', title: 'Proof Pack', description: 'Submission-ready proof, platform status, and honest boundaries.', href: '/proof', category: 'Proof', icon: ShieldCheck, keywords: ['submission', 'demo', 'evidence', 'workflow', 'slack'], priority: 7 },
+  { id: 'portfolio', title: 'Portfolio Case Study', description: 'Shipped product story, build decisions, proof points, and post-hackathon framing.', href: '/portfolio', category: 'Proof', icon: FileText, keywords: ['portfolio', 'case study', 'mark siazon', 'zero to agent', 'proof'], priority: 8 },
+  { id: 'pilot', title: 'Pilot Intake', description: 'Request a small HireProof pilot for communities, schools, recruiters, or builders.', href: '/pilot', category: 'Product', icon: UsersRound, keywords: ['pilot', 'intake', 'startup', 'community', 'school', 'recruiter'], priority: 9 },
+  { id: 'pilot-admin', title: 'Pilot Admin', description: 'Authenticated pilot request export and lightweight product analytics.', href: '/pilot/admin', category: 'Builder', icon: BarChart3, keywords: ['pilot admin', 'leads', 'analytics', 'export', 'csv'], priority: 6 },
   { id: 'developer', title: 'Developer Portal', description: 'Manage API keys, webhooks, usage, and provider credentials.', href: '/developer', category: 'Builder', icon: Code2, keywords: ['api keys', 'byok', 'webhooks', 'credentials'], priority: 7 },
   { id: 'pricing', title: 'Self-hosting / Plans', description: 'Plans for individuals, teams, job boards, schools, and communities.', href: '/pricing', category: 'Product', icon: DollarSign, keywords: ['pricing', 'plans', 'self hosting', 'enterprise'], priority: 5 },
   { id: 'lab', title: 'Agent Lab', description: 'Inspect the live audit stream and agent reasoning demo.', href: '/lab', category: 'Builder', icon: FlaskConical, keywords: ['lab', 'agent', 'stream', 'telemetry'], priority: 4 },
@@ -60,6 +65,7 @@ const SEARCH_INDEX: SearchItem[] = [
   { id: 'docs-how-it-works', title: 'How It Works', description: 'Current audit behavior, live evidence flow, demo boundaries, and trust controls.', href: '/docs/how-it-works', category: 'Docs', icon: ShieldCheck, keywords: ['evidence', 'demo fixture', 'scoring', 'serpapi'], priority: 8 },
   { id: 'docs-quickstart', title: 'Quickstart', description: 'Run HireProof locally and try the demo API key.', href: '/docs/quickstart', category: 'Docs', icon: Terminal, keywords: ['install', 'local', 'setup', 'demo key'], priority: 7 },
   { id: 'docs-self-hosting', title: 'Self-Hosting Guide', description: 'Host HireProof on your own infrastructure with BYOK support.', href: '/docs/self-hosting', category: 'Docs', icon: LockKeyhole, keywords: ['docker', 'byok', 'hosting', 'infrastructure'], priority: 6 },
+  { id: 'docs-pilot', title: 'Pilot Program', description: 'Post-hackathon startup path for communities, schools, recruiters, and job boards.', href: '/docs/pilot', category: 'Product', icon: UsersRound, keywords: ['pilot', 'startup', 'post hackathon', 'community', 'byok'], priority: 8 },
   { id: 'docs-verified-badge', title: 'Verified Business Badge', description: 'Embed a HireProof verified badge on an owned careers domain.', href: '/docs/verified-badge', category: 'Docs', icon: ShieldCheck, keywords: ['badge', 'dns', 'career page', 'verified'], priority: 5 },
   { id: 'docs-dead-internet', title: 'AI-Generated Recruitment Scams', description: 'Patterns for AI-generated job scams and suspicious recruiter messages.', href: '/docs/dead-internet', category: 'Docs', icon: Bot, keywords: ['ai scam', 'fake jobs', 'recruitment fraud'], priority: 6 },
   { id: 'docs-architecture', title: 'Architecture', description: 'System architecture across web app, API, MCP, and extension package workflow.', href: '/docs/architecture', category: 'Docs', icon: Network, keywords: ['architecture', 'system', 'mcp', 'api'], priority: 7 },

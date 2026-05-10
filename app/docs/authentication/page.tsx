@@ -9,7 +9,7 @@ export default function Page() {
     <div>
       <h1 className="mb-4 text-4xl font-black tracking-tight">Authentication</h1>
       <p className="mb-10 text-lg font-semibold text-muted leading-8">
-        HireProof uses API key authentication for all agent-facing endpoints. The web UI is public and rate-limited by IP.
+        HireProof uses account-issued API keys for agent-facing endpoints. The web UI is public and rate-limited by IP.
       </p>
 
       {/* How it works */}
@@ -17,11 +17,11 @@ export default function Page() {
         <h2 className="mb-3 text-2xl font-black">How it works</h2>
         <p className="mb-4 text-sm font-semibold text-muted leading-6">
           Pass your API key in the <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">x-api-key</code> request header.
-          The key is validated server-side against the <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">AGENT_API_KEY</code> environment variable.
+          The key is validated server-side against account-issued keys from the Developer Portal. Self-hosted installs can also use an <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">AGENT_API_KEY</code> environment fallback.
         </p>
         <CodeBlock title="Request Header" code={`x-api-key: your_secret_api_key`} />
         <div className="rounded-lg border border-safe/20 bg-safe/5 px-4 py-3 text-xs font-bold text-safe">
-          The public demo key <code className="font-mono">hireproof_agent_demo_key</code> is active on the live platform and is safe to use for testing.
+          The public demo key <code className="font-mono">hireproof_agent_demo_key</code> remains active for demo-mode testing. Post-hackathon live provider runs should use owner BYOK credentials.
         </div>
       </section>
 
@@ -59,12 +59,12 @@ export default function Page() {
       <section className="mb-10">
         <h2 className="mb-3 text-2xl font-black">Self-Hosting Configuration</h2>
         <p className="mb-4 text-sm font-semibold text-muted leading-6">
-          If you are running your own deployment, set your own secret key in your environment file:
+          If you are running your own deployment, set your own fallback key in your environment file:
         </p>
         <CodeBlock title=".env.local" code={`# Required for headless API and MCP authentication
 AGENT_API_KEY=my_super_secret_key_here`} />
         <p className="text-xs font-semibold text-muted">
-          If this variable is not set, the system defaults to <code className="font-mono bg-surface px-1 rounded">hireproof_agent_demo_key</code> — suitable for local development only.
+          If this variable is not set, the system defaults to <code className="font-mono bg-surface px-1 rounded">hireproof_agent_demo_key</code> — suitable for local development and deterministic demos only. Managed production usage should issue per-account keys and store live provider credentials through hosted BYOK.
         </p>
       </section>
 

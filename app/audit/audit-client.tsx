@@ -11,6 +11,7 @@ import { SiteHeader } from '@/components/layout/site-header'
 import { ErrorBoundary } from '@/components/system/error-boundary'
 import { AuditSkeleton } from '@/components/audit/audit-skeleton'
 import { AuditLiveProgress, type AuditProgressEvent } from '@/components/audit/audit-live-progress'
+import { trackProductEvent } from '@/components/analytics/product-event-tracker'
 import { useAuditHistory } from '@/hooks/useAuditHistory'
 import { getFixtureByVerdict } from '@/lib/fixtures'
 import { buildAuditReportV2 } from '@/lib/intelligence-v2'
@@ -29,6 +30,29 @@ type CostPosture = {
 }
 
 const DEMO_VERDICTS: DemoVerdict[] = ['high-risk', 'caution', 'safe']
+const QUICK_DEMOS = [
+  {
+    href: '/audit?demo=high-risk',
+    icon: AlertTriangle,
+    title: 'High-risk sample',
+    body: 'Unrealistic pay, no interview, Telegram contact.',
+    className: 'border-risk-bg bg-risk-bg/15 text-risk-text',
+  },
+  {
+    href: '/audit?demo=caution',
+    icon: Zap,
+    title: 'Caution sample',
+    body: 'Some real signals, but incomplete hiring proof.',
+    className: 'border-caution-bg bg-caution-bg/20 text-caution-text',
+  },
+  {
+    href: '/audit?demo=safe',
+    icon: CheckCircle2,
+    title: 'Safe sample',
+    body: 'Established company and normal apply path.',
+    className: 'border-safe-bg bg-safe-bg/20 text-safe-text',
+  },
+]
 
 function ModeTooltip({
   children,
@@ -216,6 +240,7 @@ function AuditContent() {
 
     const demoReport = buildDemoReport(demo)
     loadedDemoRef.current = demo
+    trackProductEvent('demo_open', { verdict: demo, source: 'audit_query' })
     setLiveMode(false)
     setReport(demoReport)
     setError(null)
@@ -311,8 +336,7 @@ function AuditContent() {
               </div>
               <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Check a Job <span className="text-safe">Post.</span></h1>
               <p className="mx-auto mt-3 max-w-2xl text-base font-medium text-muted sm:text-lg">
-                Paste the job details below.<br />
-                Our agents will cross-reference signals in real-time.
+                Start with a sample report or paste a real job post to check the evidence path in under a minute.
               </p>
             </div>
 
@@ -320,10 +344,30 @@ function AuditContent() {
               <div className="mb-4 flex max-w-3xl items-start gap-3 rounded-2xl border border-evidence/25 bg-evidence/10 px-4 py-3 text-left text-sm font-semibold text-foreground">
                 <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-evidence" />
                 <p className="leading-6">
-                  <span className="font-black">Live evidence is capped.</span> Public audits stay available with deterministic checks after the hackathon; hosted live provider runs are BYOK or API-key gated to protect production costs.
+                  <span className="font-black">Live evidence is capped.</span> Public audits stay available with deterministic checks; hosted live provider runs are BYOK or API-key gated to protect production costs.
                 </p>
               </div>
             )}
+
+            <div className="mb-5 grid gap-3 md:grid-cols-3">
+              {QUICK_DEMOS.map((demo) => {
+                const Icon = demo.icon
+                return (
+                  <Link
+                    key={demo.href}
+                    href={demo.href}
+                    onClick={() => trackProductEvent('demo_click', { href: demo.href, surface: 'audit_quick_demo' })}
+                    className={`hireproof-focus rounded-2xl border p-4 transition-transform hover:-translate-y-0.5 ${demo.className}`}
+                  >
+                    <div className="mb-3 flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      <h2 className="text-sm font-black">{demo.title}</h2>
+                    </div>
+                    <p className="text-xs font-semibold leading-5">{demo.body}</p>
+                  </Link>
+                )
+              })}
+            </div>
 
             <div className="relative mb-4 grid w-full max-w-[17.25rem] grid-cols-2 overflow-visible rounded-xl border border-safe/25 bg-safe/10 p-1 text-xs font-black shadow-sm shadow-safe/10 lg:mb-5">
               <motion.div

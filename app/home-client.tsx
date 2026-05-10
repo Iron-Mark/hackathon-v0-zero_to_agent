@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
-import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap, Bot, Terminal, Cpu, Zap as ZapIcon, Network, Download, Workflow } from 'lucide-react'
+import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap, Bot, Terminal, Cpu, Zap as ZapIcon, Network, Download, Workflow, KeyRound, UsersRound, Building2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/layout/site-header'
+import { trackProductEvent } from '@/components/analytics/product-event-tracker'
 
 import { SpotTheBot } from '@/components/marketing/spot-the-bot'
 import { ImpactTicker } from '@/components/marketing/impact-ticker'
@@ -41,47 +42,25 @@ const pitchDemos = [
   { href: '/audit?demo=safe', icon: CheckCircle2, label: 'Safe', description: 'Established company and professional path.', className: 'border-safe-bg bg-safe-bg text-safe-text' },
 ]
 
-const typingPhrases = [
-  'Remote frontend intern. PHP 80,000/week...',
-  'Join our team at TechStart Solutions...',
-  'Senior Software Engineer at Microsoft...',
-  'Urgent! Data entry clerk needed, $5000/week...',
+const postHackathonPaths = [
+  {
+    icon: ShieldAlert,
+    title: 'Free demo',
+    body: 'Deterministic reports stay available for walkthroughs, screenshots, and quick evaluation without spending live provider budget.',
+  },
+  {
+    icon: KeyRound,
+    title: 'BYOK live checks',
+    body: 'Serious live evidence runs through owner-provided model and search credentials, so pilots can control cost and data posture.',
+  },
+  {
+    icon: UsersRound,
+    title: 'Pilot program',
+    body: 'Career communities, schools, recruiters, and job boards can test API keys, webhooks, verified domains, and exportable reports.',
+  },
 ]
 
 const heroEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
-
-function TypewriterEffect() {
-  const [text, setText] = useState('')
-  const [phraseIndex, setPhraseIndex] = useState(0)
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  useEffect(() => {
-    const phrase = typingPhrases[phraseIndex]
-    const timer = setTimeout(() => {
-      if (!isDeleting) {
-        setText(phrase.substring(0, text.length + 1))
-        if (text === phrase) {
-          setTimeout(() => setIsDeleting(true), 2000)
-        }
-      } else {
-        setText(phrase.substring(0, text.length - 1))
-        if (text === '') {
-          setIsDeleting(false)
-          setPhraseIndex((phraseIndex + 1) % typingPhrases.length)
-        }
-      }
-    }, isDeleting ? 30 : 60)
-
-    return () => clearTimeout(timer)
-  }, [text, isDeleting, phraseIndex])
-
-  return (
-    <span className="text-safe">
-      {text}
-      <span className="animate-pulse">|</span>
-    </span>
-  )
-}
 
 const demoData = {
   scam: {
@@ -236,41 +215,34 @@ export function HomeClient() {
             className="mx-auto max-w-4xl text-center xl:mx-0 xl:max-w-2xl xl:text-left"
           >
 
-            <motion.div variants={fadeUp} custom={1} className="mb-5 inline-flex items-center gap-2 rounded-full border border-risk-bg bg-risk-bg px-3 py-1 text-sm font-bold text-risk-text">
+            <motion.div variants={fadeUp} custom={1} className="mb-5 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-sm font-bold text-safe">
               <ShieldAlert className="h-4 w-4" />
-              Built for suspicious work offers
+              Live after Zero to Agent
             </motion.div>
 
-            <motion.h1 variants={fadeUp} custom={2} className="text-4xl font-black leading-tight text-balance sm:text-5xl lg:text-6xl">
+            <motion.h1 variants={fadeUp} custom={2} className="bg-linear-to-r from-foreground via-safe to-evidence bg-clip-text text-4xl font-black leading-tight text-balance text-transparent dark:from-white dark:via-safe dark:to-evidence sm:text-5xl lg:text-6xl">
               Paste a job post. See if it&apos;s safe, suspicious, or high-risk, with receipts.
             </motion.h1>
 
             <motion.div variants={fadeUp} custom={3} className="mx-auto mt-5 max-w-2xl text-lg font-medium leading-8 text-muted xl:mx-0 xl:max-w-xl">
-              <p>Check a recruiter message, job listing, freelance gig, internship, or scholarship or training offer before you share personal details.</p>
-              <div className="mt-3 rounded-xl border border-border-soft bg-surface/80 dark:bg-black p-4 font-mono text-xs shadow-2xl relative overflow-hidden group backdrop-blur-md">
-                <div className="absolute top-0 left-0 h-full w-1 bg-safe/50" />
-                <div className="flex items-center gap-2 mb-2 opacity-80">
-                  <div className="h-2 w-2 rounded-full bg-risk-text" />
-                  <div className="h-2 w-2 rounded-full bg-caution" />
-                  <div className="h-2 w-2 rounded-full bg-safe" />
-                  <span className="ml-2 text-[8px] uppercase tracking-widest text-muted dark:text-white/70">hireproof-terminal v1.0.4</span>
-                </div>
-                <div className="text-foreground dark:text-white/90">
-                  <span className="text-safe mr-2">investigator@hireproof:~$</span>
-                  <TypewriterEffect />
-                </div>
-              </div>
+              <p>Check a recruiter message, job listing, freelance gig, internship, or scholarship or training offer before you share personal details. HireProof stays focused on job-scam verification as it moves into pilot validation.</p>
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-col justify-center gap-3 sm:flex-row xl:justify-start">
               <Link href="/audit" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-bold shadow-lg">
                 Start investigation <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/audit?demo=high-risk" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
+              <Link href="/audit?demo=high-risk" onClick={() => trackProductEvent('demo_click', { href: '/audit?demo=high-risk', surface: 'home_hero' })} className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
                 Quick demo
               </Link>
               <Link href="/proof" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-evidence-bg bg-evidence-bg px-5 py-2.5 font-bold text-evidence transition-colors hover:bg-background">
                 Proof pack
+              </Link>
+              <Link href="/docs/pilot" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-safe/30 bg-safe/10 px-5 py-2.5 font-bold text-safe transition-colors hover:bg-background">
+                Pilot path
+              </Link>
+              <Link href="/portfolio" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
+                Case study
               </Link>
             </motion.div>
 
@@ -281,6 +253,7 @@ export function HomeClient() {
                   <motion.div key={demo.href} variants={cardReveal}>
                     <Link
                       href={demo.href}
+                      onClick={() => trackProductEvent('demo_click', { href: demo.href, surface: 'home_demo_card' })}
                       className={`hireproof-focus group relative block min-w-0 overflow-hidden rounded-xl border p-3 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:scale-[0.98] ${demo.className}`}
                     >
                       <span className="pointer-events-none absolute inset-0 bg-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 dark:bg-white/10" />
@@ -404,6 +377,41 @@ export function HomeClient() {
               </motion.div>
             </motion.div>
           </motion.div>
+        </div>
+      </section>
+
+      <section className="border-y border-border-soft bg-surface/45">
+        <div className="mx-auto grid max-w-400 gap-5 px-6 py-12 md:px-12 lg:grid-cols-[0.9fr_1.1fr] lg:px-20 xl:px-32">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-safe">
+              <Building2 className="h-3.5 w-3.5" />
+              Post-hackathon product path
+            </div>
+            <h2 className="text-3xl font-black tracking-tight md:text-4xl">From hackathon build to pilot-ready trust layer.</h2>
+            <p className="text-sm font-semibold leading-6 text-muted">
+              HireProof shipped as a focused product proof, and the strongest next move is pilot validation: keep the public demo credible, make live provider usage BYOK-first, and help real communities screen suspicious opportunities.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link href="/pilot" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-black">
+                Request pilot <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/portfolio" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border-soft bg-background px-4 py-2.5 text-sm font-black hover:bg-surface">
+                View case study
+              </Link>
+              <Link href="/developer" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border-soft bg-background px-4 py-2.5 text-sm font-black hover:bg-surface">
+                Open Developer Portal
+              </Link>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {postHackathonPaths.map((item) => (
+              <article key={item.title} className="rounded-2xl border border-border-soft bg-background p-5 shadow-sm">
+                <item.icon className="mb-4 h-5 w-5 text-safe" />
+                <h3 className="text-sm font-black">{item.title}</h3>
+                <p className="mt-2 text-xs font-semibold leading-5 text-muted">{item.body}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
