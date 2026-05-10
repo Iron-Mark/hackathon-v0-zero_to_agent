@@ -121,10 +121,10 @@ export default function PortfolioPage() {
             </div>
             <div className="space-y-3">
               {buildTimeline.map(([label, body], index) => (
-                <div key={label} className="grid gap-3 rounded-2xl border border-border-soft bg-background p-4 sm:grid-cols-[5rem_1fr]">
-                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-normal text-safe">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-safe text-background">{index + 1}</span>
-                    {label}
+                <div key={label} className="grid gap-4 rounded-2xl border border-border-soft bg-background p-4 sm:grid-cols-[7rem_1fr] sm:items-start">
+                  <div className="flex min-w-0 items-center gap-3 text-xs font-black uppercase tracking-normal text-safe">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-safe text-sm text-background" aria-hidden="true">{index + 1}</span>
+                    <span className="min-w-0 leading-5">{label}</span>
                   </div>
                   <p className="text-sm font-semibold leading-6 text-muted">{body}</p>
                 </div>
