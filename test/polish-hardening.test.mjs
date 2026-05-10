@@ -243,6 +243,8 @@ test('public README keeps export and extension claims honest', async () => {
   const pricing = await fs.readFile(new URL('../app/pricing/page.tsx', import.meta.url), 'utf8')
   const resultScreen = await fs.readFile(new URL('../components/audit/result-screen.tsx', import.meta.url), 'utf8')
 
+  assert.match(source, /Production-hireproof\.tech/)
+  assert.doesNotMatch(source, /Production-hireproof--sigma\.vercel\.app/)
   assert.match(source, /exported as PNG\/PDF\/CSV/)
   assert.match(source, /Chrome extension ZIP|Store-ready repo package/)
   assert.doesNotMatch(source, /Chrome Extension.*scan any webpage from the browser toolbar/)
@@ -334,6 +336,8 @@ test('first-place sprint surfaces demo clarity and public proof from the homepag
   assert.doesNotMatch(source, /lg:grid-cols-\[minmax\(0,1fr\)_460px\]/)
   assert.match(source, /Start investigation/)
   assert.match(source, /Quick demo/)
+  assert.match(source, /Pilot-ready job-scam checks/)
+  assert.match(source, /pilot-ready job-scam verification/)
   assert.match(source, /href="\/audit\?demo=high-risk"/)
   assert.match(source, /Also available/)
   assert.match(source, /Proof pack/)
@@ -355,6 +359,8 @@ test('first-place sprint surfaces demo clarity and public proof from the homepag
   assert.match(source, /\/audit\?demo=high-risk/)
   assert.match(source, /\/proof/)
   assert.match(header, /\/proof/)
+  assert.match(proofPage, /Public proof/)
+  assert.match(proofPage, /Production proof for a focused job-scam product/)
   assert.match(proofPage, /production-deployed/)
   assert.match(proofPage, /Slack screenshot proof/)
   assert.match(proofPage, /wrun_01KQD9H6AND3W7YZBHHKAH2KV5/)
@@ -494,6 +500,21 @@ test('history, result, and proof pages keep the audit journey polished', async (
   assert.match(siteHeader, /z-50/)
   assert.match(siteHeader, /z-\[60\]/)
   assert.match(docsLayout, /z-20/)
+})
+
+test('pilot funnel clearly frames audience, outcome, and next step', async () => {
+  const pilotPage = await fs.readFile(new URL('../app/pilot/page.tsx', import.meta.url), 'utf8')
+  const pilotClient = await fs.readFile(new URL('../app/pilot/pilot-intake-client.tsx', import.meta.url), 'utf8')
+
+  assert.match(pilotClient, /Pilot-ready workflow/)
+  assert.match(pilotClient, /Run a small job-scam safety pilot before scaling/)
+  assert.match(pilotClient, /Who it is for/)
+  assert.match(pilotClient, /What you get/)
+  assert.match(pilotClient, /What happens next/)
+  assert.match(pilotClient, /Request pilot review/)
+  assert.match(pilotClient, /Job-safety workflow to validate/)
+  assert.match(pilotPage, /Need the pilot plan first/)
+  assert.match(pilotPage, /cost-safe live-provider posture/)
 })
 
 test('demo login response only returns public demo identity', async () => {

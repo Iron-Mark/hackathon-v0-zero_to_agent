@@ -211,7 +211,7 @@ export function HomeClient() {
 
             <motion.div variants={fadeUp} custom={1} className="mb-5 inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-sm font-bold text-safe">
               <ShieldAlert className="h-4 w-4" />
-              Live after Zero to Agent
+              Pilot-ready job-scam checks
             </motion.div>
 
             <motion.h1 variants={fadeUp} custom={2} className="bg-linear-to-r from-foreground via-safe to-evidence bg-clip-text text-4xl font-black leading-tight text-balance text-transparent dark:from-white dark:via-safe dark:to-evidence sm:text-5xl lg:text-6xl">
@@ -219,7 +219,7 @@ export function HomeClient() {
             </motion.h1>
 
             <motion.div variants={fadeUp} custom={3} className="mx-auto mt-5 max-w-2xl text-lg font-medium leading-8 text-muted xl:mx-0 xl:max-w-xl">
-              <p>Check a recruiter message, job listing, freelance gig, internship, or scholarship or training offer before you share personal details. HireProof stays focused on job-scam verification as it moves into pilot validation.</p>
+              <p>Check a recruiter message, job listing, freelance gig, internship, or scholarship or training offer before you share personal details. HireProof is moving from hackathon proof into pilot-ready job-scam verification for communities that need repeatable evidence.</p>
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-col justify-center gap-3 sm:flex-row xl:justify-start">

@@ -36,18 +36,18 @@ export function PilotIntakeClient() {
       <section className="space-y-5">
         <div className="inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-safe">
           <UsersRound className="h-4 w-4" />
-          Pilot intake
+          Pilot-ready workflow
         </div>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">Test HireProof with a real job-safety workflow.</h1>
+        <h1 className="text-4xl font-black tracking-tight md:text-5xl">Run a small job-scam safety pilot before scaling.</h1>
         <p className="text-base font-semibold leading-7 text-muted">
-          Use this for career communities, schools, recruiters, job boards, and builders who want a small proof run
-          before adding billing or broad live provider access.
+          Use this for career communities, schools, recruiters, job boards, and builders that need a repeatable way
+          to review suspicious job posts before members apply, pay fees, or share identity data.
         </p>
         <div className="grid gap-3">
           {[
-            ['Public demo stays available', 'Seeded reports and proof pages keep evaluation low-friction.'],
-            ['Live checks go BYOK-first', 'Serious provider usage should use owner credentials and cost limits.'],
-            ['Pilot decides the roadmap', 'Repeat use, false positives, exports, and API demand determine the next build.'],
+            ['Who it is for', 'Groups that already see suspicious recruiter messages, fake openings, or risky application links.'],
+            ['What you get', 'A focused proof run using real examples, deterministic demos, visible evidence, and cost-safe live-provider boundaries.'],
+            ['What happens next', 'The pilot measures repeat use, false positives, exports, API demand, and which workflow is worth building next.'],
           ].map(([title, body]) => (
             <div key={title} className="flex gap-3 rounded-2xl border border-border-soft bg-surface p-4">
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-safe" />
@@ -98,7 +98,7 @@ export function PilotIntakeClient() {
           </div>
           <div>
             <h2 className="text-xl font-black">Request a pilot</h2>
-            <p className="mt-1 text-sm font-semibold leading-6 text-muted">Stores the request for follow-up and keeps an email fallback for direct outreach.</p>
+            <p className="mt-1 text-sm font-semibold leading-6 text-muted">Share the audience, review flow, and examples you want to validate. The email fallback stays available for direct outreach.</p>
           </div>
         </div>
 
@@ -122,13 +122,13 @@ export function PilotIntakeClient() {
             </select>
           </label>
           <label className="text-sm font-black sm:col-span-2">
-            Workflow to validate
+            Job-safety workflow to validate
             <textarea
               value={workflow}
               onChange={(event) => setWorkflow(event.target.value)}
               rows={5}
               className="hireproof-focus mt-2 w-full resize-none rounded-xl border border-border bg-background p-3 text-sm font-semibold leading-6 outline-none focus:border-safe"
-              placeholder="Example: members post suspicious recruiter messages in Discord and moderators need a repeatable evidence report before warning the group."
+              placeholder="Example: members post suspicious recruiter messages in Discord, and moderators need a repeatable evidence report before warning the group."
             />
           </label>
         </div>
@@ -138,7 +138,7 @@ export function PilotIntakeClient() {
           disabled={!canSubmit}
           className="hireproof-focus hireproof-cta-primary mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-black disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {status === 'saving' ? 'Saving request...' : 'Save pilot request'} <ArrowRight className="h-4 w-4" />
+          {status === 'saving' ? 'Saving request...' : 'Request pilot review'} <ArrowRight className="h-4 w-4" />
         </button>
 
         <a
@@ -164,7 +164,7 @@ export function PilotIntakeClient() {
           <div className="rounded-xl border border-border-soft bg-background p-4">
             <Building2 className="mb-3 h-5 w-5 text-safe" />
             <h3 className="text-sm font-black">Best first pilot</h3>
-            <p className="mt-1 text-xs font-semibold leading-5 text-muted">3-5 groups with real suspicious posts and one repeatable review flow.</p>
+            <p className="mt-1 text-xs font-semibold leading-5 text-muted">3-5 real suspicious posts and one repeatable review flow.</p>
           </div>
           <div className="rounded-xl border border-border-soft bg-background p-4">
             <ShieldAlert className="mb-3 h-5 w-5 text-caution" />

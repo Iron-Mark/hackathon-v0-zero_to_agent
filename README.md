@@ -10,7 +10,7 @@ HireProof helps a job seeker decide whether an opportunity is worth trusting bef
 
 Built as a solo global hackathon project by [Mark Siazon](https://www.marksiazon.dev/) in just over one week for the [Vercel Zero to Agent Hackathon](https://community.vercel.com/hackathons/zero-to-agent).
 
-[![Production Demo](https://img.shields.io/badge/Production-hireproof--sigma.vercel.app-111827?style=for-the-badge)](https://hireproof.tech)
+[![Production Demo](https://img.shields.io/badge/Production-hireproof.tech-111827?style=for-the-badge)](https://hireproof.tech)
 [![Docs](https://img.shields.io/badge/Docs-Live-2563eb?style=for-the-badge)](https://hireproof.tech/docs)
 [![Case Study](https://img.shields.io/badge/Case%20Study-Live-0f766e?style=for-the-badge)](https://hireproof.tech/portfolio)
 [![Pilot Intake](https://img.shields.io/badge/Pilot-Open-f97316?style=for-the-badge)](https://hireproof.tech/pilot)

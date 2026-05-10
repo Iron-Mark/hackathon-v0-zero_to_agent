@@ -20,11 +20,11 @@ export default function PilotPage() {
         <section className="mt-10 rounded-2xl border border-border-soft bg-surface p-5 md:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-xl font-black">Need the operating plan first?</h2>
-              <p className="mt-1 text-sm font-semibold leading-6 text-muted">Read the 90-day pilot plan, proof boundaries, and positioning notes.</p>
+              <h2 className="text-xl font-black">Need the pilot plan first?</h2>
+              <p className="mt-1 text-sm font-semibold leading-6 text-muted">Review the 90-day validation plan, proof boundaries, and cost-safe live-provider posture.</p>
             </div>
             <Link href="/docs/pilot" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-safe/30 bg-safe/10 px-4 py-2.5 text-sm font-black text-safe hover:bg-background">
-              View plan <ArrowRight className="h-4 w-4" />
+              View pilot plan <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/pilot/admin" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border-soft bg-background px-4 py-2.5 text-sm font-black hover:bg-surface">
               Admin/export

@@ -24,7 +24,7 @@ import { SiteHeader } from '@/components/layout/site-header'
 
 export const metadata: Metadata = {
   title: 'Proof Pack | HireProof',
-  description: 'Submission-ready proof that HireProof is production-deployed, API-smoke-tested, CLI-screenshot-proven, Slack-screenshot-proven, and WDK accepted-run proven.',
+  description: 'Public proof that HireProof is production-deployed, API-smoke-tested, CLI-screenshot-proven, Slack-screenshot-proven, and WDK accepted-run proven.',
 }
 
 const readyProof = [
@@ -155,19 +155,19 @@ export default function ProofPage() {
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe-bg bg-safe-bg px-3 py-1 text-xs font-black uppercase tracking-normal text-safe-text">
               <ShieldCheck className="h-4 w-4" />
-              Submission proof
+              Public proof
             </div>
             <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-              HireProof proof, clearly bounded.
+              Production proof for a focused job-scam product.
             </h1>
             <p className="mt-5 max-w-2xl text-lg font-semibold leading-8 text-muted">
-              Use this page to show the strongest working evidence: production deployment, audit API smoke proof, Slack screenshot proof, and the accepted WDK workflow run.
+              Use this page to evaluate the strongest working evidence behind HireProof: the live app, audit API smoke proof, chat delivery proof, packaged tools, and the accepted WDK workflow run.
             </p>
           </div>
           <div className="rounded-2xl border border-border-soft bg-surface p-5">
             <div className="text-xs font-black uppercase tracking-normal text-muted">Safe public claim</div>
             <p className="mt-3 text-xl font-black leading-7">
-              HireProof is production-deployed, API-smoke-tested, Slack-screenshot-proven, and WDK accepted-run proven.
+              HireProof is production-deployed, API-smoke-tested, Slack screenshot proof exists, and WDK accepted-run proof exists.
             </p>
           </div>
         </section>
@@ -241,7 +241,7 @@ export default function ProofPage() {
         <section className="mb-8 rounded-2xl border border-border-soft bg-surface p-6">
           <div className="mb-4 flex items-center gap-2">
             <Target className="h-5 w-5 text-safe" />
-            <h2 className="text-lg font-black">Submission positioning</h2>
+            <h2 className="text-lg font-black">Product positioning</h2>
           </div>
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="rounded-xl border border-border-soft bg-background p-4">
