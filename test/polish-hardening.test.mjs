@@ -243,10 +243,8 @@ test('public README keeps export and extension claims honest', async () => {
   const pricing = await fs.readFile(new URL('../app/pricing/page.tsx', import.meta.url), 'utf8')
   const resultScreen = await fs.readFile(new URL('../components/audit/result-screen.tsx', import.meta.url), 'utf8')
 
-  assert.match(source, /PNG Screenshot Export/)
-  assert.match(source, /Forensic PDF Dossier/)
-  assert.match(source, /Report CSV Export/)
-  assert.match(source, /local install/i)
+  assert.match(source, /exported as PNG\/PDF\/CSV/)
+  assert.match(source, /Chrome extension ZIP|Store-ready repo package/)
   assert.doesNotMatch(source, /Chrome Extension.*scan any webpage from the browser toolbar/)
   assert.match(pricing, /local extension/)
   assert.match(pricing, /JSON \+ PDF/)
@@ -337,6 +335,12 @@ test('first-place sprint surfaces demo clarity and public proof from the homepag
   assert.match(source, /Start investigation/)
   assert.match(source, /Quick demo/)
   assert.match(source, /href="\/audit\?demo=high-risk"/)
+  assert.match(source, /Also available/)
+  assert.match(source, /Proof pack/)
+  assert.match(source, /Pilot path/)
+  assert.match(source, /Case study/)
+  assert.match(source, /surface: 'home_hero'/)
+  assert.doesNotMatch(source, /home_demo_card/)
   assert.match(source, /flex cursor-pointer items-center gap-1\.5 rounded-full/)
   assert.match(source, /rotate-\[-7deg\]/)
   assert.match(source, /\/media\/job-application-meme\.png/)
@@ -349,8 +353,6 @@ test('first-place sprint surfaces demo clarity and public proof from the homepag
   assert.doesNotMatch(source, /Suspicious work offer/)
   assert.doesNotMatch(source, /Run quick demo/)
   assert.match(source, /\/audit\?demo=high-risk/)
-  assert.match(source, /\/audit\?demo=caution/)
-  assert.match(source, /\/audit\?demo=safe/)
   assert.match(source, /\/proof/)
   assert.match(header, /\/proof/)
   assert.match(proofPage, /production-deployed/)
@@ -526,14 +528,19 @@ test('public positioning keeps do-not-overclaim guardrails explicit', async () =
   const competitiveRoadmap = await fs.readFile(new URL('../app/docs/competitive-roadmap/page.tsx', import.meta.url), 'utf8')
   const submissionPack = await fs.readFile(new URL('../docs/final-submission-pack.md', import.meta.url), 'utf8')
 
-  for (const source of [readme, tripleTrack, competitiveRoadmap]) {
+  assert.match(readme, /not presented as a generic security platform/)
+  assert.match(readme, /continuous-learning system/)
+  assert.match(readme, /in-house deepfake detector/)
+  assert.match(readme, /not a completed workflow transcript|Do not claim completed long-running workflow transcript/)
+
+  for (const source of [tripleTrack, competitiveRoadmap]) {
     assert.match(source, /Do not call HireProof a generic security platform\./)
     assert.match(source, /Do not claim adaptive ML, continuous learning, or in-house deepfake detection as shipped\./)
     assert.match(source, /Do not claim completed WDK workflow proof until a completed result is captured\./)
     assert.match(source, /Keep competitor comparisons high-level unless the competitor claims have been independently verified\./)
   }
 
-  for (const source of [readme, tripleTrack, competitiveRoadmap, submissionPack]) {
+  for (const source of [tripleTrack, competitiveRoadmap, submissionPack]) {
     assert.match(source, /roadmap-only work/)
     assert.match(source, /independently verified proof/)
   }

@@ -204,6 +204,32 @@ async function readErrorMessage(response: Response) {
 }
 
 const STOPPED_AUDIT_MESSAGE = 'Stopped waiting for the live audit result. You can retry or switch to demo fixtures.'
+const COST_GUARDRAIL_MESSAGE = 'Live evidence is capped. Public audits stay available with deterministic checks; hosted live provider runs are BYOK or API-key gated to protect production costs.'
+
+function DemoCostSnackbar({ visible }: { visible: boolean }) {
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 16, scale: 0.98 }}
+          transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+          className="fixed inset-x-4 bottom-5 z-[90] mx-auto flex max-w-3xl items-start gap-3 rounded-2xl border border-evidence/30 bg-surface/95 px-4 py-3 text-sm font-semibold text-foreground shadow-2xl shadow-black/20 ring-1 ring-white/10 backdrop-blur-md sm:px-5"
+          role="status"
+          aria-live="polite"
+          aria-label={COST_GUARDRAIL_MESSAGE}
+          data-testid="demo-cost-snackbar"
+        >
+          <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-evidence" />
+          <p className="leading-6">
+            <span className="font-black">Live evidence is capped.</span> Public audits stay available with deterministic checks; hosted live provider runs are BYOK or API-key gated to protect production costs.
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
 
 function AuditContent() {
   const searchParams = useSearchParams()
@@ -246,7 +272,6 @@ function AuditContent() {
     setError(null)
     setStreamLogs(['Demo fixture loaded. No live source checks were run.'])
     setStreamEvents([{ type: 'log', message: 'Demo fixture loaded. No live source checks were run.', phase: 'report', status: 'complete', label: 'Demo fixture' }])
-    showToast('Demo fixture loaded. Use live evidence mode for fresh source checks.', 'info')
     addReport(demoReport)
   }, [searchParams, addReport])
 
@@ -264,7 +289,6 @@ function AuditContent() {
         const demoReport = buildDemoReport(chooseDemoVerdict(request.text))
         setStreamLogs(['Demo fixture loaded. No live source checks were run.'])
         setStreamEvents([{ type: 'log', message: 'Demo fixture loaded. No live source checks were run.', phase: 'report', status: 'complete', label: 'Demo fixture' }])
-        showToast('Demo fixture loaded. Use live evidence mode for fresh source checks.', 'info')
         setReport(demoReport)
         addReport(demoReport)
         return
@@ -318,8 +342,12 @@ function AuditContent() {
     router.push('/audit')
   }
 
+  const isDemoReport = report?.mode === 'demo' || report?.credentialMode === 'demo' || report?.source === 'demo'
+  const showDemoCostSnackbar = !liveMode || Boolean(isDemoReport)
+
   return (
     <div className="relative min-h-[calc(100vh-64px)]">
+      <DemoCostSnackbar visible={showDemoCostSnackbar} />
       <AnimatePresence mode="wait">
         {!isAuditing && !report && (
           <motion.div

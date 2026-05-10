@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
-import { ArrowRight, CheckCircle2, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Zap, Bot, Terminal, Cpu, Zap as ZapIcon, Network, Download, Workflow, KeyRound, UsersRound, Building2 } from 'lucide-react'
+import { ArrowRight, AlertCircle, Globe, TrendingUp, MapPin, ShieldAlert, SearchCheck, FileText, Sparkles, Bot, Terminal, Cpu, Zap as ZapIcon, Network, Download, Workflow, KeyRound, UsersRound, Building2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/layout/site-header'
 import { trackProductEvent } from '@/components/analytics/product-event-tracker'
@@ -34,12 +34,6 @@ const automationSurfaces = [
   { label: 'n8n node', detail: 'Run audit and async audit operations', status: 'source-shipped' },
   { label: 'Make app', detail: 'API key connection and audit modules', status: 'source-shipped' },
   { label: 'LangChain tool', detail: 'Structured tool wrapper and helpers', status: 'source-shipped' },
-]
-
-const pitchDemos = [
-  { href: '/audit?demo=high-risk', icon: AlertCircle, label: 'High-risk', description: 'Unrealistic pay, no interview, Telegram contact.', className: 'border-risk-bg bg-risk-bg text-risk-text' },
-  { href: '/audit?demo=caution', icon: Zap, label: 'Caution', description: 'Some legitimacy, but incomplete details.', className: 'border-caution-bg bg-caution-bg text-caution-text' },
-  { href: '/audit?demo=safe', icon: CheckCircle2, label: 'Safe', description: 'Established company and professional path.', className: 'border-safe-bg bg-safe-bg text-safe-text' },
 ]
 
 const postHackathonPaths = [
@@ -229,50 +223,25 @@ export function HomeClient() {
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-col justify-center gap-3 sm:flex-row xl:justify-start">
-              <Link href="/audit" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-bold shadow-lg">
+              <Link href="/audit" className="hireproof-focus hireproof-cta-primary inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-bold shadow-lg">
                 Start investigation <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/audit?demo=high-risk" onClick={() => trackProductEvent('demo_click', { href: '/audit?demo=high-risk', surface: 'home_hero' })} className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
+              <Link href="/audit?demo=high-risk" onClick={() => trackProductEvent('demo_click', { href: '/audit?demo=high-risk', surface: 'home_hero' })} className="hireproof-focus inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
                 Quick demo
-              </Link>
-              <Link href="/proof" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-evidence-bg bg-evidence-bg px-5 py-2.5 font-bold text-evidence transition-colors hover:bg-background">
-                Proof pack
-              </Link>
-              <Link href="/docs/pilot" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-safe/30 bg-safe/10 px-5 py-2.5 font-bold text-safe transition-colors hover:bg-background">
-                Pilot path
-              </Link>
-              <Link href="/portfolio" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/85 px-5 py-2.5 font-bold transition-colors hover:bg-background">
-                Case study
               </Link>
             </motion.div>
 
-            <motion.div variants={staggerContainer} initial="hidden" animate="show" className="mx-auto mt-6 grid max-w-3xl gap-2 sm:grid-cols-3 xl:mx-0">
-              {pitchDemos.map((demo) => {
-                const Icon = demo.icon
-                return (
-                  <motion.div key={demo.href} variants={cardReveal}>
-                    <Link
-                      href={demo.href}
-                      onClick={() => trackProductEvent('demo_click', { href: demo.href, surface: 'home_demo_card' })}
-                      className={`hireproof-focus group relative block min-w-0 overflow-hidden rounded-xl border p-3 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:scale-[0.98] ${demo.className}`}
-                    >
-                      <span className="pointer-events-none absolute inset-0 bg-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 dark:bg-white/10" />
-                      <span className="pointer-events-none absolute right-2 top-2 h-16 w-16 rounded-full bg-current/10 blur-2xl transition-transform duration-300 group-hover:scale-125 group-focus-visible:scale-125" />
-                      <div className="relative mb-2 flex min-w-0 items-center justify-between gap-2 text-sm font-black">
-                        <span className="flex min-w-0 items-center gap-2">
-                          <Icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-focus-visible:scale-110" />
-                          {demo.label}
-                        </span>
-                        <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-80 group-focus-visible:translate-x-0.5 group-focus-visible:opacity-80" />
-                      </div>
-                      <p className="relative min-w-0 wrap-break-word text-xs font-semibold leading-5">{demo.description}</p>
-                      <span className="relative mt-2 inline-flex max-w-full whitespace-normal wrap-break-word text-[10px] font-black uppercase leading-tight tracking-wide opacity-0 transition-opacity duration-300 group-hover:opacity-70 group-focus-visible:opacity-70">
-                        Try case
-                      </span>
-                    </Link>
-                  </motion.div>
-                )
-              })}
+            <motion.div variants={fadeUp} custom={5} className="mx-auto mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-black uppercase tracking-widest text-muted xl:mx-0 xl:justify-start">
+              <span className="text-[11px] text-muted/80">Also available</span>
+              <Link href="/proof" className="hireproof-focus rounded-md underline-offset-4 hover:text-evidence hover:underline">
+                Proof pack
+              </Link>
+              <Link href="/docs/pilot" className="hireproof-focus rounded-md underline-offset-4 hover:text-safe hover:underline">
+                Pilot path
+              </Link>
+              <Link href="/portfolio" className="hireproof-focus rounded-md underline-offset-4 hover:text-foreground hover:underline">
+                Case study
+              </Link>
             </motion.div>
           </motion.div>
 

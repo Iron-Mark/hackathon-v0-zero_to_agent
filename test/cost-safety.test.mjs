@@ -104,6 +104,9 @@ test('public audit UI explains capped live evidence mode after judging', async (
   assert.match(source, /costPosture/)
   assert.match(source, /Live evidence is capped/)
   assert.match(source, /BYOK/)
+  assert.match(source, /DemoCostSnackbar/)
+  assert.match(source, /demo-cost-snackbar/)
+  assert.match(source, /showDemoCostSnackbar/)
 })
 
 test('health and developer usage expose provider guard state', async () => {
@@ -125,6 +128,6 @@ test('portfolio case study preserves solo global hackathon positioning', async (
   assert.match(doc, /solo global hackathon/i)
   assert.match(doc, /one week/i)
   assert.match(doc, /job scam/i)
-  assert.match(doc, /https:\/\/hireproof-sigma\.vercel\.app/)
+  assert.match(doc, /https:\/\/hireproof\.tech/)
   assert.match(doc, /v1\.0 release/)
 })

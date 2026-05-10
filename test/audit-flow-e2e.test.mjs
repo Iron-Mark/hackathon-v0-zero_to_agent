@@ -60,6 +60,8 @@ test('demo audit path auto-fills URL and location then renders a verdict', { tim
 
     await page.goto(`${BASE_URL}/audit`, { waitUntil: 'networkidle' })
     await page.getByRole('button', { name: 'Demo fixtures' }).click()
+    await page.getByTestId('demo-cost-snackbar').waitFor({ timeout: 5_000 })
+    assert.match(await page.getByTestId('demo-cost-snackbar').innerText(), /Live evidence is capped/i)
     await page.getByTestId('job-input-text').fill(sample)
 
     assert.equal(await page.getByTestId('job-input-url').inputValue(), 'https://linkedin.com/jobs/view/full-flow-demo')
