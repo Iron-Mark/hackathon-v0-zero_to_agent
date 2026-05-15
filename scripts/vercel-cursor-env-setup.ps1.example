@@ -1,0 +1,89 @@
+# HireProof — Cursor integration Vercel env setup (EXAMPLE)
+# Copy to vercel-cursor-env-setup.ps1, fill placeholders, run interactively.
+# Requires: Vercel CLI logged in (`vercel whoami`), repo linked (`vercel link`).
+# NEVER commit real secrets. Do not paste API keys into chat or git.
+#
+# Project (from local .vercel/project.json): iron-marks-projects/hireproof
+# Docs: docs/cursor/deploy.md
+
+$ErrorActionPreference = "Stop"
+Set-Location $PSScriptRoot\..
+
+# --- Placeholders (replace before running) ---
+$CursorApiKey        = "<PASTE_CURSOR_CLOUD_AGENTS_API_KEY>"
+$CursorWebhookSecret = "<PASTE_32_BYTE_HEX_FROM_node_-e_crypto>"
+$AllowedRepoUrl      = "https://github.com/Iron-Mark/Hackathon-HireProof"
+$ModelId             = "composer-2"
+$RuntimeDefault      = "cloud"
+$MaxConcurrentRuns   = "2"
+
+# Preview first, then Production after QA (recommended order).
+$Environments = @("preview", "production")
+
+function Add-VercelEnv {
+    param(
+        [string]$Name,
+        [string]$Value,
+        [string[]]$Targets
+    )
+    foreach ($env in $Targets) {
+        Write-Host "Adding $Name to $env (you will confirm in CLI prompts)..." -ForegroundColor Cyan
+        # Pipe value into vercel env add (non-interactive value; still prompts for env scope)
+        $Value | vercel env add $Name $env
+    }
+}
+
+Write-Host @"
+
+=== Manual alternative (commented vercel env add) ===
+Run from repo root after replacing placeholders. Each command prompts for the value
+unless you pipe stdin (shown below for PowerShell).
+
+# 1) Repo pin and model defaults (safe to set before enabling integration)
+# vercel env add CURSOR_ALLOWED_REPO_URL preview
+# vercel env add CURSOR_ALLOWED_REPO_URL production
+# vercel env add CURSOR_MODEL_ID preview
+# vercel env add CURSOR_MODEL_ID production
+# vercel env add CURSOR_RUNTIME_DEFAULT preview
+# vercel env add CURSOR_RUNTIME_DEFAULT production
+# vercel env add CURSOR_MAX_CONCURRENT_RUNS preview
+# vercel env add CURSOR_MAX_CONCURRENT_RUNS production
+
+# 2) Secrets (Preview first, then Production)
+# echo '<CURSOR_API_KEY>' | vercel env add CURSOR_API_KEY preview
+# echo '<CURSOR_API_KEY>' | vercel env add CURSOR_API_KEY production
+# echo '<CURSOR_WEBHOOK_SECRET>' | vercel env add CURSOR_WEBHOOK_SECRET preview
+# echo '<CURSOR_WEBHOOK_SECRET>' | vercel env add CURSOR_WEBHOOK_SECRET production
+
+# 3) Feature flag — set LAST on Preview, validate, then Production
+# echo 'true' | vercel env add CURSOR_INTEGRATION_ENABLED preview
+# echo 'true' | vercel env add CURSOR_INTEGRATION_ENABLED production
+
+# Verify names only (values redacted as Encrypted):
+# vercel env ls
+
+# Redeploy Preview after env changes, then smoke:
+# node scripts/cursor-smoke.mjs
+# See docs/cursor/automation.md for cron header x-cursor-job-secret
+
+"@ -ForegroundColor DarkGray
+
+if ($CursorApiKey -like "<*>" -or $CursorWebhookSecret -like "<*>" ) {
+    Write-Host "Fill placeholders at top of this script (or use commented commands above)." -ForegroundColor Yellow
+    exit 0
+}
+
+# Non-secret config
+Add-VercelEnv -Name "CURSOR_ALLOWED_REPO_URL" -Value $AllowedRepoUrl -Targets $Environments
+Add-VercelEnv -Name "CURSOR_MODEL_ID" -Value $ModelId -Targets $Environments
+Add-VercelEnv -Name "CURSOR_RUNTIME_DEFAULT" -Value $RuntimeDefault -Targets $Environments
+Add-VercelEnv -Name "CURSOR_MAX_CONCURRENT_RUNS" -Value $MaxConcurrentRuns -Targets $Environments
+
+# Secrets
+Add-VercelEnv -Name "CURSOR_API_KEY" -Value $CursorApiKey -Targets $Environments
+Add-VercelEnv -Name "CURSOR_WEBHOOK_SECRET" -Value $CursorWebhookSecret -Targets $Environments
+
+# Enable integration (Preview first in practice — script adds both if $Environments includes both)
+Add-VercelEnv -Name "CURSOR_INTEGRATION_ENABLED" -Value "true" -Targets $Environments
+
+Write-Host "Done. Redeploy Preview, run cursor-smoke / developer panel QA, then enable Production." -ForegroundColor Green
