@@ -2,6 +2,8 @@
 
 Last updated by agent: 2026-05-15 (branch `feature/cursor-integration`).
 
+**Multi-machine:** run `.\scripts\sync-cursor-branch.ps1` before editing.
+
 ## Done by agent
 
 - Staged and committed cursor integration polish: Turbopack `*.LICENSE.txt` rule in `next.config.js`, pretool guard + tests, `.cursor/environment.json` + rules, cloud-environments doc + site page, cursor docs updates (`deploy.md`, `automation.md`, `sdk.md`, `overview.md`, `bugbot.md`).
