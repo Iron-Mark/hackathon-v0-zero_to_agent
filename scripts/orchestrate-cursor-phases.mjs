@@ -50,11 +50,21 @@ function run(command, commandArgs, options = {}) {
 }
 
 function npmRun(script) {
-  const result = spawnSync('npm', ['run', script], {
-    cwd: root,
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-  })
+  const npmExecPath = process.env.npm_execpath
+  const result = npmExecPath
+    ? spawnSync(process.execPath, [npmExecPath, 'run', script], {
+        cwd: root,
+        stdio: 'inherit',
+      })
+    : process.platform === 'win32'
+      ? spawnSync('cmd.exe', ['/d', '/s', '/c', `npm run ${script}`], {
+          cwd: root,
+          stdio: 'inherit',
+        })
+      : spawnSync('npm', ['run', script], {
+          cwd: root,
+          stdio: 'inherit',
+        })
   if (result.error) throw result.error
   if (result.status !== 0) {
     throw new Error(`npm run ${script} exited with code ${result.status ?? 1}`)
@@ -92,6 +102,19 @@ function codexOnPath() {
       ? spawnSync('where.exe', ['codex'], { encoding: 'utf8' })
       : spawnSync('command', ['-v', 'codex'], { encoding: 'utf8', shell: true })
   return probe.status === 0 && Boolean(probe.stdout?.trim())
+}
+
+/** Node spawn cannot run npm's codex.ps1 directly on Windows; use cmd.exe /c. */
+function spawnCodex(commandArgs) {
+  const options = {
+    cwd: root,
+    stdio: ['ignore', 'inherit', 'inherit'],
+    shell: false,
+  }
+  if (process.platform === 'win32') {
+    return spawnSync('cmd.exe', ['/d', '/s', '/c', 'codex', ...commandArgs], options)
+  }
+  return spawnSync('codex', commandArgs, options)
 }
 
 function printCodexDiscoveryHelp() {
@@ -155,9 +178,14 @@ function invokeCodexHandoff(phase) {
     'codex',
     `exec model=${CODEX_MODEL} effort=${CODEX_REASONING_EFFORT} sandbox=${CODEX_SANDBOX} cwd=${root}`,
   )
-  const result = spawnSync('codex', handoffArgs, { cwd: root, stdio: 'inherit' })
+  const result = spawnCodex(handoffArgs)
+  if (result.error) {
+    log('codex', result.error.message)
+    printManualCodexSteps(phase)
+    return
+  }
   if (result.status !== 0) {
-    log('codex', 'Handoff failed or was cancelled; see manual steps below')
+    log('codex', `Handoff exited ${result.status ?? 1}; see manual steps below`)
     printManualCodexSteps(phase)
   }
 }
@@ -170,7 +198,7 @@ function reportCursorConfigFiles(step) {
     }
     log('files', `ok ${relative}`)
   }
-  log('phase-1', 'Cursor hooks, BUGBOT.md, hireproof-architecture skill, and pretool guard present.')
+  log('phase-1', 'Cursor hooks, environment.json, BUGBOT.md, rules, hireproof-architecture skill, and pretool guard present.')
 }
 
 function reportInternalRoutes() {

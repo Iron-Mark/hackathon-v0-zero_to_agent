@@ -43,7 +43,7 @@ Phase definitions live in [README.md](./README.md) inside the `cursor-orchestrat
 | Phase | Goal | Automated checks |
 | --- | --- | --- |
 | **0** | Baseline quality | `npm run lint`, `node --test` on `test/cursor*.test.mjs` (direct shell) |
-| **1** | Repo Cursor config | Required `.cursor/*` files + `scripts/cursor-pretool-guard.mjs` |
+| **1** | Repo Cursor config | Required `.cursor/*` files, project rules, cloud environment config, and `scripts/cursor-pretool-guard.mjs` |
 | **2** | SDK readiness (optional) | Import `@cursor/sdk` when `CURSOR_API_KEY` is set and `CURSOR_INTEGRATION_ENABLED=true`; else skip with message |
 | **3** | Deploy readiness | **Codex** read-only: 10-line checklist from `overview.md` + `deploy.md` |
 | **4** | Internal routes | Print how to call `/api/internal/cursor/*` locally; **no production calls** from the script |
@@ -99,6 +99,8 @@ Other common locations: `npm prefix -g` → `bin\codex.cmd`, `%USERPROFILE%\.loc
 
 If `npm run cursor:orchestrate` reports Codex missing, phases **0–2** and **4** still run; Phase **3** prints the manual `codex exec` line above.
 
+On **Windows**, npm installs `codex` as `codex.cmd` / `codex.ps1`; the orchestrator invokes `cmd.exe /c codex …` so Node `spawn` works from `npm run` without a TTY.
+
 ## Finding Codex CLI (do not hardcode paths)
 
 | Platform | Commands |
@@ -109,7 +111,9 @@ If `npm run cursor:orchestrate` reports Codex missing, phases **0–2** and **4*
 
 ## Pretool guard (required for agents)
 
-Cursor hooks run [`scripts/cursor-pretool-guard.mjs`](../../scripts/cursor-pretool-guard.mjs) before shell execution (see [`.cursor/hooks.json`](../../.cursor/hooks.json)). The orchestrator does **not** bypass hooks. Codex runs use **read-only** sandbox and must not invoke destructive patterns blocked by the guard.
+Cursor hooks run [`scripts/cursor-pretool-guard.mjs`](../../scripts/cursor-pretool-guard.mjs) before shell execution (see [`.cursor/hooks.json`](../../.cursor/hooks.json)). The hook emits Cursor permission JSON and uses `failClosed: true` so guard failures block execution instead of allowing risky shell commands through. The orchestrator does **not** bypass hooks. Codex runs use **read-only** sandbox and must not invoke destructive patterns blocked by the guard.
+
+Background/cloud agents use [`.cursor/environment.json`](../../.cursor/environment.json) to install dependencies with `npm ci` and keep `npm run dev` available in a terminal session.
 
 Prefer:
 
