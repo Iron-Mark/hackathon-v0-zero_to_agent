@@ -1,9 +1,14 @@
 # Archived Hackathon Strategy & Planning
 
-This directory contains the historical research, strategy, and planning documents generated during the **Zero to Agent** hackathon workstream. These files are preserved for context and process transparency.
+This directory contains the historical research, strategy, and planning documents generated during the **Cursor Hackathon** workstream. These files are preserved for context and process transparency.
 
 ## Live Documentation
 For the most up-to-date technical documentation, visit the **[Live Documentation Portal](https://hireproof.tech/docs)**.
+
+### Cursor integration
+- [`cursor/README.md`](./cursor/README.md): Index for Cursor SDK, MCP, Bugbot, QA, and architecture boundaries.
+- [`cursor/overview.md`](./cursor/overview.md): What Cursor must never own (verdicts) vs dev acceleration.
+- [`cursor/deep-research-report-HPROOF.md`](./cursor/deep-research-report-HPROOF.md): Full strategic research export (cleaned).
 
 ## Archived Contents
 
@@ -21,6 +26,7 @@ For the most up-to-date technical documentation, visit the **[Live Documentation
 - `live-chat-platform-proof-plan.md`: Step-by-step runbook for proving Discord, Telegram, and optional provider adapters with real production events.
 - `credentials-setup.md`: Step-by-step setup for Slack, Redis, Workflow, and AI Gateway credentials.
 - `automation-integrations.md`: Current n8n, Make, LangChain, HTTP template, and WDK boundary status.
+- `cursor-codex-research-agent-spec.md`: Cursor-primary local research workflow with opt-in Codex SDK fallback and saved JSON/Markdown reports.
 - `automation-marketplace-submission.md`: Account-backed submission runbook for npm, n8n, and Make.
 - `evidence-screenshot-checklist.md`: Screenshot and proof-capture checklist for submission and marketplace evidence.
 - `final-live-vs-pending-status.md`: Concise status boundary for what is live, repo-controlled, or externally pending.

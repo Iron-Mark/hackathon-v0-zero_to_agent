@@ -18,6 +18,7 @@ Options:
   --primary <provider>  cursor, codex, or none. Default: RESEARCH_AGENT_PRIMARY or cursor.
   --fallback <provider> cursor, codex, or none. Default: RESEARCH_AGENT_FALLBACK or codex.
   --enable-codex        Permit Codex SDK fallback for this run.
+  --timeout-ms <ms>     Per-provider timeout. Default: CODEX_AGENT_TIMEOUT_MS or 120000.
   --save                Save JSON and Markdown reports under artifacts/research-agent/.
   --out <path>          Save to a file or directory. .json writes JSON, .md writes Markdown.
   --json                Print only the JSON result.
@@ -47,6 +48,9 @@ function parseArgs(argv) {
       index += 1
     } else if (arg === '--fallback') {
       options.fallback = next
+      index += 1
+    } else if (arg === '--timeout-ms') {
+      options.timeoutMs = Number(next)
       index += 1
     } else if (arg === '--out' || arg === '-o') {
       options.out = next
@@ -148,6 +152,7 @@ async function main() {
     primary: options.primary,
     fallback: options.fallback,
     enableCodex: options.enableCodex,
+    timeoutMs: Number.isFinite(options.timeoutMs) ? options.timeoutMs : undefined,
   })
   const artifacts = await writeArtifacts(result, options.out, options.save)
   if (artifacts.length) result.artifacts = artifacts

@@ -6,7 +6,7 @@ Last updated: 2026-05-10, Asia/Manila
 
 Fresh proof artifacts are stored at:
 
-`artifacts/post-hackathon-e2e/`
+`artifacts/cursor-hackathon-e2e/`
 
 ## Screenshots
 
@@ -28,7 +28,7 @@ Fresh proof artifacts are stored at:
 
 The proof set can be shared from:
 
-`artifacts/hireproof-post-hackathon-proof-set.zip`
+`artifacts/hireproof-cursor-hackathon-proof-set.zip`
 
 ## Use Order
 

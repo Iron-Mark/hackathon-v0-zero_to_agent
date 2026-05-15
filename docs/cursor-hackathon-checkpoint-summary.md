@@ -56,9 +56,9 @@ Keep the Cursor hackathon story active, evidence-first, and focused on moving Hi
 
 ## Proof Artifacts
 
-Fresh local Playwright screenshots and results are stored in `artifacts/post-hackathon-e2e/`.
+Fresh local Playwright screenshots and results are stored in `artifacts/cursor-hackathon-e2e/`.
 
-The packaged proof set is stored at `artifacts/hireproof-post-hackathon-proof-set.zip`.
+The packaged proof set is stored at `artifacts/hireproof-cursor-hackathon-proof-set.zip`.
 
 ## Public Distribution Updates
 

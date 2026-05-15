@@ -8,7 +8,7 @@ Employment-fraud trust and safety for suspicious job posts, recruiter messages, 
 
 HireProof helps a job seeker decide whether an opportunity is worth trusting before they apply or share personal data. Paste the post, message, screenshot, or URL. The agent extracts the claims, checks evidence, and returns a `Safe`, `Caution`, or `High-Risk` verdict with visible red flags, green flags, source receipts, and next steps.
 
-Built as a solo global hackathon project by [Mark Siazon](https://www.marksiazon.dev/) in just over one week for the [Vercel Zero to Agent Hackathon](https://community.vercel.com/hackathons/zero-to-agent).
+Built as a solo global hackathon project by [Mark Siazon](https://www.marksiazon.dev/) in just over one week for Cursor Hackathon.
 
 [![Production Demo](https://img.shields.io/badge/Production-hireproof.tech-111827?style=for-the-badge)](https://hireproof.tech)
 [![Docs](https://img.shields.io/badge/Docs-Live-2563eb?style=for-the-badge)](https://hireproof.tech/docs)
@@ -185,6 +185,7 @@ HireProof is one verification core exposed through multiple surfaces.
 | MCP endpoint | `POST /api/mcp` | Tool-compatible clients call investigation functions. |
 | ChatSDK | `/api/webhooks/slack`, `/api/webhooks/discord`, `/api/webhooks/telegram` | Communities ask the bot to check suspicious posts. |
 | WDK route | `/api/workflows/audit` | Starts asynchronous investigation work when credentials are configured. |
+| Cursor/Codex research agent | `npm run research:agent` | Local Cursor-first research with opt-in Codex SDK fallback and saved reports. |
 | CLI | `@hireproof/cli` | Terminal audits, JSON output, health checks, and Shield Sentinel TUI. |
 | SDK | `hireproof-sdk` | Typed API client for JavaScript and TypeScript projects. |
 | LangChain | `@hireproof/langchain` | Structured audit tool for LangChain pipelines. |
@@ -211,6 +212,15 @@ node --test test/runtime-wiring.test.mjs
 
 Demo fixtures work without provider keys. Live evidence mode needs model/search credentials such as AI Gateway or an OpenAI-compatible provider plus SerpApi. See [`docs/credentials-setup.md`](docs/credentials-setup.md).
 
+Local developer research can run through Cursor first and Codex SDK as fallback:
+
+```bash
+npm run research:agent -- --prompt "Check this suspicious recruiter message for job-scam signals"
+npm run research:agent -- --file ./job-post.txt --enable-codex --save
+```
+
+Saved research reports are written under `artifacts/research-agent/`, which is ignored because prompts may contain recruiter messages, URLs, or applicant-sensitive context.
+
 ## Environment Groups
 
 | Group | Variables |
@@ -225,6 +235,22 @@ Demo fixtures work without provider keys. Live evidence mode needs model/search 
 | Telegram | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_BOT_USERNAME` |
 | Optional provider adapters | `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET` |
 | Workflow | `WORKFLOW_SECRET` |
+| Cursor (optional) | `CURSOR_INTEGRATION_ENABLED`, `CURSOR_API_KEY`, `CURSOR_MODEL_ID`, `CURSOR_RUNTIME_DEFAULT`, `CURSOR_WEBHOOK_SECRET`, `CURSOR_MAX_CONCURRENT_RUNS`, `CURSOR_ALLOWED_REPO_URL` |
+
+## Cursor integration
+
+Cursor accelerates **contributor workflows** (repo health, docs drift, exploratory UI QA) from `/developer` and secured internal cron routes. It does **not** participate in public audit verdicts (`/api/audit`, `/api/v1/audit`, or MCP investigation truth paths).
+
+1. Copy Cursor variables from [`.env.example`](.env.example) into `.env.local`.
+2. Set `CURSOR_INTEGRATION_ENABLED=true` only after `CURSOR_API_KEY` is configured server-side.
+3. Pin cloud runs with `CURSOR_ALLOWED_REPO_URL` (falls back to `GITHUB_REPO_URL` when unset).
+4. Use **Developer portal → Cursor Agents** for preset runs, or call `POST /api/developer/cursor/runs` (session auth + same-origin CSRF).
+5. Schedule ops jobs with `x-cursor-job-secret` on:
+   - `GET /api/internal/cursor/nightly-repo-health`
+   - `POST /api/internal/cursor/ui-qa` (body: `{ "baseUrl": "https://your-preview.example" }`)
+6. Enable **Cursor Bugbot** in the Cursor dashboard and require its GitHub check on protected branches (see [`.github/workflows/cursor-integration.yml`](.github/workflows/cursor-integration.yml) comments).
+
+CI runs `npm run lint`, `npm run build`, and `node --test test/cursor*.test.mjs` without a Cursor API key.
 
 ## Architecture
 

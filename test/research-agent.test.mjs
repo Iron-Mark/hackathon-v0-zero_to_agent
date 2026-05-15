@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   buildResearchPrompt,
+  formatResearchMarkdown,
   parseCursorOutput,
   runResearchAgent,
 } from '../lib/research-agent.mjs'
@@ -126,6 +127,28 @@ test('Cursor text output is accepted when nested JSON is absent', () => {
   assert.equal(result.status, 'ok')
   assert.equal(result.summary, 'Plain research summary.')
   assert.deepEqual(result.findings, ['Plain research summary.'])
+})
+
+test('research markdown artifacts include summary, evidence, and provider attempts', () => {
+  const markdown = formatResearchMarkdown({
+    provider: 'codex',
+    status: 'ok',
+    summary: 'Codex fallback completed.',
+    findings: ['Suspicious salary claim.'],
+    evidence: ['Telegram-only handoff.'],
+    commands: ['npm run research:agent -- --enable-codex'],
+    nextSteps: ['Verify official careers page.'],
+    attempts: [
+      { provider: 'cursor', status: 'unavailable' },
+      { provider: 'codex', status: 'ok' },
+    ],
+  })
+
+  assert.match(markdown, /# HireProof Research Agent Report/)
+  assert.match(markdown, /Provider: codex/)
+  assert.match(markdown, /Codex fallback completed/)
+  assert.match(markdown, /Telegram-only handoff/)
+  assert.match(markdown, /cursor: unavailable/)
 })
 
 test('Cursor output accepts object and fenced JSON result payloads', () => {

@@ -290,6 +290,7 @@ function AuditContent() {
         const demoReport = buildDemoReport(chooseDemoVerdict(request.text))
         setStreamLogs(['Demo fixture loaded. No live source checks were run.'])
         setStreamEvents([{ type: 'log', message: 'Demo fixture loaded. No live source checks were run.', phase: 'report', status: 'complete', label: 'Demo fixture' }])
+        showToast('Demo fixture loaded. No live source checks were run.', 'info')
         setReport(demoReport)
         addReport(demoReport)
         return

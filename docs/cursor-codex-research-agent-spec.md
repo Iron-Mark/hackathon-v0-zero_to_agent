@@ -14,6 +14,7 @@ Run local research with:
 npm run research:agent -- --prompt "Check this suspicious recruiter message for job-scam signals"
 node scripts/research-agent.mjs --prompt "Check this suspicious recruiter message for job-scam signals"
 npm run research:agent -- --file ./job-post.txt --enable-codex
+npm run research:agent -- --file ./job-post.txt --enable-codex --save
 ```
 
 The result shape is stable:
@@ -31,6 +32,10 @@ The result shape is stable:
 ```
 
 Cursor is called with `cursor-agent -p ... --output-format json` and without `--force`, so the v1 path is research-only. Codex fallback uses `@openai/codex-sdk`, starts a thread in the current repository, and requests structured JSON output.
+
+Use `--save` to write both `report.json` and `report.md` under `artifacts/research-agent/`. Use `--out ./path/report.json`, `--out ./path/report.md`, or `--out ./path/to/directory` to control where reports are written.
+
+Use `--timeout-ms 30000` for quick smoke tests where a missing local agent should fail fast instead of blocking the terminal.
 
 ## Configuration
 
@@ -52,6 +57,18 @@ CODEX_AGENT_TIMEOUT_MS=120000
 - Do not use this tooling as a generic fraud/security platform.
 - Do not expose Cursor or Codex execution through a public API route.
 - Do not add `--force` to Cursor unless a later implementation explicitly changes the tool from research-only to code modification.
+- Keep saved reports out of git by default; `artifacts/research-agent/` is ignored because prompts may contain recruiter messages, URLs, or applicant-sensitive context.
+
+## Verification
+
+```bash
+node test/research-agent.test.mjs
+npm run lint
+node test/runtime-wiring.test.mjs
+npm run build:verify
+```
+
+If `npm run build` fails in a restricted container with `listen EPERM 127.0.0.1`, rerun in an environment that allows Next.js to bind its local worker socket or use `npm run build:verify` for the lower-variance webpack path with telemetry disabled and an explicit Node heap limit.
 
 ## References
 
