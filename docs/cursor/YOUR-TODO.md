@@ -6,16 +6,18 @@ Last updated by agent: 2026-05-15 (branch `feature/cursor-integration`).
 
 - Staged and committed cursor integration polish: Turbopack `*.LICENSE.txt` rule in `next.config.js`, pretool guard + tests, `.cursor/environment.json` + rules, cloud-environments doc + site page, cursor docs updates (`deploy.md`, `automation.md`, `sdk.md`, `overview.md`, `bugbot.md`).
 - Pushed `feature/cursor-integration` to `origin`; PR [#2](https://github.com/Iron-Mark/Hackathon-HireProof/pull/2) includes all commits (see PR comment for SHAs).
+- **CI fix:** `package-lock.json` regenerated with `npx npm@10.8.2 install --package-lock-only`; `overrides` for `@swc/helpers@0.5.21` and `chokidar@5.0.0` (commit after `6c0b727`).
 - **Verify:** `npm run lint` pass; `node --test test/cursor*.test.mjs` **10/10** pass; `npm run cursor:orchestrate -- --no-codex` pass; full `npm run cursor:orchestrate` pass (Codex deploy checklist phase 3).
 - **Build:** `npm run build` — Turbopack compiles; on Windows, delete `.next` if a stale workflow `.map` write fails, then rebuild.
 - **Vercel CLI:** `vercel whoami` → `iron-mark`; project linked (`iron-marks-projects/hireproof`). `vercel env ls` — **no `CURSOR_*` variables yet** (existing app secrets only; values **Encrypted** in CLI).
-- Example env script: `scripts/vercel-cursor-env-setup.ps1.example` (placeholders + commented `vercel env add` for Preview + Production).
+- Interactive env script: `scripts/setup-cursor-secrets.ps1` (prompts for API key, auto-generates webhook secret, sets Preview + Production).
+- Non-interactive / example: `scripts/vercel-cursor-env-setup.ps1` or `scripts/vercel-cursor-env-setup.ps1.example`.
 - PR comment posted with commit SHAs, doc links, test summary, and manual `CURSOR_API_KEY` note.
 
 ## You must do
 
-1. **Review and merge PR #2** when CI is green — [https://github.com/Iron-Mark/Hackathon-HireProof/pull/2](https://github.com/Iron-Mark/Hackathon-HireProof/pull/2). Do not merge until you approve.
-2. **Set Vercel secrets** — Copy `scripts/vercel-cursor-env-setup.ps1.example` → `scripts/vercel-cursor-env-setup.ps1`, fill placeholders, run **Preview first**; or use Dashboard → Environment Variables. Paste `CURSOR_API_KEY` from Cursor Cloud Agents (never commit).
+1. **Review and merge PR #2** when CI is green — [https://github.com/Iron-Mark/Hackathon-HireProof/pull/2](https://github.com/Iron-Mark/Hackathon-HireProof/pull/2). Do not merge until you approve. (Lockfile sync pushed by agent; re-check `lint-build-cursor-tests`.)
+2. **Set Vercel secrets** — From repo root run `.\scripts\setup-cursor-secrets.ps1` (interactive; Preview + Production). Or copy `scripts/vercel-cursor-env-setup.ps1.example` → `scripts/vercel-cursor-env-setup.ps1`, fill placeholders. Paste `CURSOR_API_KEY` from Cursor Cloud Agents (never commit).
 3. **Generate and set** `CURSOR_WEBHOOK_SECRET` (32-byte hex) on Preview + schedulers; see [deploy.md](./deploy.md).
 4. **Set** `CURSOR_INTEGRATION_ENABLED=true` only after Preview smoke passes; redeploy.
 5. **Enable Cursor Bugbot** in the Cursor dashboard for this repo (rules in `.cursor/BUGBOT.md`).
@@ -25,14 +27,16 @@ Last updated by agent: 2026-05-15 (branch `feature/cursor-integration`).
 
 ### Quick secrets (PowerShell, from repo root)
 
-Replace placeholders; run Preview lines first, Production after QA.
+Preferred:
 
 ```powershell
-$k = '<CURSOR_API_KEY>'; $s = '<32_BYTE_HEX>'; $repo = 'https://github.com/Iron-Mark/Hackathon-HireProof'
-$k | vercel env add CURSOR_API_KEY preview; $s | vercel env add CURSOR_WEBHOOK_SECRET preview
-$repo | vercel env add CURSOR_ALLOWED_REPO_URL preview; 'composer-2' | vercel env add CURSOR_MODEL_ID preview
-'cloud' | vercel env add CURSOR_RUNTIME_DEFAULT preview; '2' | vercel env add CURSOR_MAX_CONCURRENT_RUNS preview
-# After Preview smoke: repeat for production; then: 'true' | vercel env add CURSOR_INTEGRATION_ENABLED preview
+.\scripts\setup-cursor-secrets.ps1
+```
+
+Dry-run (no `vercel env add`):
+
+```powershell
+.\scripts\setup-cursor-secrets.ps1 -DryRun
 ```
 
 ## CI note (check PR)
