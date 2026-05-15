@@ -11,7 +11,7 @@
 
 ## TypeScript SDK in the developer portal
 
-**Priority:** Highest  
+**Priority:** Highest
 **Effort:** Medium (product implementation Phase 2)
 
 Cursor's official TypeScript SDK (`@cursor/sdk`) lets HireProof expose programmatic agent runs from the existing developer portal. The implemented shape is a secured `POST /api/developer/cursor/runs` route backed by `lib/cursor`, recording run metadata/status in the developer UI, and aligned with existing developer-route patterns: authenticated session, mutation-origin validation, rate limits, and secret redaction.
