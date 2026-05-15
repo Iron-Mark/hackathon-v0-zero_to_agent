@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   AlertTriangle,
+  ArrowRight,
   Bot,
   CheckCircle2,
   Clock3,
@@ -97,6 +98,54 @@ const proofStats = [
   { icon: Terminal, label: 'CLI', value: 'TUI screenshot' },
 ]
 
+const judgeProofCards = [
+  {
+    icon: Terminal,
+    label: 'Built with Cursor/Codex',
+    title: 'A focused job-scam product, not a generic fraud demo',
+    body: 'Cursor/Codex was used to ship the public proof UX, evidence-first report framing, docs navigation, and judge-safe copy that keeps every claim tied to employment fraud.',
+  },
+  {
+    icon: Server,
+    label: 'Live now',
+    title: 'Production app and core audit entry point',
+    body: 'Judges can open the public Vercel app, paste a suspicious job post or recruiter message, and inspect the visible safety verdict flow.',
+  },
+  {
+    icon: AlertTriangle,
+    label: 'Demo boundary',
+    title: 'Deterministic demo reports are clearly marked',
+    body: 'The quick demo is built for reliable evaluation and screenshots. It should be read as a seeded job-scam walkthrough, not proof of every live provider path.',
+  },
+  {
+    icon: PlugZap,
+    label: 'BYOK / pilot',
+    title: 'Live provider checks depend on owner credentials',
+    body: 'Model and search-provider backed evidence runs are BYOK-first for cost, privacy, and pilot control. The developer portal is the place to configure those credentials.',
+  },
+]
+
+const judgeTryLinks = [
+  {
+    href: 'https://hireproof.tech',
+    label: 'Open live app',
+    status: 'production',
+    body: 'Public URL for the deployed HireProof job-scam checker.',
+  },
+  {
+    href: '/audit?demo=high-risk',
+    label: 'Run quick demo',
+    status: 'demo fixture',
+    body: 'Seeded high-risk job-scam report for fast judging and screenshots.',
+  },
+  {
+    href: '/developer',
+    label: 'Review BYOK setup',
+    status: 'credentialed live path',
+    body: 'API keys, webhooks, and provider credential controls for pilots.',
+  },
+]
+
 const packagedSurfaces = [
   { icon: PlugZap, text: 'Runtime MCP tools for company, news, jobs, and local footprint evidence.' },
   { icon: Network, text: 'Published npm packages for CLI, SDK, LangChain, and n8n; Make source pack plus portable HTTP templates.' },
@@ -155,20 +204,64 @@ export default function ProofPage() {
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-safe-bg bg-safe-bg px-3 py-1 text-xs font-black uppercase tracking-normal text-safe-text">
               <ShieldCheck className="h-4 w-4" />
-              Public proof
+              Cursor hackathon proof
             </div>
             <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-              Production proof for a focused job-scam product.
+              Production proof for a Cursor-built job-scam product.
             </h1>
             <p className="mt-5 max-w-2xl text-lg font-semibold leading-8 text-muted">
-              Use this page to evaluate the strongest working evidence behind HireProof: the live app, audit API smoke proof, chat delivery proof, packaged tools, and the accepted WDK workflow run.
+              Use this page to judge what was built with Cursor/Codex, what is live today, what is seeded demo proof, and where BYOK credentials unlock provider-backed evidence checks.
             </p>
           </div>
           <div className="rounded-2xl border border-border-soft bg-surface p-5">
             <div className="text-xs font-black uppercase tracking-normal text-muted">Safe public claim</div>
             <p className="mt-3 text-xl font-black leading-7">
-              HireProof is production-deployed, API-smoke-tested, Slack screenshot proof exists, and WDK accepted-run proof exists.
+              HireProof is production-deployed for employment-fraud checks, API-smoke-tested, Slack screenshot proof exists, and WDK accepted-run proof exists.
             </p>
+          </div>
+        </section>
+
+        <section className="mb-8 overflow-hidden rounded-2xl border border-border-soft bg-surface shadow-sm">
+          <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="p-5 sm:p-6">
+              <div className="mb-4 flex items-center gap-2">
+                <Target className="h-5 w-5 text-safe" />
+                <h2 className="text-lg font-black">Judge readout</h2>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {judgeProofCards.map((item) => (
+                  <div key={item.title} className="rounded-xl border border-border-soft bg-background p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-safe-bg text-safe">
+                        <item.icon className="h-4 w-4" />
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-normal text-muted">{item.label}</span>
+                    </div>
+                    <h3 className="text-sm font-black">{item.title}</h3>
+                    <p className="mt-2 text-xs font-semibold leading-5 text-muted">{item.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-border-soft bg-background p-5 sm:p-6 lg:border-l lg:border-t-0">
+              <div className="mb-4 text-xs font-black uppercase tracking-normal text-muted">Where to try it</div>
+              <div className="space-y-3">
+                {judgeTryLinks.map((item) => (
+                  <Link key={item.href} href={item.href} className="hireproof-focus group block rounded-xl border border-border-soft bg-surface p-4 transition-colors hover:border-safe/30 hover:bg-safe/5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-sm font-black">{item.label}</div>
+                        <div className="mt-1 text-xs font-semibold leading-5 text-muted">{item.body}</div>
+                      </div>
+                      <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-muted transition group-hover:text-safe" />
+                    </div>
+                    <div className="mt-3 inline-flex rounded-full bg-safe/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-normal text-safe">
+                      {item.status}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -349,4 +442,3 @@ export default function ProofPage() {
     </div>
   )
 }
-

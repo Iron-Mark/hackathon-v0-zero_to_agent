@@ -2,12 +2,13 @@
 
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { runResearchAgent } from '../lib/research-agent.mjs'
+import { formatResearchMarkdown, runResearchAgent } from '../lib/research-agent.mjs'
 
 function printHelp() {
   console.log(`HireProof research agent
 
 Usage:
+  npm run research:agent -- --prompt "Investigate this job post"
   node scripts/research-agent.mjs --prompt "Investigate this job post"
   node scripts/research-agent.mjs --file ./job-post.txt --enable-codex
 
@@ -17,6 +18,8 @@ Options:
   --primary <provider>  cursor, codex, or none. Default: RESEARCH_AGENT_PRIMARY or cursor.
   --fallback <provider> cursor, codex, or none. Default: RESEARCH_AGENT_FALLBACK or codex.
   --enable-codex        Permit Codex SDK fallback for this run.
+  --save                Save JSON and Markdown reports under artifacts/research-agent/.
+  --out <path>          Save to a file or directory. .json writes JSON, .md writes Markdown.
   --json                Print only the JSON result.
   --help                Show this help.
 `)
@@ -31,6 +34,7 @@ function parseArgs(argv) {
 
     if (arg === '--help' || arg === '-h') options.help = true
     else if (arg === '--json') options.json = true
+    else if (arg === '--save') options.save = true
     else if (arg === '--enable-codex') options.enableCodex = true
     else if (arg === '--prompt' || arg === '-p') {
       options.prompt = next
@@ -43,6 +47,9 @@ function parseArgs(argv) {
       index += 1
     } else if (arg === '--fallback') {
       options.fallback = next
+      index += 1
+    } else if (arg === '--out' || arg === '-o') {
+      options.out = next
       index += 1
     } else if (!options.prompt) {
       options.prompt = arg
@@ -81,6 +88,42 @@ function printReadable(result) {
   }
 }
 
+function safeStamp() {
+  return new Date().toISOString().replace(/[:.]/g, '-')
+}
+
+async function writeArtifacts(result, outPath, saveDefault) {
+  if (!outPath && !saveDefault) return []
+
+  const target = outPath
+    ? path.resolve(process.cwd(), outPath)
+    : path.resolve(process.cwd(), 'artifacts/research-agent', `research-${safeStamp()}`)
+  const ext = path.extname(target).toLowerCase()
+  const written = []
+
+  if (ext === '.json') {
+    await fs.mkdir(path.dirname(target), { recursive: true })
+    await fs.writeFile(target, `${JSON.stringify(result, null, 2)}\n`)
+    written.push(target)
+    return written
+  }
+
+  if (ext === '.md') {
+    await fs.mkdir(path.dirname(target), { recursive: true })
+    await fs.writeFile(target, formatResearchMarkdown(result))
+    written.push(target)
+    return written
+  }
+
+  await fs.mkdir(target, { recursive: true })
+  const jsonPath = path.join(target, 'report.json')
+  const markdownPath = path.join(target, 'report.md')
+  await fs.writeFile(jsonPath, `${JSON.stringify(result, null, 2)}\n`)
+  await fs.writeFile(markdownPath, formatResearchMarkdown(result))
+  written.push(jsonPath, markdownPath)
+  return written
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2))
   if (options.help) {
@@ -106,11 +149,18 @@ async function main() {
     fallback: options.fallback,
     enableCodex: options.enableCodex,
   })
+  const artifacts = await writeArtifacts(result, options.out, options.save)
+  if (artifacts.length) result.artifacts = artifacts
 
   if (options.json) {
     console.log(JSON.stringify(result, null, 2))
   } else {
     printReadable(result)
+    if (artifacts.length) {
+      console.log('')
+      console.log('Artifacts:')
+      for (const artifact of artifacts) console.log(`- ${artifact}`)
+    }
   }
 
   if (result.status !== 'ok') process.exitCode = 2

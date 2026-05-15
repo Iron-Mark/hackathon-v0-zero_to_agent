@@ -40,7 +40,7 @@ const cursorHackathonPaths = [
   {
     icon: ShieldAlert,
     title: 'Free demo',
-    body: 'Deterministic reports stay available for walkthroughs, screenshots, and quick evaluation without spending live provider budget.',
+    body: 'Seeded high-risk job-scam reports stay available for walkthroughs, screenshots, and quick evaluation without spending live provider budget.',
   },
   {
     icon: KeyRound,
@@ -50,7 +50,7 @@ const cursorHackathonPaths = [
   {
     icon: UsersRound,
     title: 'Pilot program',
-    body: 'Career communities, schools, recruiters, and job boards can test API keys, webhooks, verified domains, and exportable reports.',
+    body: 'Career communities, schools, recruiters, and job boards can test API keys, webhooks, verified-domain flows, and exportable employment-fraud reports.',
   },
 ]
 
@@ -358,14 +358,14 @@ export function HomeClient() {
             </div>
             <h2 className="text-3xl font-black tracking-tight md:text-4xl">From Cursor hackathon build to pilot-ready trust layer.</h2>
             <p className="text-sm font-semibold leading-6 text-muted">
-              HireProof is a focused product proof for the current Cursor hackathon: keep the public demo credible, make live provider usage BYOK-first, and help real communities screen suspicious opportunities.
+              HireProof is a focused product proof for the current Cursor hackathon: judges can see the live Vercel app, run a deterministic job-scam demo, and review which provider-backed checks are BYOK-first for pilots.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link href="/pilot" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-black">
                 Request pilot <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/portfolio" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border-soft bg-background px-4 py-2.5 text-sm font-black hover:bg-surface">
-                View case study
+              <Link href="/proof" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border-soft bg-background px-4 py-2.5 text-sm font-black hover:bg-surface">
+                Judge proof pack
               </Link>
               <Link href="/developer" className="hireproof-focus inline-flex items-center justify-center gap-2 rounded-lg border border-border-soft bg-background px-4 py-2.5 text-sm font-black hover:bg-surface">
                 Open Developer Portal

@@ -32,6 +32,7 @@
     "integrations:test": "node scripts/validate-integrations.mjs --test",
     "integrations:package": "node scripts/package-integrations.mjs",
     "research:agent": "node scripts/research-agent.mjs",
+    "test:research-agent": "node --test test/research-agent.test.mjs",
     "proof:chat-live": "node scripts/check-live-chat-proof.mjs",
     "proof:chat-live:strict": "node scripts/check-live-chat-proof.mjs --require-live",
     "discord:commands": "node scripts/register-discord-commands.mjs"

@@ -11,8 +11,9 @@ This is intentionally separate from the hosted audit flow. Production audits sti
 Run local research with:
 
 ```bash
+npm run research:agent -- --prompt "Check this suspicious recruiter message for job-scam signals"
 node scripts/research-agent.mjs --prompt "Check this suspicious recruiter message for job-scam signals"
-node scripts/research-agent.mjs --file ./job-post.txt --enable-codex
+npm run research:agent -- --file ./job-post.txt --enable-codex
 ```
 
 The result shape is stable:

@@ -127,3 +127,25 @@ test('Cursor text output is accepted when nested JSON is absent', () => {
   assert.equal(result.summary, 'Plain research summary.')
   assert.deepEqual(result.findings, ['Plain research summary.'])
 })
+
+test('Cursor output accepts object and fenced JSON result payloads', () => {
+  const objectResult = parseCursorOutput(JSON.stringify({
+    type: 'result',
+    result: JSON.parse(agentPayload('Object payload handled.')),
+  }))
+
+  assert.equal(objectResult.provider, 'cursor')
+  assert.equal(objectResult.status, 'ok')
+  assert.equal(objectResult.summary, 'Object payload handled.')
+  assert.deepEqual(objectResult.nextSteps, ['Ask for an official company careers-page link.'])
+
+  const fencedResult = parseCursorOutput(JSON.stringify({
+    type: 'result',
+    result: `\`\`\`json\n${agentPayload('Fenced payload handled.')}\n\`\`\``,
+  }))
+
+  assert.equal(fencedResult.provider, 'cursor')
+  assert.equal(fencedResult.status, 'ok')
+  assert.equal(fencedResult.summary, 'Fenced payload handled.')
+  assert.deepEqual(fencedResult.findings, ['Telegram-only contact is a job-scam risk signal.'])
+})
