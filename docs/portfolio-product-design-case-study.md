@@ -95,7 +95,7 @@ HireProof is one product core with multiple delivery surfaces:
 | Chatbot answer vs evidence report | Chose evidence report for trust and reviewability. |
 | Live-only demo vs deterministic fixture | Chose both, with visible labels and boundaries. |
 | More features vs clearer submission story | Prioritized proof-backed audit, three-track coverage, and package readiness. |
-| Public live usage vs cost exposure | Added guardrails and BYOK posture for post-hackathon life. |
+| Public live usage vs cost exposure | Added guardrails and BYOK posture for Cursor hackathon usage. |
 
 ## Outcome
 
@@ -111,4 +111,3 @@ HireProof shipped as a production-facing portfolio project, not just a prototype
 ## Portfolio Summary
 
 I designed HireProof around a real trust problem: suspicious job opportunities that look legitimate until the evidence fails. The product turns scattered manual checks into one proof-backed decision flow, with transparent reasoning and practical next steps.
-

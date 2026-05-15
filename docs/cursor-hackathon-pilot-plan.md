@@ -1,8 +1,8 @@
-# HireProof Post-Hackathon Startup Plan
+# HireProof Cursor Hackathon Pilot Plan
 
 Last updated: 2026-05-10, Asia/Manila
 
-HireProof shipped as a complete, production-facing Zero to Agent build. The final ranking was shaped by factors outside the product itself, including community-vote reach and distribution timing, so the right post-hackathon read is "validated a serious product direction and moved into pilot mode."
+HireProof is a complete, production-facing Cursor hackathon build. The current framing is active and product-centered: validate a serious job-scam verification direction and move into pilot mode.
 
 The next phase should keep the proof stable, protect provider spend, and validate whether real users want this as a community safety tool, developer API, or hiring-page trust signal.
 
@@ -13,13 +13,13 @@ The next phase should keep the proof stable, protect provider spend, and validat
 - Keep public demo paths live for evaluation.
 - Move serious live provider usage to BYOK-first controls.
 - Treat external marketplace approvals, Chrome Web Store publication, Discord proof, and completed WDK transcripts as proof-gated milestones.
-- Frame the hackathon result as outcome-independent: the controllable work was shipped, verified, deployed, and packaged; community-vote placement was not a pure product-quality measure.
+- Frame the hackathon story around controllable proof: shipped, verified, deployed, packaged, and ready for pilot validation.
 
 ## 90-Day Plan
 
 1. Stabilize production and cost posture.
    - Verify `https://hireproof.tech`, `/api/health`, `/audit`, `/developer`, and `/docs/pilot`.
-   - Set post-hackathon provider flags so public demo stays available without open-ended live provider spend.
+   - Set Cursor hackathon provider flags so public demo stays available without open-ended live provider spend.
    - Keep the Developer Portal as the entry point for API keys, usage, hosted BYOK, webhooks, and verified domains.
 
 2. Package a pilot offer.

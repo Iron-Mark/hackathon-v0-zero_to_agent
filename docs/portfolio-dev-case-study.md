@@ -65,7 +65,7 @@ Live evidence depends on configured model, search, OCR, and optional provider cr
 
 ### Cost Guardrails
 
-After-hackathon use can trigger real provider costs. The local after-hackathon plan adds flags and provider guards for model, SerpApi, Google Vision OCR, and Safe Browsing usage, with BYOK as the serious-usage path.
+Cursor hackathon use can trigger real provider costs. The local Cursor hackathon plan adds flags and provider guards for model, SerpApi, Google Vision OCR, and Safe Browsing usage, with BYOK as the serious-usage path.
 
 ### Package-Oriented Distribution
 
@@ -91,10 +91,9 @@ The project keeps proof and boundaries visible:
 - AI agent workflow design with evidence tools.
 - API and integration architecture.
 - Product-safe claims and proof documentation.
-- Launch assets, packages, release notes, and post-hackathon cost planning.
+- Launch assets, packages, release notes, and Cursor hackathon cost planning.
 - Ability to balance product design, UI/UX, engineering, and shipping discipline as a solo builder.
 
 ## Portfolio Summary
 
 HireProof shows how I build production-facing AI products: start with a painful user decision, design an evidence-first flow, expose the core through practical developer surfaces, verify what is real, and document the boundaries honestly.
-

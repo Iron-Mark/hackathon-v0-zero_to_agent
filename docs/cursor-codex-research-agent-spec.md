@@ -1,0 +1,61 @@
+# Cursor-Primary Research With Codex SDK Fallback
+
+## Summary
+
+HireProof now has a local research-agent contract for development and investigation workflows. Cursor remains the primary operator path through `cursor-agent`; Codex SDK is the opt-in fallback when Cursor is unavailable or fails.
+
+This is intentionally separate from the hosted audit flow. Production audits still use the existing Next.js routes, MCP tools, Vercel AI SDK, AI Gateway/OpenAI-compatible model fallback, evidence providers, and BYOK controls.
+
+## Runtime Contract
+
+Run local research with:
+
+```bash
+node scripts/research-agent.mjs --prompt "Check this suspicious recruiter message for job-scam signals"
+node scripts/research-agent.mjs --file ./job-post.txt --enable-codex
+```
+
+The result shape is stable:
+
+```json
+{
+  "provider": "cursor",
+  "status": "ok",
+  "summary": "...",
+  "findings": ["..."],
+  "evidence": ["..."],
+  "commands": ["..."],
+  "nextSteps": ["..."]
+}
+```
+
+Cursor is called with `cursor-agent -p ... --output-format json` and without `--force`, so the v1 path is research-only. Codex fallback uses `@openai/codex-sdk`, starts a thread in the current repository, and requests structured JSON output.
+
+## Configuration
+
+```env
+RESEARCH_AGENT_PRIMARY=cursor
+RESEARCH_AGENT_FALLBACK=codex
+CURSOR_AGENT_BIN=cursor-agent
+CURSOR_AGENT_MODEL=
+CODEX_SDK_ENABLED=false
+CODEX_MODEL=gpt-5.2-codex
+CODEX_AGENT_TIMEOUT_MS=120000
+```
+
+`CODEX_SDK_ENABLED=false` is the default because Codex is a local coding agent with workspace permissions. Enable fallback for a single run with `--enable-codex`, or set `CODEX_SDK_ENABLED=true` in local development.
+
+## Scope Rules
+
+- Keep research centered on employment fraud, job scams, suspicious job posts, recruiter messages, job URLs, and HireProof provider wiring.
+- Do not use this tooling as a generic fraud/security platform.
+- Do not expose Cursor or Codex execution through a public API route.
+- Do not add `--force` to Cursor unless a later implementation explicitly changes the tool from research-only to code modification.
+
+## References
+
+- OpenAI Codex SDK TypeScript README: https://github.com/openai/codex/blob/main/sdk/typescript/README.md
+- OpenAI Codex general availability note: https://openai.com/index/codex-now-generally-available/
+- Cursor CLI overview: https://docs.cursor.com/en/cli/overview
+- Cursor CLI output format: https://docs.cursor.com/en/cli/reference/output-format
+- Cursor headless mode: https://docs.cursor.com/en/cli/headless

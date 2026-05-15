@@ -64,13 +64,13 @@ test('Google Vision OCR is disabled by public env flag before calling provider',
   assert.match(source, /Google Vision OCR is disabled/)
 })
 
-test('public audit and trends routes gate platform-paid live providers after hackathon', async () => {
+test('public audit and trends routes gate platform-paid live providers during Cursor hackathon', async () => {
   const auditRoute = await read('../app/api/audit/route.ts')
   const trendsRoute = await read('../app/api/intelligence/trends/route.ts')
 
   assert.match(auditRoute, /PUBLIC_LIVE_AUDIT_ENABLED/)
   assert.match(auditRoute, /checkProviderCostGuard\('model'\)/)
-  assert.match(auditRoute, /public live audits are disabled/i)
+  assert.match(auditRoute, /public live audits are limited/i)
   assert.match(trendsRoute, /PUBLIC_TRENDS_EXTERNAL_SIGNALS_ENABLED/)
   assert.match(trendsRoute, /checkProviderCostGuard\('serpapi'\)/)
 })
@@ -80,13 +80,13 @@ test('API live audits can require BYOK and platform SerpApi calls are cost guard
   const broker = await read('../lib/evidence-broker.ts')
 
   assert.match(apiRoute, /REQUIRE_BYOK_FOR_LIVE_API/)
-  assert.match(apiRoute, /Platform live audit credentials are disabled/)
+  assert.match(apiRoute, /Platform live audit credentials are limited/)
   assert.match(broker, /checkProviderCostGuard\('serpapi'\)/)
   assert.match(broker, /checkProviderCostGuard\('safeBrowsing'\)/)
 })
 
-test('after-hackathon cost safety runbook documents provider controls', async () => {
-  const doc = await read('../docs/after-hackathon-cost-safety.md')
+test('Cursor hackathon cost safety runbook documents provider controls', async () => {
+  const doc = await read('../docs/cursor-hackathon-cost-safety.md')
 
   assert.match(doc, /GOOGLE_CLOUD_VISION_API_KEY/)
   assert.match(doc, /PUBLIC_LIVE_AUDIT_ENABLED=false/)
@@ -97,7 +97,7 @@ test('after-hackathon cost safety runbook documents provider controls', async ()
   assert.match(doc, /Google Cloud/i)
 })
 
-test('public audit UI explains capped live evidence mode after judging', async () => {
+test('public audit UI explains capped live evidence mode during judging', async () => {
   const source = await read('../app/audit/audit-client.tsx')
 
   assert.match(source, /\/api\/health/)

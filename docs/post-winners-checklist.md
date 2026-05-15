@@ -1,6 +1,6 @@
 # HireProof Post-Winners Checklist
 
-Use this after hackathon results are announced. Keep this local until public updates are safe.
+Use this when hackathon results are announced. Keep this local until public updates are safe.
 
 ## First Hour
 
@@ -37,11 +37,11 @@ Suggested line:
 
 ## Product Follow-Up
 
-- Keep public live usage cost-capped with the after-hackathon guardrails.
+- Keep public live usage cost-capped with the Cursor hackathon guardrails.
 - Keep BYOK as the serious-usage path for live model/search spend.
 - Recheck `/api/health`, `/audit`, `/docs`, and the v1.0 release page before sharing widely.
 - Recapture one fresh product screenshot after any public status update.
-- Avoid changing the core positioning away from job scams unless there is a deliberate post-hackathon product decision.
+- Avoid changing the core positioning away from job scams unless there is a deliberate Cursor hackathon product decision.
 
 ## Product Design Follow-Up
 
@@ -81,4 +81,3 @@ Suggested line:
 - Do not claim broad fraud coverage.
 - Do not claim live Discord proof or completed WDK workflow proof unless captured.
 - Do not publish private logs, raw secrets, or screenshots with sensitive account data.
-

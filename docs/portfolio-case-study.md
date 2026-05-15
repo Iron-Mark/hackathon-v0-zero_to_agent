@@ -49,9 +49,9 @@ Portfolio line:
 
 > I built HireProof solo for a global hackathon in about one week: a production-deployed, proof-backed AI agent that helps job seekers verify suspicious opportunities before they apply or share sensitive data.
 
-## After-Hackathon Path
+## Cursor Hackathon Path
 
 - Keep the public app live as a portfolio, proof, and pilot-validation surface.
-- Keep provider spend capped with the after-hackathon cost-safety controls.
+- Keep provider spend capped with the Cursor hackathon cost-safety controls.
 - Move serious live usage toward BYOK credentials.
 - Continue external marketplace publication only where external account review is required.

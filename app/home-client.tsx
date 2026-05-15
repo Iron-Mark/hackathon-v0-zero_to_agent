@@ -36,7 +36,7 @@ const automationSurfaces = [
   { label: 'LangChain tool', detail: 'Structured tool wrapper and helpers', status: 'source-shipped' },
 ]
 
-const postHackathonPaths = [
+const cursorHackathonPaths = [
   {
     icon: ShieldAlert,
     title: 'Free demo',
@@ -219,7 +219,7 @@ export function HomeClient() {
             </motion.h1>
 
             <motion.div variants={fadeUp} custom={3} className="mx-auto mt-5 max-w-2xl text-lg font-medium leading-8 text-muted xl:mx-0 xl:max-w-xl">
-              <p>Check a recruiter message, job listing, freelance gig, internship, or scholarship or training offer before you share personal details. HireProof is moving from hackathon proof into pilot-ready job-scam verification for communities that need repeatable evidence.</p>
+              <p>Check a recruiter message, job listing, freelance gig, internship, or scholarship or training offer before you share personal details. HireProof is active in the Cursor hackathon as pilot-ready job-scam verification for communities that need repeatable evidence.</p>
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-col justify-center gap-3 sm:flex-row xl:justify-start">
@@ -354,11 +354,11 @@ export function HomeClient() {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-safe/30 bg-safe/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-safe">
               <Building2 className="h-3.5 w-3.5" />
-              Post-hackathon product path
+              Active Cursor hackathon path
             </div>
-            <h2 className="text-3xl font-black tracking-tight md:text-4xl">From hackathon build to pilot-ready trust layer.</h2>
+            <h2 className="text-3xl font-black tracking-tight md:text-4xl">From Cursor hackathon build to pilot-ready trust layer.</h2>
             <p className="text-sm font-semibold leading-6 text-muted">
-              HireProof shipped as a focused product proof, and the strongest next move is pilot validation: keep the public demo credible, make live provider usage BYOK-first, and help real communities screen suspicious opportunities.
+              HireProof is a focused product proof for the current Cursor hackathon: keep the public demo credible, make live provider usage BYOK-first, and help real communities screen suspicious opportunities.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link href="/pilot" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-black">
@@ -373,7 +373,7 @@ export function HomeClient() {
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
-            {postHackathonPaths.map((item) => (
+            {cursorHackathonPaths.map((item) => (
               <article key={item.title} className="rounded-2xl border border-border-soft bg-background p-5 shadow-sm">
                 <item.icon className="mb-4 h-5 w-5 text-safe" />
                 <h3 className="text-sm font-black">{item.title}</h3>

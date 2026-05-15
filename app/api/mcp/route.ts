@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       const ownerCredentials = apiAuth.isFallback ? {} : await getOwnerProviderCredentials(apiAuth.ownerId)
       if (requireByokForLiveApi() && !ownerCredentials.serpapiKey) {
         return new Response(JSON.stringify({
-          error: 'Platform MCP search credentials are disabled after hackathon submission. Add BYOK SerpApi credentials in the developer portal.',
+          error: 'Platform MCP search credentials are limited during the Cursor hackathon. Add BYOK SerpApi credentials in the developer portal.',
         }), { status: 503, headers: { 'Content-Type': 'application/json' } })
       }
       const result = await Promise.race([

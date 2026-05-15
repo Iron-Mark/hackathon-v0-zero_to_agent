@@ -13,7 +13,7 @@ const proofPoints = [
   'Production app on hireproof.tech with demo and API proof paths.',
   'Evidence-backed Safe, Caution, and High-Risk verdicts with visible reasoning.',
   'API, MCP, CLI, SDK, LangChain, n8n, Make, ChatSDK, WDK, and extension surfaces.',
-  'Post-hackathon cost controls and BYOK posture for serious live provider usage.',
+  'Cursor hackathon cost controls and BYOK posture for serious live provider usage.',
 ]
 
 const productDecisions = [
@@ -38,7 +38,7 @@ const buildTimeline = [
   ['Problem', 'Job seekers needed a quick trust checkpoint before sharing personal data or moving to off-platform chat.'],
   ['Product', 'The core flow became paste, extract claims, check evidence, return verdict, and show receipts.'],
   ['Engineering', 'The app shipped on Next.js with structured audit APIs, live/demo modes, MCP tools, and package-ready integrations.'],
-  ['Post-event', 'The result is now positioned as shipped proof moving into pilot validation, not as a negative outcome.'],
+  ['Cursor iteration', 'The current build is positioned as shipped proof moving into pilot validation during the Cursor hackathon.'],
 ]
 
 export default function PortfolioPage() {
@@ -58,10 +58,9 @@ export default function PortfolioPage() {
                 A shipped AI trust product for suspicious job opportunities.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-muted md:text-lg">
-                HireProof was built and shipped by Mark Siazon for Vercel Zero to Agent as a production-facing
-                job-scam verification agent. The final placement depended on community-vote reach as well as
-                product quality, but the controllable work is clear: app, API, proof pages, packages, docs, and a
-                pilot path.
+                HireProof is being built and refined by Mark Siazon for the Cursor hackathon as a production-facing
+                job-scam verification agent. The controllable work is clear: app, API, proof pages, packages, docs,
+                and a pilot path.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link href="/audit?demo=high-risk" className="hireproof-focus hireproof-cta-primary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-black">
@@ -115,8 +114,8 @@ export default function PortfolioPage() {
               <p className="text-sm font-black uppercase tracking-normal text-safe">Build path</p>
               <h2 className="mt-2 text-3xl font-black tracking-tight">From anxious user moment to reusable agent surface.</h2>
               <p className="mt-4 text-sm font-semibold leading-6 text-muted">
-                The public story should stay outcome-independent: the project shipped, the proof is visible, and the
-                next validation step is whether real communities and teams repeat the workflow.
+                The public story should stay evidence-first: the project is live, the proof is visible, and the next
+                validation step is whether real communities and teams repeat the workflow.
               </p>
             </div>
             <div className="space-y-3">

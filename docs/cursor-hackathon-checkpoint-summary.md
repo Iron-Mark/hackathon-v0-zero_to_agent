@@ -1,14 +1,14 @@
-# HireProof Post-Hackathon E2E Checkpoint Summary
+# HireProof Cursor Hackathon E2E Checkpoint Summary
 
 Last updated: 2026-05-10, Asia/Manila
 
 ## Purpose
 
-Turn the post-hackathon result into a positive, outcome-independent product story and move HireProof toward portfolio proof plus pilot validation.
+Keep the Cursor hackathon story active, evidence-first, and focused on moving HireProof toward portfolio proof plus pilot validation.
 
 ## Product Surfaces
 
-- `/portfolio`: public case study for the shipped product, proof points, build decisions, and post-event framing.
+- `/portfolio`: public case study for the shipped product, proof points, build decisions, and Cursor hackathon framing.
 - `/pilot`: pilot intake page for communities, schools, recruiters, job boards, and developer integrations.
 - `/pilot/admin`: authenticated pilot request export and lightweight product analytics view.
 - `/docs/pilot`: 90-day operating plan and public positioning boundary.
@@ -17,7 +17,7 @@ Turn the post-hackathon result into a positive, outcome-independent product stor
 ## Positioning
 
 - Lead with what shipped: app, API, proof pages, packages, docs, cost guardrails, and pilot path.
-- Explain the hackathon result without negativity: community-vote reach and distribution timing were outside full builder control.
+- Keep the hackathon framing active and focused on what is shipped, verified, and ready to test.
 - Avoid unsupported claims: no generic fraud-platform pivot, guaranteed detection, marketplace approval, continuous learning, or unverified completed workflow proof.
 
 ## Pilot Path
@@ -68,9 +68,9 @@ The packaged proof set is stored at `artifacts/hireproof-post-hackathon-proof-se
 - GitHub repo metadata now points homepage to `https://hireproof.tech/portfolio`.
 - GitHub description now mentions the live case study and pilot intake.
 - GitHub topics now include `pilot`, `portfolio`, `job-verification`, and `ai-safety`.
-- Copy-ready post drafts are stored in `docs/post-hackathon-public-posts.md`.
+- Copy-ready post drafts are stored in `docs/cursor-hackathon-public-posts.md`.
 - Copy-ready pilot outreach messages are stored in `docs/pilot-outreach-pack.md`.
-- Proof asset usage notes are stored in `docs/post-hackathon-proof-assets.md`.
+- Proof asset usage notes are stored in `docs/cursor-hackathon-proof-assets.md`.
 
 ## Personal Portfolio
 

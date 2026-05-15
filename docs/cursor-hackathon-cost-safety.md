@@ -1,12 +1,12 @@
-# After-Hackathon Cost Safety
+# Cursor Hackathon Cost Safety
 
 Last updated: 2026-05-05, Asia/Manila
 
-Use this runbook when keeping HireProof production live after the hackathon. The goal is to keep the portfolio/demo site online without letting public traffic spend unlimited provider budget.
+Use this runbook when keeping HireProof production live during the Cursor hackathon. The goal is to keep the portfolio/demo site online without letting public traffic spend unlimited provider budget.
 
 ## Recommended Production Mode
 
-Set these environment variables in Vercel after judging if you want the safest public posture:
+Set these environment variables in Vercel for the safest public judging and demo posture:
 
 ```env
 PUBLIC_LIVE_AUDIT_ENABLED=false

@@ -350,7 +350,7 @@ export async function POST(request: Request) {
   if (requireByokForLiveApi() && validated.mode !== 'demo' && !ownerHasByok) {
     await recordUsage({ ownerId: apiAuth.ownerId, apiKeyId: apiAuth.apiKeyId, endpoint: '/api/v1/audit', status: 503 })
     return new Response(JSON.stringify({
-      error: 'Platform live audit credentials are disabled after hackathon submission. Use mode=demo or add BYOK model/search credentials in the developer portal.',
+      error: 'Platform live audit credentials are limited during the Cursor hackathon. Use mode=demo or add BYOK model/search credentials in the developer portal.',
       missing: ['owner BYOK MODEL_PROVIDER_KEY or SERPAPI_API_KEY'],
       recovery: 'Use mode=demo for fixtures or add live credentials through the developer portal BYOK settings.',
     }), { status: 503, headers: { 'Content-Type': 'application/json' } })

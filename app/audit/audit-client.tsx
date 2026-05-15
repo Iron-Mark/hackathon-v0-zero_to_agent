@@ -272,6 +272,7 @@ function AuditContent() {
     setError(null)
     setStreamLogs(['Demo fixture loaded. No live source checks were run.'])
     setStreamEvents([{ type: 'log', message: 'Demo fixture loaded. No live source checks were run.', phase: 'report', status: 'complete', label: 'Demo fixture' }])
+    showToast('Demo fixture loaded. No live source checks were run.', 'info')
     addReport(demoReport)
   }, [searchParams, addReport])
 

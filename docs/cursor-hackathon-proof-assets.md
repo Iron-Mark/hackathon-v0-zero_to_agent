@@ -1,4 +1,4 @@
-# HireProof Post-Hackathon Proof Assets
+# HireProof Cursor Hackathon Proof Assets
 
 Last updated: 2026-05-10, Asia/Manila
 

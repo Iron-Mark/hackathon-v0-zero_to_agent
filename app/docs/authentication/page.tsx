@@ -21,7 +21,7 @@ export default function Page() {
         </p>
         <CodeBlock title="Request Header" code={`x-api-key: your_secret_api_key`} />
         <div className="rounded-lg border border-safe/20 bg-safe/5 px-4 py-3 text-xs font-bold text-safe">
-          The public demo key <code className="font-mono">hireproof_agent_demo_key</code> remains active for demo-mode testing. Post-hackathon live provider runs should use owner BYOK credentials.
+          The public demo key <code className="font-mono">hireproof_agent_demo_key</code> remains active for demo-mode testing. Live provider runs during the Cursor hackathon should use owner BYOK credentials.
         </div>
       </section>
 

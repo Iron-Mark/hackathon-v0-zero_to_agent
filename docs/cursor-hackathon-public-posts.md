@@ -1,8 +1,8 @@
-# HireProof Post-Hackathon Public Posts
+# HireProof Cursor Hackathon Public Posts
 
 Last updated: 2026-05-10, Asia/Manila
 
-Use these after checking the live links. Keep the framing outcome-independent: the ranking depended partly on community-vote reach and distribution timing, but the shipped work is the product proof.
+Use these after checking the live links. Keep the framing active for the Cursor hackathon: the shipped work is the product proof.
 
 ## Primary Links
 
@@ -16,11 +16,11 @@ Use these after checking the live links. Keep the framing outcome-independent: t
 
 ## LinkedIn
 
-I built and shipped HireProof solo for the Vercel Zero to Agent global hackathon.
+I built and shipped HireProof for the Cursor hackathon.
 
 HireProof is a proof-backed job scam verification agent: paste a job post, recruiter message, screenshot, or apply link, and it returns a Safe, Caution, or High-Risk verdict with visible evidence, red flags, green flags, and next steps.
 
-The final ranking was partly shaped by community-vote reach and distribution timing, which is not fully within a builder's control. The controllable work was the product:
+The controllable work is the product:
 
 - Production app
 - Evidence-backed audit flow
@@ -29,7 +29,7 @@ The final ranking was partly shaped by community-vote reach and distribution tim
 - Cost guardrails and BYOK posture
 - Public case study and pilot path
 
-That is the real takeaway for me: I shipped a serious product direction, and now the next step is pilot validation with communities, schools, recruiters, job boards, and builders who care about safer hiring workflows.
+The next step is pilot validation with communities, schools, recruiters, job boards, and builders who care about safer hiring workflows.
 
 Live app: https://hireproof.tech
 
@@ -43,11 +43,11 @@ Personal portfolio case study entry: https://www.marksiazon.dev
 
 ## X / Twitter
 
-I built and shipped HireProof solo for a global hackathon.
+I built and shipped HireProof for the Cursor hackathon.
 
 Paste a suspicious job post, recruiter message, screenshot, or apply link. HireProof checks evidence and returns Safe, Caution, or High-Risk with proof.
 
-The result is bigger than a ranking: app, API, packages, docs, proof pages, and a pilot path.
+The product proof is live: app, API, packages, docs, proof pages, and a pilot path.
 
 Demo: https://hireproof.tech/audit?demo=high-risk
 
@@ -55,7 +55,7 @@ Demo: https://hireproof.tech/audit?demo=high-risk
 
 I shipped HireProof, a proof-backed AI agent for checking suspicious job posts before someone applies or shares personal data.
 
-It was built solo for Zero to Agent, and I am keeping it live as a product proof and pilot path. The final hackathon result was partly shaped by community-vote reach, but the controllable work is shipped: app, API, docs, packages, proof pages, and a live demo.
+It is active for the Cursor hackathon as a product proof and pilot path. The controllable work is shipped: app, API, docs, packages, proof pages, and a live demo.
 
 Try it: https://hireproof.tech/audit?demo=high-risk
 
@@ -69,7 +69,7 @@ Portfolio: https://www.marksiazon.dev
 
 Proof-backed job scam verification agent for suspicious job posts, recruiter messages, screenshots, and apply links.
 
-Built and shipped solo by Mark Siazon for Vercel Zero to Agent. The product turns a high-risk job-seeker decision into a visible evidence workflow: extract claims, check public signals, return a Safe/Caution/High-Risk verdict, and show the receipts.
+Built and shipped by Mark Siazon for the Cursor hackathon. The product turns a high-risk job-seeker decision into a visible evidence workflow: extract claims, check public signals, return a Safe/Caution/High-Risk verdict, and show the receipts.
 
 Links:
 

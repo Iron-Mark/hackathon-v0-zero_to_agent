@@ -309,7 +309,7 @@ export async function POST(request: Request) {
         sendEvent('log', { message: serpApiOperationalStatus.message, phase: 'guardrail', status: 'blocked', label: 'Search guardrail' })
       }
       if (!publicLiveEnabled && validated.mode !== 'demo') {
-        sendEvent('log', { message: 'Public live audits are disabled after hackathon submission to protect provider budgets. Deterministic checks and BYOK/API paths remain available.', phase: 'guardrail', status: 'blocked', label: 'Cost guard' })
+        sendEvent('log', { message: 'Public live audits are limited during the Cursor hackathon to protect provider budgets. Deterministic checks and BYOK/API paths remain available.', phase: 'guardrail', status: 'blocked', label: 'Cost guard' })
       }
       sendEvent('log', { message: 'Preparing input and enrichment checks...', phase: 'intake', status: 'active', label: 'Intake' })
       if (validated.image || validated.url) {

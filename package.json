@@ -31,6 +31,7 @@
     "integrations:build": "node scripts/validate-integrations.mjs --build",
     "integrations:test": "node scripts/validate-integrations.mjs --test",
     "integrations:package": "node scripts/package-integrations.mjs",
+    "research:agent": "node scripts/research-agent.mjs",
     "proof:chat-live": "node scripts/check-live-chat-proof.mjs",
     "proof:chat-live:strict": "node scripts/check-live-chat-proof.mjs --require-live",
     "discord:commands": "node scripts/register-discord-commands.mjs"
@@ -88,6 +89,8 @@
     "undici": "^7.25.0"
   },
   "devDependencies": {
+    "@openai/codex": "^0.130.0",
+    "@openai/codex-sdk": "^0.130.0",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
