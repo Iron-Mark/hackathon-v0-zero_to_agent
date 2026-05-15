@@ -24,6 +24,7 @@ function Get-AllowedRepoUrlFromGit {
     param([string]$Fallback)
     try {
         $remote = & git remote get-url origin 2>$null
+        $remote = ($remote -replace "`r`n|`n|`r", '').Trim()
         if (-not $remote) { return $Fallback }
         if ($remote -match '^git@github\.com:(.+?)(?:\.git)?$') {
             return "https://github.com/$($Matches[1])"
@@ -87,6 +88,7 @@ function Add-VercelEnv {
             continue
         }
         Write-Host "Adding $Name to $target..." -ForegroundColor Cyan
+        $Value = ($Value -replace "`r`n|`n|`r", '').Trim()
         $Value | & vercel env add $Name $target
         if ($LASTEXITCODE -ne 0) {
             throw "vercel env add failed for $Name ($target) with exit code $LASTEXITCODE"
