@@ -16,6 +16,7 @@
   "scripts": {
     "dev": "next dev -p 3002",
     "build": "next build",
+    "postbuild": "node scripts/patch-middleware-swc-trace.mjs",
     "build:webpack": "next build --webpack",
     "build:verify": "node scripts/next-build-verify.mjs",
     "start": "next start",
