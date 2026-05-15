@@ -1,5 +1,6 @@
 # HireProof — Cursor integration Vercel env setup (EXAMPLE)
-# Copy to vercel-cursor-env-setup.ps1, fill placeholders, run interactively.
+# Preferred: .\scripts\setup-cursor-secrets.ps1 (interactive)
+# Or copy to vercel-cursor-env-setup.ps1, fill placeholders, run.
 # Requires: Vercel CLI logged in (`vercel whoami`), repo linked (`vercel link`).
 # NEVER commit real secrets. Do not paste API keys into chat or git.
 #
